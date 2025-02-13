@@ -1,0 +1,305 @@
+final List<String> listSpor = ['Yüzme', 'Pilates', 'Jimnastik'];
+
+enum Spor { Yuzme, Pilates, Jimnastik }
+
+enum Genders {
+  Erkek,
+  Kadin;
+
+  @override
+  String toString() {
+    switch (this) {
+      case Erkek:
+        return "Erkek";
+      case Kadin:
+        return "Kadın";
+      default:
+        return "Unknown data";
+    }
+  }
+}
+
+enum EducationLevels {
+  Ilkokul,
+  Ortaokul,
+  Lise,
+  Lisans,
+  YuksekLisans,
+  Doktora;
+
+  @override
+  String toString() {
+    switch (this) {
+      case Ilkokul:
+        return "İlkokul";
+      case Ortaokul:
+        return "Ortaokul";
+      case Lisans:
+        return "Lisans";
+      case Lise:
+        return "Lise";
+      case Lisans:
+        return "Lisans";
+      case YuksekLisans:
+        return "Yüksek Lisans";
+      case Doktora:
+        return "Doktora";
+      default:
+        return "Unknown data";
+    }
+  }
+}
+
+enum Cities {
+  Adana,
+  Adiyaman,
+  Afyonkarahisar,
+  Agri,
+  Aksaray,
+  Amasya,
+  Ankara,
+  Antalya,
+  Ardahan,
+  Artvin,
+  Aydin,
+  Balikesir,
+  Bartin,
+  Batman,
+  Bayburt,
+  Bilecik,
+  Bingol,
+  Bitlis,
+  Bolu,
+  Burdur,
+  Bursa,
+  Canakkale,
+  Cankiri,
+  Corum,
+  Denizli,
+  Diyarbakir,
+  Duzce,
+  Edirne,
+  Elazig,
+  Erzincan,
+  Erzurum,
+  Eskisehir,
+  Gaziantep,
+  Giresun,
+  Gumushane,
+  Hakkari,
+  Hatay,
+  Igdir,
+  Isparta,
+  Istanbul,
+  Izmir,
+  Kahramanmaras,
+  Karabuk,
+  Karaman,
+  Kars,
+  Kastamonu,
+  Kayseri,
+  Kirikkale,
+  Kirklareli,
+  Kirsehir,
+  Kilis,
+  Kocaeli,
+  Konya,
+  Kutahya,
+  Malatya,
+  Manisa,
+  Mardin,
+  Mersin,
+  Mugla,
+  Mus,
+  Nevsehir,
+  Nigde,
+  Ordu,
+  Osmaniye,
+  Rize,
+  Sakarya,
+  Samsun,
+  Siirt,
+  Sinop,
+  Sivas,
+  Sanliurfa,
+  Sirnak,
+  Tekirdag,
+  Tokat,
+  Trabzon,
+  Tunceli,
+  Usak,
+  Van,
+  Yalova,
+  Yozgat,
+  Zonguldak;
+
+  @override
+  String toString() {
+    switch (this) {
+      case Cities.Adana:
+        return "Adana";
+      case Cities.Adiyaman:
+        return "Adıyaman";
+      case Cities.Afyonkarahisar:
+        return "Afyonkarahisar";
+      case Cities.Agri:
+        return "Ağrı";
+      case Cities.Aksaray:
+        return "Aksaray";
+      case Cities.Amasya:
+        return "Amasya";
+      case Cities.Ankara:
+        return "Ankara";
+      case Cities.Antalya:
+        return "Antalya";
+      case Cities.Ardahan:
+        return "Ardahan";
+      case Cities.Artvin:
+        return "Artvin";
+      case Cities.Aydin:
+        return "Aydın";
+      case Cities.Balikesir:
+        return "Balıkesir";
+      case Cities.Bartin:
+        return "Bartın";
+      case Cities.Batman:
+        return "Batman";
+      case Cities.Bayburt:
+        return "Bayburt";
+      case Cities.Bilecik:
+        return "Bilecik";
+      case Cities.Bingol:
+        return "Bingöl";
+      case Cities.Bitlis:
+        return "Bitlis";
+      case Cities.Bolu:
+        return "Bolu";
+      case Cities.Burdur:
+        return "Burdur";
+      case Cities.Bursa:
+        return "Bursa";
+      case Cities.Canakkale:
+        return "Çanakkale";
+      case Cities.Cankiri:
+        return "Çankırı";
+      case Cities.Corum:
+        return "Çorum";
+      case Cities.Denizli:
+        return "Denizli";
+      case Cities.Diyarbakir:
+        return "Diyarbakır";
+      case Cities.Duzce:
+        return "Düzce";
+      case Cities.Edirne:
+        return "Edirne";
+      case Cities.Elazig:
+        return "Elazığ";
+      case Cities.Erzincan:
+        return "Erzincan";
+      case Cities.Erzurum:
+        return "Erzurum";
+      case Cities.Eskisehir:
+        return "Eskişehir";
+      case Cities.Gaziantep:
+        return "Gaziantep";
+      case Cities.Giresun:
+        return "Giresun";
+      case Cities.Gumushane:
+        return "Gümüşhane";
+      case Cities.Hakkari:
+        return "Hakkari";
+      case Cities.Hatay:
+        return "Hatay";
+      case Cities.Igdir:
+        return "Iğdır";
+      case Cities.Isparta:
+        return "Isparta";
+      case Cities.Istanbul:
+        return "İstanbul";
+      case Cities.Izmir:
+        return "İzmir";
+      case Cities.Kahramanmaras:
+        return "Kahramanmaraş";
+      case Cities.Karabuk:
+        return "Karabük";
+      case Cities.Karaman:
+        return "Karaman";
+      case Cities.Kars:
+        return "Kars";
+      case Cities.Kastamonu:
+        return "Kastamonu";
+      case Cities.Kayseri:
+        return "Kayseri";
+      case Cities.Kirikkale:
+        return "Kırıkkale";
+      case Cities.Kirklareli:
+        return "Kırklareli";
+      case Cities.Kirsehir:
+        return "Kırşehir";
+      case Cities.Kilis:
+        return "Kilis";
+      case Cities.Kocaeli:
+        return "Kocaeli";
+      case Cities.Konya:
+        return "Konya";
+      case Cities.Kutahya:
+        return "Kütahya";
+      case Cities.Malatya:
+        return "Malatya";
+      case Cities.Manisa:
+        return "Manisa";
+      case Cities.Mardin:
+        return "Mardin";
+      case Cities.Mersin:
+        return "Mersin";
+      case Cities.Mugla:
+        return "Muğla";
+      case Cities.Mus:
+        return "Muş";
+      case Cities.Nevsehir:
+        return "Nevşehir";
+      case Cities.Nigde:
+        return "Niğde";
+      case Cities.Ordu:
+        return "Ordu";
+      case Cities.Osmaniye:
+        return "Osmaniye";
+      case Cities.Rize:
+        return "Rize";
+      case Cities.Sakarya:
+        return "Sakarya";
+      case Cities.Samsun:
+        return "Samsun";
+      case Cities.Siirt:
+        return "Siirt";
+      case Cities.Sinop:
+        return "Sinop";
+      case Cities.Sivas:
+        return "Sivas";
+      case Cities.Sanliurfa:
+        return "Şanlıurfa";
+      case Cities.Sirnak:
+        return "Şırnak";
+      case Cities.Tekirdag:
+        return "Tekirdağ";
+      case Cities.Tokat:
+        return "Tokat";
+      case Cities.Trabzon:
+        return "Trabzon";
+      case Cities.Tunceli:
+        return "Tunceli";
+      case Cities.Usak:
+        return "Uşak";
+      case Cities.Van:
+        return "Van";
+      case Cities.Yalova:
+        return "Yalova";
+      case Cities.Yozgat:
+        return "Yozgat";
+      case Cities.Zonguldak:
+        return "Zonguldak";
+      default:
+        return "Unknown City";
+    }
+  }
+}
