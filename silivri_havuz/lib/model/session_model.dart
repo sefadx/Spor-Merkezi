@@ -11,7 +11,7 @@ class SessionModel implements JsonProtocol {
   final DateTime date;
   String get dateString => format.format(date);
 
-  /// DateTime dateTimeStart ve dateTimeEnd değişkenleri oluşturulacak controllerden alınan text veriler utc 8086 formatına dönüştürülüp veritabanına dateTimeStart ve dateTimeEnd olarak Date tipinde kaydedilecek.
+  /// DateTime dateTimeStart dateTimeEnd değişkenleri oluşturulacak controllerden alınan text veriler utc 8086 formatına dönüştürülüp veritabanına dateTimeStart ve dateTimeEnd olarak Date tipinde kaydedilecek.
 
   final int capacity;
   final List<MemberModel> participants;
