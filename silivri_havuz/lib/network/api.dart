@@ -104,7 +104,10 @@ class APIService<T> {
 
   Future<BaseResponseModel<T>> getBaseResponseModel() async {
     try {
-      Response res = await http.get(Uri.parse(url)).onError((error, stackTrace) {
+      Response res = await http.get(Uri.parse(url), headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      }).onError((error, stackTrace) {
         debugPrint(error.toString());
         throw APIError(Errors.invalidUrl);
       });
@@ -128,6 +131,49 @@ class APIService<T> {
   }
 
   Future<BaseResponseModel> postJson(Map<String, dynamic> map) async {
+    /*String username = "muhammedeminekim";
+    String password = "aa78478c2db63b63b588916b4dea47cea71d7d3b";
+
+    String basicAuth = 'Basic ${base64.encode(utf8.encode('$username:$password'))}';
+    debugPrint("auth: $basicAuth");*/
+    debugPrint("API'ye giden veri: $map");
+    try {
+      Response res = await http
+          .post(
+        Uri.parse(url),
+        //headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8', 'authorization': basicAuth},
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: jsonEncode(map),
+      )
+          .onError((error, stackTrace) {
+        debugPrint(error.toString());
+        throw APIError(Errors.invalidUrl);
+      });
+
+      final decoded = jsonDecode(res.body);
+      if (decoded is! Map<String, dynamic>) {
+        debugPrint(decoded);
+        debugPrint(decoded.runtimeType.toString());
+        throw APIError(Errors.invalidResponseStatus);
+      }
+      debugPrint(jsonDecode(res.body).toString());
+      return BaseResponseModel.fromJson(map: jsonDecode(res.body));
+    } on APIError catch (err) {
+      debugPrint(err.message);
+      throw APIError(err.message);
+    } on FormatException catch (err) {
+      debugPrint(err.message);
+      throw FormatException(err.message);
+    } on Exception catch (err) {
+      debugPrint(err.toString());
+      throw APIError(Errors.decodeDataError);
+    }
+  }
+
+  Future postJsonReturnMap(Map<String, dynamic> map) async {
     /*String username = "muhammedeminekim";
     String password = "aa78478c2db63b63b588916b4dea47cea71d7d3b";
 
@@ -246,8 +292,7 @@ class BaseResponseModel<T> implements JsonProtocol {
 
   @override
   Map<String, dynamic> toJson() {
-    // TODO: implement toJson
-    throw UnimplementedError();
+    return {"status": status, "message": message, "data": data.toString()};
   }
 }
 

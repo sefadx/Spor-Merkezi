@@ -67,7 +67,7 @@ class _PageSessionsState extends State<PageSessions> {
                             return SessionCard(
                               sessionName: ViewModelHome.instance.sessions.value.elementAt(index).sessionName,
                               trainerName: ViewModelHome.instance.sessions.value.elementAt(index).trainerName,
-                              date: ViewModelHome.instance.sessions.value.elementAt(index).dateString,
+                              date: ViewModelHome.instance.sessions.value.elementAt(index).dateTimeStartString,
                               time: "10.00 - 12.00",
                               capacity: ViewModelHome.instance.sessions.value.elementAt(index).capacity.toString(),
                               onTapDetails: () {

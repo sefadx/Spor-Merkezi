@@ -42,10 +42,11 @@ class _FormContentState extends State<FormContent> {
             Row(children: [
               Expanded(
                   child: CustomLabelTextField(
-                      readOnly: widget.vm.readOnly,
-                      controller: widget.vm.identityController,
-                      label: "T.C. Kimlik No",
-                      validator: validateIdentityNumber)),
+                readOnly: widget.vm.readOnly,
+                controller: widget.vm.identityController,
+                label: "T.C. Kimlik No",
+                //validator: validateIdentityNumber
+              )),
               SizedBox(width: 30),
               Expanded(
                   child: CustomLabelTextField(

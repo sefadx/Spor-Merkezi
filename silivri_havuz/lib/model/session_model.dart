@@ -5,13 +5,18 @@ import '../utils/extension.dart';
 import 'member_model.dart';
 
 class SessionModel implements JsonProtocol {
-  SessionModel({required this.sessionName, required this.trainerName, required this.date, required this.capacity, required this.participants});
+  SessionModel(
+      {required this.sessionName,
+      required this.trainerName,
+      required this.dateTimeStart,
+      required this.dateTimeEnd,
+      required this.capacity,
+      required this.participants});
 
   final String sessionName, trainerName;
-  final DateTime date;
-  String get dateString => format.format(date);
-
-  /// DateTime dateTimeStart dateTimeEnd değişkenleri oluşturulacak controllerden alınan text veriler utc 8086 formatına dönüştürülüp veritabanına dateTimeStart ve dateTimeEnd olarak Date tipinde kaydedilecek.
+  final DateTime dateTimeStart, dateTimeEnd;
+  String get dateTimeStartString => format.format(dateTimeStart);
+  String get dateTimeEndString => format.format(dateTimeEnd);
 
   final int capacity;
   final List<MemberModel> participants;
@@ -20,7 +25,8 @@ class SessionModel implements JsonProtocol {
     return SessionModel(
         sessionName: json["sessionName"],
         trainerName: json["trainerName"],
-        date: json["date"],
+        dateTimeStart: json["dateTimeStart"],
+        dateTimeEnd: json["dateTimeEnd"],
         capacity: json["capacity"],
         participants: json["participants"]);
   }
@@ -30,7 +36,8 @@ class SessionModel implements JsonProtocol {
     return {
       'sessionName': sessionName,
       'trainerName': trainerName,
-      'date': date.millisecondsSinceEpoch,
+      'dateTimeStart': dateTimeStart.toIso8601String(),
+      'dateTimeEnd': dateTimeEnd.toIso8601String(),
       'capacity': capacity,
       'participants': participants,
     };

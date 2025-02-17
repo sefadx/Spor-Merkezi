@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:silivri_havuz/model/health_status.dart';
 import 'package:silivri_havuz/model/payment_status.dart';
 import '../navigator/custom_navigation_view.dart';
+import '../pages/alert_dialog.dart';
 import '../pages/info_popup.dart';
 import '../model/member_model.dart';
 import '../navigator/ui_page.dart';
 import '../network/api.dart';
 import '../utils/extension.dart';
+import 'home.dart';
 
 class ViewModelMemberDetails extends ChangeNotifier {
   ViewModelMemberDetails({this.readOnly = false}) {}
@@ -49,30 +51,49 @@ class ViewModelMemberDetails extends ChangeNotifier {
 
   onSave() async {
     debugPrint("onSave çalıştı.");
-    //BaseResponseModel<MemberModel> res = await APIService<MemberModel>(url: APIS.api.member()).getBaseResponseModel();
-    Map<String, dynamic> json = MemberModel(
-            identity: identityController.text,
-            name: nameController.text,
-            surname: surnameController.text,
-            birthDate: format.parse(birthdateController.text),
-            birthPlace: birthPlaceController.text,
-            gender: genderController.text,
-            educationLevel: educationLevelController.text,
-            phoneNumber: phoneController.text,
-            email: emailController.text,
-            address: addressController.text,
-            emergencyContactName: emergencyNameSurnameController.text,
-            emergencyContactPhoneNumber: emergencyPhoneNumberController.text,
-            paymentStatus: PaymentStatus(text: "text"),
-            healthStatusCheck: HealthStatus(text: "text"))
-        .toJson();
+    if (formKey.currentState!.validate() && birthdateController.text.isNotEmpty) {
+      if (await CustomRouter.instance.waitForResult(
+          const PageAlertDialog(title: "Uyarı", informationText: "Üye kaydı oluşturulacaktır. Onaylıyor musunuz ?"), ConfigAlertDialog)) {
+        Map<String, dynamic> json = MemberModel(
+                identity: identityController.text,
+                name: nameController.text,
+                surname: surnameController.text,
+                birthDate: format.parse(birthdateController.text),
+                birthPlace: birthPlaceController.text,
+                gender: genderController.text,
+                educationLevel: educationLevelController.text,
+                phoneNumber: phoneController.text,
+                email: emailController.text,
+                address: addressController.text,
+                emergencyContactName: emergencyNameSurnameController.text,
+                emergencyContactPhoneNumber: emergencyPhoneNumberController.text,
+                paymentStatus: PaymentStatus(text: "text"),
+                healthStatusCheck: HealthStatus(text: "text"))
+            .toJson();
 
-    BaseResponseModel res = await APIService<MemberModel>(url: APIS.api.member()).postJson(json);
+        BaseResponseModel res = await APIService<MemberModel>(url: APIS.api.member())
+            .postJson(json)
+            .onError((error, stackTrace) => BaseResponseModel(status: false, message: "Bilinmeyen bir hata oluştu"));
 
-    if (res.status) {
-      CustomRouter.instance.pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo);
-    }
+        if (res.status) {
+          ViewModelHome.instance.members.notifyListeners();
 
-    print(res.data?.birthDate.toString());
+          CustomRouter.instance.pushWidget(
+              child: PagePopupInfo(
+                title: "Bildirim",
+                informationText: res.message.toString(),
+                afterDelay: () => CustomRouter.instance.pop(),
+              ),
+              pageConfig: ConfigPopupInfo);
+        } else {
+          CustomRouter.instance.pushWidget(
+              child: PagePopupInfo(
+                title: "Bildirim",
+                informationText: res.message.toString(),
+              ),
+              pageConfig: ConfigPopupInfo);
+        }
+      }
+    } else {}
   }
 }

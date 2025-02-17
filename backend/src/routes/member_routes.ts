@@ -16,7 +16,7 @@ router.post("/", async (req: Request, res: Response) => {
     res.status(200).json(new BaseResponseModel(true, "Veri başarıyla eklendi", savedMember).toJson());
   } catch (error) {
     console.log(`API POST: "/member" => Post request failed. ${(error as Error).message}`);
-    res.status(400).json(new BaseResponseModel(false, "Veri eklenirken hata oluştu.", null).toJson());
+    res.status(400).json(new BaseResponseModel(false, "Veri eklenirken hata oluştu.").toJson());
     //res.status(400).json({ error: (error as Error).message });
   }
 });
