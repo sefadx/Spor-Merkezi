@@ -66,7 +66,8 @@ class APIS {
   APIS._instance();
 
   final String _baseAPI = "http://localhost:5001";
-  String member({String memberId = ""}) => "$_baseAPI/member/$memberId";
+  String member({String page = "1", String limit = "10", String search = ""}) => "$_baseAPI/member?page=$page&limit=$limit&search=$search";
+  String memberId({required String memberId}) => "$_baseAPI/member/$memberId";
   String variables() => "$_baseAPI/variables";
 }
 
@@ -251,12 +252,12 @@ class APIService<T> {
 
 class BaseResponseModel<T> implements JsonProtocol {
   BaseResponseModel({
-    required this.status,
+    required this.success,
     required this.message,
     this.data,
   });
 
-  bool status;
+  bool success;
   String message;
   T? data;
 
@@ -287,12 +288,12 @@ class BaseResponseModel<T> implements JsonProtocol {
         data = map["data"];
     }
 
-    return BaseResponseModel(status: map["status"], message: map["message"], data: data);
+    return BaseResponseModel(success: map["success"], message: map["message"], data: data);
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {"status": status, "message": message, "data": data.toString()};
+    return {"success": success, "message": message, "data": data.toString()};
   }
 }
 

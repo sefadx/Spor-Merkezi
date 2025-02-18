@@ -39,11 +39,14 @@ class ViewModelHome extends ChangeNotifier {
   }
 
   final ValueNotifier<List<SessionModel>> sessions = ValueNotifier([]);
-  final ValueNotifier<List<MemberModel>> members = ValueNotifier([]);
+  final TextEditingController sessionSearchTextEditingController = TextEditingController();
 
-  void fetchMember() async {
+  final ValueNotifier<List<MemberModel>> members = ValueNotifier([]);
+  final TextEditingController memberSearchTextEditingController = TextEditingController();
+
+  void fetchMember({String page = "1", String limit = "10", String search = ""}) async {
     members.value.clear();
-    BaseResponseModel res = await APIService(url: APIS.api.member()).getBaseResponseModel();
+    BaseResponseModel res = await APIService(url: APIS.api.member(limit: limit, page: page, search: search)).getBaseResponseModel();
     for (var element in ((res.data) as List)) {
       members.value.add(MemberModel.fromJson(json: element));
     }

@@ -1,18 +1,18 @@
 export class BaseResponseModel {
-  status: Boolean;
+  success: Boolean;
   message: String;
   data: any;
 
   // Normal signature with defaults
   constructor(status: Boolean, message: String, data?: any) {
-    this.status = status;
+    this.success = status;
     this.message = message;
     this.data = data;
   }
 
   toJson() {
     return {
-      status: this.status,
+      success: this.success,
       message: this.message,
       data: this.data,
     };

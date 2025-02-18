@@ -39,8 +39,7 @@ enum TransitionCustom {
   defaultTransition,
 }
 
-class CustomRouter extends RouterDelegate<PageConfiguration>
-    with ChangeNotifier, PopNavigatorRouterDelegateMixin<PageConfiguration> {
+class CustomRouter extends RouterDelegate<PageConfiguration> with ChangeNotifier, PopNavigatorRouterDelegateMixin<PageConfiguration> {
   CustomRouter._instance() : navigatorKey = GlobalKey<NavigatorState>() {
     _appState.addListener(() => notifyListeners());
   }
@@ -83,8 +82,7 @@ class CustomRouter extends RouterDelegate<PageConfiguration>
 
   @override
   Future<void> setNewRoutePath(configuration) {
-    final shouldAddPage =
-        _pages.isEmpty || (_pages.last.arguments as PageConfiguration?)?.uiPage != configuration.uiPage;
+    final shouldAddPage = _pages.isEmpty || (_pages.last.arguments as PageConfiguration?)?.uiPage != configuration.uiPage;
     if (shouldAddPage) {
       _pages.clear();
       addPage(pageConfig: configuration);
@@ -133,8 +131,7 @@ class CustomRouter extends RouterDelegate<PageConfiguration>
   }
 
   CustomPageRouteBuilder _createPage(Widget child, PageConfiguration pageConfig) {
-    return CustomPageRouteBuilder(
-        pageRouteSettings: pageConfig.pageRouteSettings, child: child, key: Key(pageConfig.key) as LocalKey);
+    return CustomPageRouteBuilder(pageRouteSettings: pageConfig.pageRouteSettings, child: child, key: Key(pageConfig.key) as LocalKey);
   }
 //------------------------------------------------------------------------------
 //  Base Methods
@@ -163,7 +160,7 @@ class CustomRouter extends RouterDelegate<PageConfiguration>
     addPage(pageConfig: pageConfig);
   }
 
-  void replacePushWidget(Widget child, PageConfiguration pageConfig) {
+  void replacePushWidget({required Widget child, required PageConfiguration pageConfig}) {
     pop();
     _addPageData(child, pageConfig);
     notifyListeners();

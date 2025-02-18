@@ -29,6 +29,7 @@ class _PageMembersState extends State<PageMembers> {
     vm.members.addListener(() {
       setState(() {});
     });
+
     super.initState();
   }
 
@@ -51,7 +52,11 @@ class _PageMembersState extends State<PageMembers> {
         body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              SearchAndFilter(onTap: () {}),
+              SearchAndFilter(
+                  controller: vm.memberSearchTextEditingController,
+                  onTap: () {
+                    vm.fetchMember(search: vm.memberSearchTextEditingController.text);
+                  }),
 
               SizedBox(height: 16),
 

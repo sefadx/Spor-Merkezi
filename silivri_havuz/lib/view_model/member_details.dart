@@ -73,12 +73,12 @@ class ViewModelMemberDetails extends ChangeNotifier {
 
         BaseResponseModel res = await APIService<MemberModel>(url: APIS.api.member())
             .postJson(json)
-            .onError((error, stackTrace) => BaseResponseModel(status: false, message: "Bilinmeyen bir hata oluştu"));
+            .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
 
-        if (res.status) {
-          ViewModelHome.instance.members.notifyListeners();
+        if (res.success) {
+          ViewModelHome.instance.fetchMember();
 
-          CustomRouter.instance.pushWidget(
+          CustomRouter.instance.replacePushWidget(
               child: PagePopupInfo(
                 title: "Bildirim",
                 informationText: res.message.toString(),
