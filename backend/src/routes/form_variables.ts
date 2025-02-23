@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { BaseResponseModel } from "../models/base_response";
-import { Cities, Genders, EducationLevels, HealthStatusChecks, PaymentStatus } from "../enums/lists";
+import { Cities, Genders, EducationLevels, HealthStatus, PaymentStatus } from "../enums/lists";
 
 var response: BaseResponseModel;
 const router = Router();
@@ -45,7 +45,7 @@ router.get("/:id?", async (req: Request, res: Response) => {
             ["Cities", Object.values(Cities)],
             ["Genders", Object.values(Genders)],
             ["EducationLevels", Object.values(EducationLevels)],
-            ["HealthStatusCheck", Object.values(HealthStatusChecks)],
+            ["HealthStatusCheck", Object.values(HealthStatus)],
             ["PaymentStatus", Object.values(PaymentStatus)],
         ]);
         console.log(map);

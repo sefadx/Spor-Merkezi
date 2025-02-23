@@ -99,7 +99,7 @@ export enum EducationLevels {
     Doktora = "Doktora",
 }
 
-export enum HealthStatusChecks {
+export enum HealthStatus {
     Saglikli = "Sağlıklı",
     KontrolEdiliyor = "Kontrol Ediliyor",
     Hasta = "Hasta",
@@ -111,3 +111,14 @@ export enum PaymentStatus {
     OdemeYapilmadi = "Ödeme Yapılmadı",
 }
 
+export enum PaymentMethods {
+    Nakit = "Nakit",
+    KrediKarti = "Kredi Kartı",
+    BankaHavalesi = "Banka Havalesi",
+}
+
+export enum SportTypes {
+    Yuzme = "Yüzme",
+    Pilates = "Pilates",
+    Jimnastik = "Jimnastik",
+}

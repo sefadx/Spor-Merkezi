@@ -25,7 +25,7 @@ class MemberModel implements JsonProtocol {
   String emergencyContactPhoneNumber;
 
   // Durum Kontrolü
-  HealthStatus? healthStatusCheck = HealthStatus(text: "Kontrol Yapılmadı");
+  HealthStatus? healthStatus = HealthStatus(text: "Kontrol Yapılmadı");
   PaymentStatus? paymentStatus = PaymentStatus(text: "Ödeme yapılmadı");
 
   MemberModel({
@@ -42,7 +42,7 @@ class MemberModel implements JsonProtocol {
     required this.address,
     required this.emergencyContactName,
     required this.emergencyContactPhoneNumber,
-    this.healthStatusCheck,
+    this.healthStatus,
     this.paymentStatus,
   });
 
@@ -83,7 +83,7 @@ class MemberModel implements JsonProtocol {
       address: json['address'],
       emergencyContactName: json['emergencyContact']['name'],
       emergencyContactPhoneNumber: json['emergencyContact']['phone'],
-      healthStatusCheck: HealthStatus(text: json['healthStatusCheck']),
+      healthStatus: HealthStatus(text: json['healthStatus']),
       paymentStatus: PaymentStatus(text: json['paymentStatus']),
     );
   }

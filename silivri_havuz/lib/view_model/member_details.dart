@@ -54,25 +54,24 @@ class ViewModelMemberDetails extends ChangeNotifier {
     if (formKey.currentState!.validate() && birthdateController.text.isNotEmpty) {
       if (await CustomRouter.instance.waitForResult(
           const PageAlertDialog(title: "Uyarı", informationText: "Üye kaydı oluşturulacaktır. Onaylıyor musunuz ?"), ConfigAlertDialog)) {
-        Map<String, dynamic> json = MemberModel(
-                identity: identityController.text,
-                name: nameController.text,
-                surname: surnameController.text,
-                birthDate: format.parse(birthdateController.text),
-                birthPlace: birthPlaceController.text,
-                gender: genderController.text,
-                educationLevel: educationLevelController.text,
-                phoneNumber: phoneController.text,
-                email: emailController.text,
-                address: addressController.text,
-                emergencyContactName: emergencyNameSurnameController.text,
-                emergencyContactPhoneNumber: emergencyPhoneNumberController.text,
-                paymentStatus: PaymentStatus(text: "text"),
-                healthStatusCheck: HealthStatus(text: "text"))
-            .toJson();
+        MemberModel model = MemberModel(
+            identity: identityController.text,
+            name: nameController.text,
+            surname: surnameController.text,
+            birthDate: format.parse(birthdateController.text),
+            birthPlace: birthPlaceController.text,
+            gender: genderController.text,
+            educationLevel: educationLevelController.text,
+            phoneNumber: phoneController.text,
+            email: emailController.text,
+            address: addressController.text,
+            emergencyContactName: emergencyNameSurnameController.text,
+            emergencyContactPhoneNumber: emergencyPhoneNumberController.text,
+            paymentStatus: PaymentStatus(text: "text"),
+            healthStatus: HealthStatus(text: "text"));
 
         BaseResponseModel res = await APIService<MemberModel>(url: APIS.api.member())
-            .postJson(json)
+            .post(model)
             .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
 
         if (res.success) {

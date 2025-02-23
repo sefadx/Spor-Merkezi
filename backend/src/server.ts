@@ -5,6 +5,10 @@ import dotenv from "dotenv";
 import memberRoutes from "./routes/member_routes";
 import variablesRoutes from "./routes/form_variables";
 
+//brew services start mongodb-community
+//brew services stop mongodb-community
+//npm run dev
+
 dotenv.config();
 
 const app = express();
@@ -21,6 +25,7 @@ mongoose
   .catch((err) => console.error(err));
 
 app.use("/member", memberRoutes);
+app.use("/session", memberRoutes);
 app.use("/variables", variablesRoutes);
 
 app.listen(PORT, () => {

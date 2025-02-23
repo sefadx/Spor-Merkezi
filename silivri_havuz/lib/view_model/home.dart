@@ -44,16 +44,29 @@ class ViewModelHome extends ChangeNotifier {
   final ValueNotifier<List<MemberModel>> members = ValueNotifier([]);
   final TextEditingController memberSearchTextEditingController = TextEditingController();
 
-  void fetchMember({String page = "1", String limit = "10", String search = ""}) async {
+  void fetchMember({int page = 1, int limit = 1000, String search = ""}) async {
     members.value.clear();
-    BaseResponseModel res = await APIService(url: APIS.api.member(limit: limit, page: page, search: search)).getBaseResponseModel();
+    BaseResponseModel res = await APIService(url: APIS.api.member(limit: limit, page: page, search: search))
+        .getBaseResponseModel()
+        .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
     for (var element in ((res.data) as List)) {
       members.value.add(MemberModel.fromJson(json: element));
     }
     members.notifyListeners();
-    debugPrint(res.data.toString());
   }
 
+  void fetchSession({int page = 1, int limit = 100}) async {
+    sessions.value.clear();
+    BaseResponseModel res = await APIService(url: APIS.api.session(page: page, limit: limit))
+        .getBaseResponseModel()
+        .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+    for (var element in ((res.data) as List)) {
+      sessions.value.add(SessionModel.fromJson(json: element));
+    }
+    sessions.notifyListeners();
+    debugPrint(res.data.toString());
+  }
+/*
   final List<String> listCities = [];
   final List<String> listGenders = [];
   final List<String> listMaritalStatus = [];
@@ -62,7 +75,7 @@ class ViewModelHome extends ChangeNotifier {
   final List<String> listHealthStatusCheck = [];
   final List<String> listPaymentStatus = [];
 
-  /*void fetchVariables() async {
+  void fetchVariables() async {
     BaseResponseModel<Map<String, dynamic>> res = await APIService<Map<String, dynamic>>(url: APIS.api.variables()).getBaseResponseModel();
     res.data?.forEach((key, value) {
       switch (key) {

@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../network/api.dart';
 import '../model/member_model.dart';
 import '../model/session_model.dart';
 import '../navigator/custom_navigation_view.dart';
 import '../navigator/ui_page.dart';
 import '../pages/alert_dialog.dart';
+import '../pages/info_popup.dart';
 import '../view_model/home.dart';
 import '../utils/extension.dart';
 
 class ViewModelSessionDetails extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
 
-  DateTime _dateTime = DateTime.now();
   DateTime _dateTimeStart = DateTime.now();
   DateTime _dateTimeEnd = DateTime.now();
 
@@ -28,38 +29,59 @@ class ViewModelSessionDetails extends ChangeNotifier {
 
   void save() async {
     if (formKey.currentState!.validate() && sessionPickedDate.text.isNotEmpty) {
-      ViewModelHome.instance.sessions.value.add(SessionModel(
-          sessionName: sessionPickedSportType.text,
-          trainerName: trainerController.text,
-          dateTimeStart: format.parse(sessionPickedTimeStart.text),
-          dateTimeEnd: format.parse(sessionPickedTimeEnd.text),
-          capacity: int.tryParse(maxParticipantsController.text)!,
-          participants: participantsPrimaryList));
       if (await CustomRouter.instance.waitForResult(
           const PageAlertDialog(title: "Uyarı", informationText: "Girdiğiniz bilgilere göre seans kaydı oluşturulacaktır. Onaylıyor musunuz ?"),
           ConfigAlertDialog)) {
-        ViewModelHome.instance.sessions.notifyListeners();
-        CustomRouter.instance.pop();
+        SessionModel model = SessionModel(
+            sessionName: sessionPickedSportType.text,
+            trainerName: trainerController.text,
+            dateTimeStart: format.parse(sessionPickedTimeStart.text),
+            dateTimeEnd: format.parse(sessionPickedTimeEnd.text),
+            capacity: int.tryParse(maxParticipantsController.text)!,
+            participants: participantsPrimaryList);
+
+        BaseResponseModel res = await APIService<SessionModel>(url: APIS.api.session())
+            .post(model)
+            .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+
+        if (res.success) {
+          ViewModelHome.instance.fetchMember();
+
+          CustomRouter.instance.replacePushWidget(
+              child: PagePopupInfo(
+                title: "Bildirim",
+                informationText: res.message.toString(),
+                afterDelay: () => CustomRouter.instance.pop(),
+              ),
+              pageConfig: ConfigPopupInfo);
+        } else {
+          CustomRouter.instance.pushWidget(
+              child: PagePopupInfo(
+                title: "Bildirim",
+                informationText: res.message.toString(),
+              ),
+              pageConfig: ConfigPopupInfo);
+        }
       }
-    } else {}
+    }
   }
 
   void pickDate(BuildContext context) async {
-    _dateTime = await selectDate(context, initialDate: sessionPickedDate.text != "" ? format.parse(sessionPickedDate.text) : null);
-    sessionPickedDate.text = format.format(_dateTime);
+    _dateTimeStart = await selectDate(context, initialDate: sessionPickedDate.text != "" ? format.parse(sessionPickedDate.text) : null);
+    sessionPickedDate.text = format.format(_dateTimeStart);
     notifyListeners();
   }
 
   void pickTimeStart(BuildContext context) async {
     TimeOfDay time = await selectTime(context, initialTime: TimeOfDay.now());
-    _dateTimeStart = DateTime(_dateTime.year, _dateTime.month, _dateTime.day, _dateTime.hour, _dateTime.minute);
+    _dateTimeStart = DateTime(_dateTimeStart.year, _dateTimeStart.month, _dateTimeStart.day, time.hour, time.minute);
     sessionPickedTimeStart.text = "${time.hour}:${time.minute}";
     notifyListeners();
   }
 
   void pickTimeEnd(BuildContext context) async {
     TimeOfDay time = await selectTime(context, initialTime: TimeOfDay.now());
-    _dateTimeEnd = DateTime(_dateTime.year, _dateTime.month, _dateTime.day, _dateTime.hour, _dateTime.minute);
+    _dateTimeEnd = DateTime(_dateTimeStart.year, _dateTimeStart.month, _dateTimeStart.day, time.hour, time.minute);
     sessionPickedTimeEnd.text = "${time.hour}:${time.minute}";
     notifyListeners();
   }

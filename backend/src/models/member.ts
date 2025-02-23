@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { Cities, Genders, EducationLevels, HealthStatusChecks, PaymentStatus } from "../enums/lists";
+import { Cities, Genders, EducationLevels, HealthStatus, PaymentStatus } from "../enums/lists";
 import { validateIdentityNumber } from "../functions/validators";
 
 // Üye modelinin TypeScript arayüzü
@@ -18,13 +18,13 @@ export interface IMember extends Document {
         name: string,
         phone: String,
     };
-    healthStatusCheck: HealthStatusChecks,
+    healthStatus: HealthStatus,
     paymentStatus: PaymentStatus,
     createdAt?: Date;
 }
 
 // Mongoose Şema Tanımı
-const MemberSchema: Schema = new Schema({
+const MemberSchema: Schema = new Schema<IMember>({
     identityNumber: {
         type: String, required: true, unique: true,
         /*validate: {
@@ -45,11 +45,11 @@ const MemberSchema: Schema = new Schema({
         name: { type: String, required: true, trim: true },
         phone: { type: String, required: true, trim: true },
     },
-    healthStatusCheck: {
+    healthStatus: {
         type: String,
         required: true,
-        enum: Object.values(HealthStatusChecks),
-        default: HealthStatusChecks.KontrolYapilmadi
+        enum: Object.values(HealthStatus),
+        default: HealthStatus.KontrolYapilmadi
     },
     paymentStatus: {
         type: String,
@@ -57,8 +57,9 @@ const MemberSchema: Schema = new Schema({
         enum: Object.values(PaymentStatus),
         default: PaymentStatus.OdemeYapilmadi
     },
-    createdAt: { type: Date, default: Date.now },
-});
+    createdAt: { type: Date, default: Date.now, index: true},
+},
+    { timestamps: true });
 
 // Modeli dışa aktarma
 export default mongoose.model<IMember>("Member", MemberSchema);

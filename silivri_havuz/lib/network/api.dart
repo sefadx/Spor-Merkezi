@@ -66,12 +66,16 @@ class APIS {
   APIS._instance();
 
   final String _baseAPI = "http://localhost:5001";
-  String member({String page = "1", String limit = "10", String search = ""}) => "$_baseAPI/member?page=$page&limit=$limit&search=$search";
-  String memberId({required String memberId}) => "$_baseAPI/member/$memberId";
   String variables() => "$_baseAPI/variables";
+
+  String member({int page = 1, int limit = 10, String search = ""}) =>
+      "$_baseAPI/member?page=${page.toString()}&limit=${limit.toString()}&search=$search";
+  String memberId({required String memberId}) => "$_baseAPI/member/$memberId";
+
+  String session({int page = 1, int limit = 10}) => "$_baseAPI/session?page=${page.toString()}&limit=${limit.toString()}";
 }
 
-class APIService<T> {
+class APIService<T extends JsonProtocol> {
   APIService({required this.url});
 
   ///url: APIS.api.member()
@@ -113,7 +117,10 @@ class APIService<T> {
         throw APIError(Errors.invalidUrl);
       });
       debugPrint("API'den gelen veri: ${res.body}");
-      if (res.statusCode != 200) {
+      final decoded = jsonDecode(res.body);
+      if (decoded is! Map<String, dynamic>) {
+        //debugPrint(decoded);
+        //debugPrint(decoded.runtimeType.toString());
         throw APIError(Errors.invalidResponseStatus);
       }
 
@@ -131,24 +138,19 @@ class APIService<T> {
     }
   }
 
-  Future<BaseResponseModel> postJson(Map<String, dynamic> map) async {
+  Future<BaseResponseModel> post(T model) async {
     /*String username = "muhammedeminekim";
     String password = "aa78478c2db63b63b588916b4dea47cea71d7d3b";
 
     String basicAuth = 'Basic ${base64.encode(utf8.encode('$username:$password'))}';
     debugPrint("auth: $basicAuth");*/
-    debugPrint("API'ye giden veri: $map");
+    debugPrint("API'ye giden veri: ${model.toJson()}");
     try {
       Response res = await http
-          .post(
-        Uri.parse(url),
-        //headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8', 'authorization': basicAuth},
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        body: jsonEncode(map),
-      )
+          .post(Uri.parse(url),
+              //headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8', 'authorization': basicAuth},
+              headers: {"Content-Type": "application/json", "Accept": "application/json"},
+              body: jsonEncode(model.toJson()))
           .onError((error, stackTrace) {
         debugPrint(error.toString());
         throw APIError(Errors.invalidUrl);
@@ -156,11 +158,11 @@ class APIService<T> {
 
       final decoded = jsonDecode(res.body);
       if (decoded is! Map<String, dynamic>) {
-        debugPrint(decoded);
-        debugPrint(decoded.runtimeType.toString());
+        //debugPrint(decoded);
+        //debugPrint(decoded.runtimeType.toString());
         throw APIError(Errors.invalidResponseStatus);
       }
-      debugPrint(jsonDecode(res.body).toString());
+      debugPrint("API'den gelen veri: ${res.body}");
       return BaseResponseModel.fromJson(map: jsonDecode(res.body));
     } on APIError catch (err) {
       debugPrint(err.message);
@@ -183,12 +185,10 @@ class APIService<T> {
     debugPrint("API'ye giden veri: $map");
     try {
       Response res = await http
-          .post(
-        Uri.parse(url),
-        //headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8', 'authorization': basicAuth},
-        headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
-        body: jsonEncode(map),
-      )
+          .post(Uri.parse(url),
+              //headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8', 'authorization': basicAuth},
+              headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
+              body: jsonEncode(map))
           .onError((error, stackTrace) {
         debugPrint(error.toString());
         throw APIError(Errors.invalidUrl);

@@ -69,7 +69,7 @@ class _PageMembersState extends State<PageMembers> {
                         return ListItemMember(
                             memberName: vm.members.value.elementAt(index).displayName,
                             checkPayment: vm.members.value.elementAt(index).paymentStatus!,
-                            checkHealthy: vm.members.value.elementAt(index).healthStatusCheck!,
+                            checkHealthy: vm.members.value.elementAt(index).healthStatus!,
                             onTap: () {
                               CustomRouter.instance.pushWidget(
                                   child: PageMemberDetails(

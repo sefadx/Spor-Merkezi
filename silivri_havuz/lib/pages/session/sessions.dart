@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:silivri_havuz/controller/app_state.dart';
-import 'package:silivri_havuz/navigator/custom_navigation_view.dart';
-import 'package:silivri_havuz/navigator/ui_page.dart';
-import 'package:silivri_havuz/pages/alert_dialog.dart';
-import 'package:silivri_havuz/pages/session/session_create.dart';
-import 'package:silivri_havuz/view_model/home.dart';
+import '../../controller/app_state.dart';
+import '../../navigator/custom_navigation_view.dart';
+import '../../navigator/ui_page.dart';
+import '../../pages/alert_dialog.dart';
+import '../../pages/session/session_create.dart';
+import '../../view_model/home.dart';
 
 import '../../controller/app_theme.dart';
 import '../../customWidgets/buttons/custom_button.dart';
 import '../../customWidgets/cards/list_item_session.dart';
 import '../../customWidgets/search_and_filter.dart';
+import '../../model/session_model.dart';
 
 class PageSessions extends StatefulWidget {
   @override
@@ -17,9 +18,10 @@ class PageSessions extends StatefulWidget {
 }
 
 class _PageSessionsState extends State<PageSessions> {
+  ValueNotifier<List<SessionModel>> vmSessionList = ViewModelHome.instance.sessions;
   @override
   void initState() {
-    ViewModelHome.instance.sessions.addListener(() {
+    vmSessionList.addListener(() {
       setState(() {});
     });
     super.initState();
@@ -27,7 +29,7 @@ class _PageSessionsState extends State<PageSessions> {
 
   @override
   void dispose() {
-    ViewModelHome.instance.sessions.dispose();
+    vmSessionList.dispose();
     super.dispose();
   }
 
@@ -57,19 +59,19 @@ class _PageSessionsState extends State<PageSessions> {
 
               // Sessions List
               Expanded(
-                  child: ViewModelHome.instance.sessions.value.isEmpty
+                  child: vmSessionList.value.isEmpty
                       ? const Center(
                           child: Text("Seans yok"),
                         )
                       : ListView.builder(
-                          itemCount: ViewModelHome.instance.sessions.value.length, // Example data
+                          itemCount: vmSessionList.value.length, // Example data
                           itemBuilder: (context, index) {
                             return SessionCard(
-                              sessionName: ViewModelHome.instance.sessions.value.elementAt(index).sessionName,
-                              trainerName: ViewModelHome.instance.sessions.value.elementAt(index).trainerName,
-                              date: ViewModelHome.instance.sessions.value.elementAt(index).dateTimeStartString,
-                              time: "10.00 - 12.00",
-                              capacity: ViewModelHome.instance.sessions.value.elementAt(index).capacity.toString(),
+                              sessionName: vmSessionList.value.elementAt(index).sessionName,
+                              trainerName: vmSessionList.value.elementAt(index).trainerName,
+                              date: vmSessionList.value.elementAt(index).date,
+                              time: "${vmSessionList.value.elementAt(index).timeStart}:${vmSessionList.value.elementAt(index).timeEnd}",
+                              capacity: vmSessionList.value.elementAt(index).capacity.toString(),
                               onTapDetails: () {
                                 // Navigate to participants list
                               },

@@ -5,18 +5,20 @@ import '../utils/extension.dart';
 import 'member_model.dart';
 
 class SessionModel implements JsonProtocol {
-  SessionModel(
-      {required this.sessionName,
-      required this.trainerName,
-      required this.dateTimeStart,
-      required this.dateTimeEnd,
-      required this.capacity,
-      required this.participants});
+  SessionModel({
+    required this.sessionName,
+    required this.trainerName,
+    required this.dateTimeStart,
+    required this.dateTimeEnd,
+    required this.capacity,
+    required this.participants,
+  });
 
   final String sessionName, trainerName;
   final DateTime dateTimeStart, dateTimeEnd;
-  String get dateTimeStartString => format.format(dateTimeStart);
-  String get dateTimeEndString => format.format(dateTimeEnd);
+  String get date => format.format(dateTimeStart);
+  String get timeStart => "${dateTimeStart.hour}:${dateTimeStart.minute}";
+  String get timeEnd => "${dateTimeEnd.hour}:${dateTimeEnd.minute}";
 
   final int capacity;
   final List<MemberModel> participants;

@@ -6,20 +6,6 @@ var response: BaseResponseModel;
 
 const router = Router();
 
-// Yeni üye ekle
-/*router.post("/", async (req: Request, res: Response) => {
-  try {
-    const memberData: IMember = req.body;
-    const newMember = new Member(memberData);
-    const savedMember = await newMember.save();
-    console.log("API POST: \"/member\" =>  Post request is successful");
-    res.status(200).json(new BaseResponseModel(true, "Veri başarıyla eklendi", savedMember).toJson());
-  } catch (error) {
-    console.log(`API POST: "/member" => Post request failed. ${(error as Error).message}`);
-    res.status(400).json(new BaseResponseModel(false, "Veri eklenirken hata oluştu.").toJson());
-  }
-});*/
-
 router.post("/", async (req: Request, res: Response) => {
   try {
     const memberData: IMember = req.body;
@@ -55,24 +41,10 @@ router.post("/", async (req: Request, res: Response) => {
 
 
 // Tüm üyeleri getir
-/*router.get("/", async (req: Request, res: Response) => {
-  try {
-    const members = await Member.find();
-    console.log("API GET: \"/member\" =>  Succesfully read from database");
-    res.status(200).send(new BaseResponseModel(
-      true,
-      "Veriler başarıyla yüklendi.",
-      members).toJson(),);
-  } catch (error) {
-    console.log("API GET: \"/member\" =>  Database reading error");
-    res.status(500).json({ error: (error as Error).message });
-  }
-});*/
-
 router.get("/", async (req: Request, res: Response) => {
   try {
     // Query parametreleri ile filtreleme ve sayfalama desteği ekleyelim
-    const { page = "1", limit = "10", search } = req.query;
+    const { page = "1", limit = "10", search, paymentStatus, healthS } = req.query;
 
     // Sayfalama ve sınır parametrelerini sayıya çevir
     const pageNumber = parseInt(page as string, 10);
@@ -118,7 +90,7 @@ router.get("/", async (req: Request, res: Response) => {
 
   } catch (error) {
     console.log(`API GET: "/member" => Database reading error: ${(error as Error).message}`);
-    res.status(400).send(new BaseResponseModel(false, "Veritabanı okuma hatası", (error as Error).message).toJson());
+    res.status(400).send(new BaseResponseModel(false, "Sunucu tarafında bir hatayla karşılaşıldı", (error as Error).message).toJson());
   }
 });
 
@@ -128,11 +100,11 @@ router.get("/:id", async (req, res) => {
   try {
     const member = await Member.findById(req.params.id);
     if (!member) {
-      res.status(404).json({ message: "Üye bulunamadı" });
+      res.status(400).json(new BaseResponseModel(false, "Üye kaydı bulunamadı").toJson());
     }
     res.json(member);
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message });
+    res.status(400).send(new BaseResponseModel(false, "Sunucu tarafında bir hatayla karşılaşıldı", (error as Error).message).toJson());
   }
 });
 
@@ -145,11 +117,11 @@ router.put("/:id", async (req, res) => {
       { new: true }
     );
     if (!updatedMember) {
-      res.status(404).json({ message: "Üye bulunamadı" });
+      res.status(400).send(new BaseResponseModel(false, "Üye kaydı bulunamadı").toJson());
     }
-    res.json(updatedMember);
+    res.status(400).json(new BaseResponseModel(true, "Üye kaydı başarıyla güncellendi").toJson());
   } catch (error) {
-    res.status(400).json({ error: (error as Error).message });
+    res.status(400).send(new BaseResponseModel(false, "Sunucu tarafında bir hatayla karşılaşıldı", (error as Error).message).toJson());
   }
 });
 
@@ -158,11 +130,11 @@ router.delete("/:id", async (req: Request, res: Response) => {
   try {
     const deletedMember = await Member.findByIdAndDelete(req.params.id);
     if (!deletedMember) {
-      res.status(404).json({ message: "Üye bulunamadı" });
+      res.status(400).send(new BaseResponseModel(false, "Üye kaydı bulunamadı").toJson());
     }
-    res.json({ message: "Üye silindi" });
+    res.status(400).json(new BaseResponseModel(true, "Üye kaydı başarıyla silindi").toJson());
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message });
+    res.status(400).send(new BaseResponseModel(false, "Sunucu tarafında bir hatayla karşılaşıldı", (error as Error).message).toJson());
   }
 });
 
