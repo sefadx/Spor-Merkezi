@@ -3,7 +3,10 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import memberRoutes from "./routes/member_routes";
+import sessionRoutes from "./routes/session_routes";
+import subscriptionRoutes from "./routes/subscription_routes";
 import variablesRoutes from "./routes/form_variables";
+import session from "./models/session";
 
 //brew services start mongodb-community
 //brew services stop mongodb-community
@@ -25,7 +28,8 @@ mongoose
   .catch((err) => console.error(err));
 
 app.use("/member", memberRoutes);
-app.use("/session", memberRoutes);
+app.use("/session", sessionRoutes);
+app.use("/subscription", subscriptionRoutes);
 app.use("/variables", variablesRoutes);
 
 app.listen(PORT, () => {

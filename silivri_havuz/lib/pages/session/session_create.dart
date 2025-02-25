@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:silivri_havuz/utils/enums.dart';
 
 import '../../controller/app_state.dart';
 import '../../controller/app_theme.dart';
@@ -51,7 +52,7 @@ class _PageSessionCreateState extends State<PageSessionCreate> {
                           Expanded(
                               child: CustomDropdownList(
                                   labelText: "Spor Tipi",
-                                  list: vm.listSpor,
+                                  list: List<String>.from(SporTypes.values.map((e) => e.toString())),
                                   onChanged: (text) {
                                     vm.sessionPickedSportType.text = text!;
                                   })),
@@ -133,11 +134,11 @@ class _PageSessionCreateState extends State<PageSessionCreate> {
                             Row(children: [
                               SizedBox(width: AppTheme.gapsmall),
                               Expanded(
-                                  child: Text("Asil Liste / Kişi Sayısı ${vm.participantsPrimaryList.length}",
+                                  child: Text("Asil Liste / Kişi Sayısı ${vm.mainMembers.length}",
                                       style: AppState.instance.themeData.textTheme.headlineSmall)),
                               SizedBox(width: AppTheme.gapxlarge),
                               Expanded(
-                                  child: Text("Yedek Liste / Kişi Sayısı ${vm.participantsReserveList.length}",
+                                  child: Text("Yedek Liste / Kişi Sayısı ${vm.waitingMembers.length}",
                                       style: AppState.instance.themeData.textTheme.headlineSmall))
                             ]),
                             SizedBox(height: AppTheme.gapmedium),
@@ -149,22 +150,21 @@ class _PageSessionCreateState extends State<PageSessionCreate> {
                                       children: [
                                         Expanded(
                                             child: ListView.separated(
-                                                itemCount: vm.participantsPrimaryList.length,
+                                                itemCount: vm.mainMembers.length,
                                                 separatorBuilder: (context, index) => const SizedBox(height: AppTheme.gapsmall),
                                                 itemBuilder: (context, index) {
                                                   return ListItemMemberSelected(
-                                                      text:
-                                                          "${vm.participantsPrimaryList.elementAt(index).name} ${vm.participantsPrimaryList.elementAt(index).surname}");
+                                                      text: "${vm.mainMembers.elementAt(index).name} ${vm.mainMembers.elementAt(index).surname}");
                                                 })),
                                         const SizedBox(width: AppTheme.gapxlarge),
                                         Expanded(
                                             child: ListView.separated(
-                                                itemCount: vm.participantsReserveList.length,
+                                                itemCount: vm.waitingMembers.length,
                                                 separatorBuilder: (context, index) => const SizedBox(height: AppTheme.gapsmall),
                                                 itemBuilder: (context, index) {
                                                   return ListItemMemberSelected(
                                                       text:
-                                                          "${vm.participantsReserveList.elementAt(index).name} ${vm.participantsReserveList.elementAt(index).surname}");
+                                                          "${vm.waitingMembers.elementAt(index).name} ${vm.waitingMembers.elementAt(index).surname}");
                                                 }))
                                       ],
                                     )))

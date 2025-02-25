@@ -68,7 +68,7 @@ class _PageSessionsState extends State<PageSessions> {
                           itemBuilder: (context, index) {
                             return SessionCard(
                               sessionName: vmSessionList.value.elementAt(index).sessionName,
-                              trainerName: vmSessionList.value.elementAt(index).trainerName,
+                              trainerName: vmSessionList.value.elementAt(index).trainer,
                               date: vmSessionList.value.elementAt(index).date,
                               time: "${vmSessionList.value.elementAt(index).timeStart}:${vmSessionList.value.elementAt(index).timeEnd}",
                               capacity: vmSessionList.value.elementAt(index).capacity.toString(),

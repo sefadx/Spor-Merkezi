@@ -1,6 +1,42 @@
-final List<String> listSpor = ['Yüzme', 'Pilates', 'Jimnastik'];
+enum SporTypes {
+  Yuzme,
+  Pilates,
+  Jimnastik;
 
-enum Spor { Yuzme, Pilates, Jimnastik }
+  @override
+  String toString() {
+    switch (this) {
+      case Yuzme:
+        return "Yüzme";
+      case Pilates:
+        return "Pilates";
+      case Jimnastik:
+        return "Jimnastik";
+      default:
+        return "Unknown data";
+    }
+  }
+}
+
+enum PaymentMethods {
+  Nakit,
+  KrediKarti,
+  BankaHavalesi;
+
+  @override
+  String toString() {
+    switch (this) {
+      case Nakit:
+        return "Nakit";
+      case KrediKarti:
+        return "Kredi Kartı";
+      case BankaHavalesi:
+        return "Banka Havalesi";
+      default:
+        return "Unknown data";
+    }
+  }
+}
 
 enum Genders {
   Erkek,

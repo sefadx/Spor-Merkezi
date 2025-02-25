@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:silivri_havuz/model/member_model.dart';
+import 'package:silivri_havuz/model/session_model.dart';
+import 'package:silivri_havuz/model/subscription_model.dart';
 
 enum Errors {
   invalidUrl,
@@ -73,6 +75,8 @@ class APIS {
   String memberId({required String memberId}) => "$_baseAPI/member/$memberId";
 
   String session({int page = 1, int limit = 10}) => "$_baseAPI/session?page=${page.toString()}&limit=${limit.toString()}";
+
+  String subscription() => "$_baseAPI/subscription";
 }
 
 class APIService<T extends JsonProtocol> {
@@ -283,6 +287,10 @@ class BaseResponseModel<T> implements JsonProtocol {
     switch (T.toString()) {
       case "MemberModel":
         data = MemberModel.fromJson(json: map["data"]) as T;
+      case "SessionModel":
+        data = SessionModel.fromJson(json: map["data"]) as T;
+      case "SubscriptionModel":
+        data = SubscriptionModel.fromJson(json: map["data"]) as T;
       default:
         debugPrint("default type Map");
         data = map["data"];

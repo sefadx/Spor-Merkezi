@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:silivri_havuz/model/subscription_model.dart';
 import '../network/api.dart';
 import '../model/member_model.dart';
 import '../model/session_model.dart';
@@ -22,49 +23,8 @@ class ViewModelSessionDetails extends ChangeNotifier {
   final TextEditingController sessionPickedSportType = TextEditingController();
   final TextEditingController trainerController = TextEditingController();
   final TextEditingController maxParticipantsController = TextEditingController();
-  final List<MemberModel> participantsPrimaryList = [];
-  final List<MemberModel> participantsReserveList = [];
-
-  final List<String> listSpor = ['Yüzme', 'Pilates', 'Jimnastik'];
-
-  void save() async {
-    if (formKey.currentState!.validate() && sessionPickedDate.text.isNotEmpty) {
-      if (await CustomRouter.instance.waitForResult(
-          const PageAlertDialog(title: "Uyarı", informationText: "Girdiğiniz bilgilere göre seans kaydı oluşturulacaktır. Onaylıyor musunuz ?"),
-          ConfigAlertDialog)) {
-        SessionModel model = SessionModel(
-            sessionName: sessionPickedSportType.text,
-            trainerName: trainerController.text,
-            dateTimeStart: format.parse(sessionPickedTimeStart.text),
-            dateTimeEnd: format.parse(sessionPickedTimeEnd.text),
-            capacity: int.tryParse(maxParticipantsController.text)!,
-            participants: participantsPrimaryList);
-
-        BaseResponseModel res = await APIService<SessionModel>(url: APIS.api.session())
-            .post(model)
-            .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
-
-        if (res.success) {
-          ViewModelHome.instance.fetchMember();
-
-          CustomRouter.instance.replacePushWidget(
-              child: PagePopupInfo(
-                title: "Bildirim",
-                informationText: res.message.toString(),
-                afterDelay: () => CustomRouter.instance.pop(),
-              ),
-              pageConfig: ConfigPopupInfo);
-        } else {
-          CustomRouter.instance.pushWidget(
-              child: PagePopupInfo(
-                title: "Bildirim",
-                informationText: res.message.toString(),
-              ),
-              pageConfig: ConfigPopupInfo);
-        }
-      }
-    }
-  }
+  final List<MemberModel> mainMembers = [];
+  final List<MemberModel> waitingMembers = [];
 
   void pickDate(BuildContext context) async {
     _dateTimeStart = await selectDate(context, initialDate: sessionPickedDate.text != "" ? format.parse(sessionPickedDate.text) : null);
@@ -86,10 +46,23 @@ class ViewModelSessionDetails extends ChangeNotifier {
     notifyListeners();
   }
 
-  void createParticipantsList() {
-    participantsPrimaryList.clear();
-    participantsReserveList.clear();
-    for (int i = 1; i <= (int.tryParse(maxParticipantsController.text) ?? 0); i++) {
+  void createParticipantsList() async {
+    mainMembers.clear();
+    waitingMembers.clear();
+
+    BaseResponseModel res = await APIService(url: APIS.api.subscription())
+        .getBaseResponseModel()
+        .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+
+    for (var element in (res.data) as List) {
+      mainMembers.add(MemberModel.fromJson(json: element));
+
+      ///main list ve waiting list capacity değerine göre ayarlanacak
+      ///
+      ///
+    }
+
+    /*for (int i = 1; i <= (int.tryParse(maxParticipantsController.text) ?? 0); i++) {
       if (participantsPrimaryList.length < int.tryParse(maxParticipantsController.text)!) {
         participantsPrimaryList.add(MemberModel(
             identity: "12345678901",
@@ -120,7 +93,47 @@ class ViewModelSessionDetails extends ChangeNotifier {
           address: "Burada açık adres bilgisi yer alacaktır",
           emergencyContactName: "SİLİVRİ DEVLET HASTANESİ AMBULANS",
           emergencyContactPhoneNumber: "112"));
-    }
+    }*/
     notifyListeners();
+  }
+
+  void save() async {
+    if (formKey.currentState!.validate() && sessionPickedDate.text.isNotEmpty) {
+      if (await CustomRouter.instance.waitForResult(
+          const PageAlertDialog(title: "Uyarı", informationText: "Girdiğiniz bilgilere göre seans kaydı oluşturulacaktır. Onaylıyor musunuz ?"),
+          ConfigAlertDialog)) {
+        SessionModel model = SessionModel(
+            sessionName: sessionPickedSportType.text,
+            trainer: trainerController.text,
+            dateTimeStart: format.parse(sessionPickedTimeStart.text),
+            dateTimeEnd: format.parse(sessionPickedTimeEnd.text),
+            capacity: int.tryParse(maxParticipantsController.text)!,
+            mainMembers: mainMembers,
+            waitingMembers: waitingMembers);
+
+        BaseResponseModel res = await APIService<SessionModel>(url: APIS.api.session())
+            .post(model)
+            .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+
+        if (res.success) {
+          ViewModelHome.instance.fetchMember();
+
+          CustomRouter.instance.replacePushWidget(
+              child: PagePopupInfo(
+                title: "Bildirim",
+                informationText: res.message.toString(),
+                afterDelay: () => CustomRouter.instance.pop(),
+              ),
+              pageConfig: ConfigPopupInfo);
+        } else {
+          CustomRouter.instance.pushWidget(
+              child: PagePopupInfo(
+                title: "Bildirim",
+                informationText: res.message.toString(),
+              ),
+              pageConfig: ConfigPopupInfo);
+        }
+      }
+    }
   }
 }

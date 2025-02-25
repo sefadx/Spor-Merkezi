@@ -8,7 +8,8 @@ export interface ISession extends Document {
     dateTimeStart: Date;
     dateTimeEnd: Date;
     capacity: Number;
-    members: Schema.Types.ObjectId[];
+    mainMembers: Schema.Types.ObjectId[];
+    waitingMembers: Schema.Types.ObjectId[];
 }
 
 const SessionSchema = new Schema<ISession>({
@@ -17,7 +18,9 @@ const SessionSchema = new Schema<ISession>({
     trainer: { type: Schema.Types.ObjectId, ref: "Member" },
     dateTimeStart: { type: Date, required: true, index: true },
     dateTimeEnd: { type: Date, required: true },
-    members: [{ type: Schema.Types.ObjectId, ref: "Member" }],
+    mainMembers: [{ type: Schema.Types.ObjectId, ref: "Member" }],
+    waitingMembers: [{ type: Schema.Types.ObjectId, ref: "Member" }],
+    capacity: { type: Number, required: true },
 },
     { timestamps: true });
 
