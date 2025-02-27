@@ -44,21 +44,28 @@ class ViewModelHome extends ChangeNotifier {
   final ValueNotifier<List<MemberModel>> members = ValueNotifier([]);
   final TextEditingController memberSearchTextEditingController = TextEditingController();
 
-  void fetchMember({int page = 1, int limit = 1000, String search = ""}) async {
+  void fetchMember({int page = 1, int limit = 1, String search = ""}) async {
     members.value.clear();
-    BaseResponseModel res = await APIService(url: APIS.api.member(limit: limit, page: page, search: search))
-        .getBaseResponseModel()
-        .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
-    for (var element in ((res.data) as List)) {
+    BaseResponseModel<ListWrapped<MemberModel>> res =
+        await APIService<ListWrapped<MemberModel>>(url: APIS.api.member(limit: limit, page: page, search: search)).getBaseResponseModel(
+            fromJsonT: (json) => ListWrapped.fromJson(
+                  jsonList: json,
+                  fromJsonT: (p0) => MemberModel.fromJson(json: p0),
+                ));
+    //.onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+    List<MemberModel> listMember = (res.data?.items) ?? [];
+    members.value.addAll(listMember);
+
+    /*for (var element in ((res.data) as List)) {
       members.value.add(MemberModel.fromJson(json: element));
-    }
+    }*/
     members.notifyListeners();
   }
 
-  void fetchSession({int page = 1, int limit = 100}) async {
+  void fetchSession({int page = 1, int limit = 1}) async {
     sessions.value.clear();
     BaseResponseModel res = await APIService(url: APIS.api.session(page: page, limit: limit))
-        .getBaseResponseModel()
+        .getBaseResponseModel(fromJsonT: (json) => SessionModel.fromJson(json: json))
         .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
     for (var element in ((res.data) as List)) {
       sessions.value.add(SessionModel.fromJson(json: element));

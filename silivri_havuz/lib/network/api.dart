@@ -6,6 +6,7 @@ import 'package:http/http.dart';
 import 'package:silivri_havuz/model/member_model.dart';
 import 'package:silivri_havuz/model/session_model.dart';
 import 'package:silivri_havuz/model/subscription_model.dart';
+import 'package:silivri_havuz/utils/enums.dart';
 
 enum Errors {
   invalidUrl,
@@ -76,7 +77,12 @@ class APIS {
 
   String session({int page = 1, int limit = 10}) => "$_baseAPI/session?page=${page.toString()}&limit=${limit.toString()}";
 
-  String subscription() => "$_baseAPI/subscription";
+  String subscription({SportTypes? sportType, DateTime? endDate}) {
+    String url = "$_baseAPI/subscription?";
+    if (endDate != null) url += "endDate=${endDate.toIso8601String()}&";
+    if (sportType != null) url += "sportType=${sportType.toString()}";
+    return url;
+  }
 }
 
 class APIService<T extends JsonProtocol> {
@@ -111,7 +117,9 @@ class APIService<T extends JsonProtocol> {
     }
   }
 
-  Future<BaseResponseModel<T>> getBaseResponseModel() async {
+  Future<BaseResponseModel<T>> getBaseResponseModel({
+    T Function(dynamic json)? fromJsonT,
+  }) async {
     try {
       Response res = await http.get(Uri.parse(url), headers: {
         "Content-Type": "application/json",
@@ -128,10 +136,10 @@ class APIService<T extends JsonProtocol> {
         throw APIError(Errors.invalidResponseStatus);
       }
 
-      return BaseResponseModel<T>.fromJson(map: jsonDecode(res.body));
+      return BaseResponseModel<T>.fromJson(map: jsonDecode(res.body), fromJsonT: fromJsonT);
       //return BaseResponseModel.fromJson(map: {"status": true, "message": "mesaj", "data": {"name": "isim"}},data: data);
     } on APIError catch (err) {
-      debugPrint("API ERROR");
+      debugPrint("API ERROR: ${err.error}");
       throw APIError(err.message);
     } on FormatException catch (err) {
       debugPrint(err.message);
@@ -265,40 +273,40 @@ class BaseResponseModel<T> implements JsonProtocol {
   String message;
   T? data;
 
-  /*
-  factory BaseResponseModel.fromJson({
-    required Map<String, dynamic> map,
-    Type? type,
-  }) {
-    T data;
-    debugPrint("runtime type " + T.toString());
-    Type myType = MemberModel;
-    switch (T.toString()) {
-      case MemberModel:
-        data = MemberModel.fromJson(json: map) as T;
-      default:
-        debugPrint("default type");
-        data = MemberModel.fromJson(json: map) as T;
-    }*/
+  factory BaseResponseModel.fromJson({required Map<String, dynamic> map, T Function(dynamic json)? fromJsonT}) {
+    T? data;
+    debugPrint("Base Response Data type: $T");
+    data = fromJsonT != null ? fromJsonT(map["data"]) : null;
+    debugPrint("Base Response Data type: ${data.toString()}");
+    return BaseResponseModel(success: map["success"], message: map["message"], data: data);
+  }
 
+  /*
   factory BaseResponseModel.fromJson({required Map<String, dynamic> map}) {
     T data;
     debugPrint("Base Response Data type: $T");
     switch (T.toString()) {
+      case "List<dynamic>":
+        data = List.from(map["data"]) as T;
+        break;
       case "MemberModel":
         data = MemberModel.fromJson(json: map["data"]) as T;
+        break;
       case "SessionModel":
         data = SessionModel.fromJson(json: map["data"]) as T;
+        break;
       case "SubscriptionModel":
         data = SubscriptionModel.fromJson(json: map["data"]) as T;
+        break;
       default:
         debugPrint("default type Map");
+        debugPrint(map["data"].runtimeType.toString());
         data = map["data"];
     }
 
     return BaseResponseModel(success: map["success"], message: map["message"], data: data);
   }
-
+*/
   @override
   Map<String, dynamic> toJson() {
     return {"success": success, "message": message, "data": data.toString()};
@@ -311,6 +319,24 @@ abstract class JsonProtocol {
     required Map<String, dynamic> map,
   });
   Map<String, dynamic> toJson();
+}
+
+class ListWrapped<T extends JsonProtocol> implements JsonProtocol {
+  final List<T> items;
+  ListWrapped(this.items);
+
+  factory ListWrapped.fromJson({required List<dynamic> jsonList, required T Function(Map<String, dynamic>) fromJsonT}) {
+    debugPrint("ListWrapped : $jsonList");
+    List<T> items = jsonList.map((json) => fromJsonT(json)).toList();
+    return ListWrapped<T>(items);
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      "data": items.map((item) => item.toJson()).toList(),
+    };
+  }
 }
 
 /*

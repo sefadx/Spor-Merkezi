@@ -7,16 +7,16 @@ class SubscriptionModel implements JsonProtocol {
     required this.sportType,
     required this.amount,
     required this.paymentMethods,
-    required this.memberId,
+    required this.member,
     required this.paymentDate,
     required this.startDate,
     required this.endDate,
   });
 
-  final SporTypes sportType;
+  final SportTypes sportType;
   final int amount;
   final PaymentMethods paymentMethods;
-  final String memberId;
+  final MemberModel member;
   final DateTime paymentDate;
   final DateTime startDate;
   final DateTime endDate;
@@ -26,7 +26,7 @@ class SubscriptionModel implements JsonProtocol {
         sportType: json["sportType"],
         amount: json["amount"],
         paymentMethods: json["paymentMethods"],
-        memberId: json["memberId"],
+        member: MemberModel.fromJson(json: json["memberId"]),
         paymentDate: json["paymentDate"],
         startDate: json["startDate"],
         endDate: json["endDate"]);
@@ -35,7 +35,7 @@ class SubscriptionModel implements JsonProtocol {
   @override
   Map<String, dynamic> toJson() {
     return {
-      'memberId': memberId,
+      'memberId': member.toJson(),
       'sportType': sportType.toString(),
       'amount': amount.toString(),
       'paymentMethod': paymentMethods.toString(),

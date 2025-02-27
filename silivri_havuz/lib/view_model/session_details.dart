@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:silivri_havuz/model/subscription_model.dart';
+import 'package:silivri_havuz/utils/enums.dart';
 import '../network/api.dart';
 import '../model/member_model.dart';
 import '../model/session_model.dart';
@@ -50,18 +51,39 @@ class ViewModelSessionDetails extends ChangeNotifier {
     mainMembers.clear();
     waitingMembers.clear();
 
-    BaseResponseModel res = await APIService(url: APIS.api.subscription())
-        .getBaseResponseModel()
-        .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+    BaseResponseModel<ListWrapped<SubscriptionModel>> res =
+        await APIService<ListWrapped<SubscriptionModel>>(url: APIS.api.subscription(sportType: SportTypes.Yuzme)).getBaseResponseModel(
+            fromJsonT: (json) => ListWrapped.fromJson(
+                  jsonList: json,
+                  fromJsonT: (p0) => SubscriptionModel.fromJson(json: p0),
+                ));
+    //.onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+    debugPrint(res.data.toString());
 
-    for (var element in (res.data) as List) {
-      mainMembers.add(MemberModel.fromJson(json: element));
+    List<SubscriptionModel> listSubs = (res.data?.items) ?? [];
+    int capacity = (int.tryParse(maxParticipantsController.text)) ?? 0;
+    mainMembers.addAll(listSubs.map((e) => e.member).toList().getRange(0, capacity + 1));
+    waitingMembers.addAll(listSubs.map((e) => e.member).toList().getRange(capacity, listSubs.length));
 
-      ///main list ve waiting list capacity değerine göre ayarlanacak
-      ///
-      ///
+    for (var element in (res.data?.items) ?? []) {
+      mainMembers.add(element);
     }
+    /*if (res.success) {
+      /*for (var index = 0; index < (res.data as List).length; index++) {
+        index < (int.tryParse(maxParticipantsController.text) ?? 0)
+            ? mainMembers.add(MemberModel.fromJson(json: ((res.data) as List).elementAt(index)))
+            : waitingMembers.add(MemberModel.fromJson(json: ((res.data) as List).elementAt(index)));
+      }*/
+    } else {
+      CustomRouter.instance.pushWidget(
+          child: PagePopupInfo(
+            title: "Bildirim",
+            informationText: res.message.toString(),
+          ),
+          pageConfig: ConfigPopupInfo);
+    }*/
 
+    notifyListeners();
     /*for (int i = 1; i <= (int.tryParse(maxParticipantsController.text) ?? 0); i++) {
       if (participantsPrimaryList.length < int.tryParse(maxParticipantsController.text)!) {
         participantsPrimaryList.add(MemberModel(

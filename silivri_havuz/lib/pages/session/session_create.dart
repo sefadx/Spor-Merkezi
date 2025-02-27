@@ -52,7 +52,7 @@ class _PageSessionCreateState extends State<PageSessionCreate> {
                           Expanded(
                               child: CustomDropdownList(
                                   labelText: "Spor Tipi",
-                                  list: List<String>.from(SporTypes.values.map((e) => e.toString())),
+                                  list: List<String>.from(SportTypes.values.map((e) => e.toString())),
                                   onChanged: (text) {
                                     vm.sessionPickedSportType.text = text!;
                                   })),

@@ -1,4 +1,4 @@
-enum SporTypes {
+enum SportTypes {
   Yuzme,
   Pilates,
   Jimnastik;

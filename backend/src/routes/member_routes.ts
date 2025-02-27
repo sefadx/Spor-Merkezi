@@ -44,7 +44,7 @@ router.post("/", async (req: Request, res: Response) => {
 router.get("/", async (req: Request, res: Response) => {
   try {
     // Query parametreleri ile filtreleme ve sayfalama desteği ekleyelim
-    const { page = "1", limit = "10", search, paymentStatus, healthS } = req.query;
+    const { page = "1", limit = "10", search, paymentStatus, healthStatus } = req.query;
 
     // Sayfalama ve sınır parametrelerini sayıya çevir
     const pageNumber = parseInt(page as string, 10);
