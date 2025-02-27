@@ -117,6 +117,21 @@ class APIService<T extends JsonProtocol> {
     }
   }
 
+  /// If fetch model list (all parsed)
+  ///final response = await APIService<ListWrapped<MemberModel>>(
+  ///   url: APIS.api.member(page: 1, limit: 20)
+  /// ).getBaseResponseModel(
+  ///   fromJsonT: (json) => ListWrapped.fromJson(
+  ///     jsonList: json, // json burada List<dynamic> olacak
+  ///     fromJsonT: (item) => MemberModel.fromJson(json: item),
+  ///   )
+  /// );
+  /// If fetch 1 model (no list) (parsed)
+  ///final response = await APIService<MemberModel>(
+  ///   url: APIS.api.memberId(memberId: "someId")
+  /// ).getBaseResponseModel(
+  ///   fromJsonT: (json) => MemberModel.fromJson(json: json)
+  /// );
   Future<BaseResponseModel<T>> getBaseResponseModel({
     T Function(dynamic json)? fromJsonT,
   }) async {
