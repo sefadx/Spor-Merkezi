@@ -5,7 +5,9 @@ import dotenv from "dotenv";
 import memberRoutes from "./routes/member_routes";
 import sessionRoutes from "./routes/session_routes";
 import subscriptionRoutes from "./routes/subscription_routes";
+import trainerRoutes from "./routes/trainer_routes";
 import variablesRoutes from "./routes/form_variables";
+import loginRoutes from "./routes/auth_routes";
 import session from "./models/session";
 
 //brew services start mongodb-community
@@ -30,7 +32,9 @@ mongoose
 app.use("/member", memberRoutes);
 app.use("/session", sessionRoutes);
 app.use("/subscription", subscriptionRoutes);
+app.use("/trainer", trainerRoutes);
 app.use("/variables", variablesRoutes);
+app.use("/login", loginRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server ${PORT} portunda çalışıyor`);

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:silivri_havuz/controller/app_state.dart';
-import 'package:silivri_havuz/customWidgets/screen_background.dart';
-import 'package:silivri_havuz/navigator/custom_navigation_view.dart';
-
+import '../../controller/app_state.dart';
+import '../../customWidgets/screen_background.dart';
 import '../../view_model/member_details.dart';
 import 'member_form_content.dart';
 
@@ -23,7 +21,7 @@ class _PageMemberCreateState extends State<PageMemberCreate> {
             appBar: AppBar(title: Text('Üye Ekle', style: AppState.instance.themeData.textTheme.headlineLarge)),
             body: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
-                child: FormContent(
+                child: FormContentMember(
                     vm: vm,
                     onSaveText: "Kaydet",
                     onSave: () async {

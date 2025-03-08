@@ -1,5 +1,46 @@
 import exp from "constants";
 
+
+
+export enum Genders {
+    Erkek = "Erkek",
+    Kadin = "Kadın",
+}
+
+
+export enum EducationLevels {
+    Ilkokul = "İlkokul",
+    Ortaokul = "Ortaokul",
+    Lise = "Lise",
+    Lisans = "Lisans",
+    YuksekLisans = "Yüksek Lisans",
+    Doktora = "Doktora",
+}
+
+export enum HealthStatus {
+    Saglikli = "Sağlıklı",
+    KontrolEdiliyor = "Kontrol Ediliyor",
+    Hasta = "Hasta",
+    KontrolYapilmadi = "Kontrol Yapılmadı",
+}
+
+export enum PaymentStatus {
+    OdemeYapildi = "Ödeme Yapıldı",
+    OdemeYapilmadi = "Ödeme Yapılmadı",
+}
+
+export enum PaymentMethods {
+    Nakit = "Nakit",
+    KrediKarti = "Kredi Kartı",
+    BankaHavalesi = "Banka Havalesi",
+}
+
+export enum SportTypes {
+    Yuzme = "Yüzme",
+    Pilates = "Pilates",
+    Jimnastik = "Jimnastik",
+}
+
 export enum Cities {
     Adana = "Adana",
     Adıyaman = "Adıyaman",
@@ -82,43 +123,4 @@ export enum Cities {
     Yalova = "Yalova",
     Yozgat = "Yozgat",
     Zonguldak = "Zonguldak"
-}
-
-export enum Genders {
-    Erkek = "Erkek",
-    Kadin = "Kadın",
-}
-
-
-export enum EducationLevels {
-    Ilkokul = "İlkokul",
-    Ortaokul = "Ortaokul",
-    Lise = "Lise",
-    Lisans = "Lisans",
-    YuksekLisans = "Yüksek Lisans",
-    Doktora = "Doktora",
-}
-
-export enum HealthStatus {
-    Saglikli = "Sağlıklı",
-    KontrolEdiliyor = "Kontrol Ediliyor",
-    Hasta = "Hasta",
-    KontrolYapilmadi = "Kontrol Yapılmadı",
-}
-
-export enum PaymentStatus {
-    OdemeYapildi = "Ödeme Yapıldı",
-    OdemeYapilmadi = "Ödeme Yapılmadı",
-}
-
-export enum PaymentMethods {
-    Nakit = "Nakit",
-    KrediKarti = "Kredi Kartı",
-    BankaHavalesi = "Banka Havalesi",
-}
-
-export enum SportTypes {
-    Yuzme = "Yüzme",
-    Pilates = "Pilates",
-    Jimnastik = "Jimnastik",
 }

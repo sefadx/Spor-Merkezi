@@ -13,23 +13,31 @@ class SubscriptionModel implements JsonProtocol {
     required this.endDate,
   });
 
+  late DateTime _createdAt;
+  DateTime get createdAt => _createdAt;
+
+  late String _id;
+  String get id => _id;
   final SportTypes sportType;
   final int amount;
-  final PaymentMethods paymentMethods;
+  final String paymentMethods;
   final MemberModel member;
   final DateTime paymentDate;
   final DateTime startDate;
   final DateTime endDate;
 
   factory SubscriptionModel.fromJson({required Map<String, dynamic> json}) {
-    return SubscriptionModel(
-        sportType: json["sportType"],
+    SubscriptionModel model = SubscriptionModel(
+        sportType: SportTypes.fromString(json["sportType"]),
         amount: json["amount"],
-        paymentMethods: json["paymentMethods"],
+        paymentMethods: json["paymentMethod"],
         member: MemberModel.fromJson(json: json["memberId"]),
-        paymentDate: json["paymentDate"],
-        startDate: json["startDate"],
-        endDate: json["endDate"]);
+        paymentDate: DateTime.parse(json["paymentDate"]).toLocal(),
+        startDate: DateTime.parse(json['startDate']).toLocal(),
+        endDate: DateTime.parse(json['endDate']).toLocal());
+    model._id = json["_id"];
+    model._createdAt = DateTime.parse(json['createdAt']).toLocal();
+    return model;
   }
 
   @override

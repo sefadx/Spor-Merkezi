@@ -1,10 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import '../model/health_status.dart';
-import '../model/payment_status.dart';
+import '../navigator/custom_navigation_view.dart';
+import '../navigator/ui_page.dart';
 import '../network/api.dart';
 import '../model/home_screen_model.dart';
 import '../model/member_model.dart';
 import '../model/session_model.dart';
+import '../pages/info_popup.dart';
 import '../pages/member/members.dart';
 import '../pages/reports/incomeReports.dart';
 import '../pages/session/sessions.dart';
@@ -16,6 +18,7 @@ class ViewModelHome extends ChangeNotifier {
   static final ViewModelHome _start = ViewModelHome._instance();
   //dışarıdan sınıftan nesne oluşturmaya izin vermeden içeride gizli constructor methodu
   ViewModelHome._instance() {
+    fetchSession();
     fetchMember();
   }
 
@@ -26,52 +29,79 @@ class ViewModelHome extends ChangeNotifier {
     HomeScreenModel(title: "Bildirimler", icon: Icons.notifications, body: SizedBox())
   ];
 
-  final ValueNotifier<int> _index = ValueNotifier(0);
-  ValueNotifier<int> get screenIndex => _index;
+  int _index = 0;
+  int get screenIndex => _index;
 
   set setScreenIndex(int index) {
-    _index.value = index;
-    _index.notifyListeners();
+    _index = index;
+    notifyListeners();
   }
 
-  int get getScreenIndex {
-    return _index.value;
-  }
-
-  final ValueNotifier<List<SessionModel>> sessions = ValueNotifier([]);
+  final StreamController<List<SessionModel>> sessions = StreamController();
   final TextEditingController sessionSearchTextEditingController = TextEditingController();
 
-  final ValueNotifier<List<MemberModel>> members = ValueNotifier([]);
+  final StreamController<List<MemberModel>> members = StreamController();
   final TextEditingController memberSearchTextEditingController = TextEditingController();
 
-  void fetchMember({int page = 1, int limit = 1, String search = ""}) async {
-    members.value.clear();
+  fetchMember({int page = 1, int limit = 100, String search = ""}) async {
     BaseResponseModel<ListWrapped<MemberModel>> res =
-        await APIService<ListWrapped<MemberModel>>(url: APIS.api.member(limit: limit, page: page, search: search)).getBaseResponseModel(
-            fromJsonT: (json) => ListWrapped.fromJson(
-                  jsonList: json,
-                  fromJsonT: (p0) => MemberModel.fromJson(json: p0),
-                ));
-    //.onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
-    List<MemberModel> listMember = (res.data?.items) ?? [];
-    members.value.addAll(listMember);
+        await APIService<ListWrapped<MemberModel>>(url: APIS.api.member(limit: limit, page: page, search: search))
+            .get(
+                fromJsonT: (json) => ListWrapped.fromJson(
+                      jsonList: json,
+                      fromJsonT: (p0) => MemberModel.fromJson(json: p0),
+                    ))
+            .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
 
-    /*for (var element in ((res.data) as List)) {
-      members.value.add(MemberModel.fromJson(json: element));
-    }*/
-    members.notifyListeners();
+    if (res.success) {
+      List<MemberModel> listMember = (res.data?.items) ?? [];
+      members.sink.add(listMember);
+      CustomRouter.instance.replacePushWidget(
+          child: PagePopupInfo(
+            title: "Bildirim",
+            informationText: res.message.toString(),
+            afterDelay: () => CustomRouter.instance.pop(),
+          ),
+          pageConfig: ConfigPopupInfo());
+    } else {
+      members.addError(res);
+      CustomRouter.instance.pushWidget(
+          child: PagePopupInfo(
+            title: "Bildirim",
+            informationText: res.message.toString(),
+          ),
+          pageConfig: ConfigPopupInfo());
+    }
   }
 
-  void fetchSession({int page = 1, int limit = 1}) async {
-    sessions.value.clear();
-    BaseResponseModel res = await APIService(url: APIS.api.session(page: page, limit: limit))
-        .getBaseResponseModel(fromJsonT: (json) => SessionModel.fromJson(json: json))
+  fetchSession({int page = 1, int limit = 10}) async {
+    BaseResponseModel<ListWrapped<SessionModel>> res = await APIService<ListWrapped<SessionModel>>(url: APIS.api.session(page: page, limit: limit))
+        .get(
+            fromJsonT: (json) => ListWrapped.fromJson(
+                  jsonList: json,
+                  fromJsonT: (p0) => SessionModel.fromJson(json: p0),
+                ))
         .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
-    for (var element in ((res.data) as List)) {
-      sessions.value.add(SessionModel.fromJson(json: element));
+
+    if (res.success) {
+      List<SessionModel> listSession = (res.data?.items) ?? [];
+      sessions.sink.add(listSession);
+      CustomRouter.instance.replacePushWidget(
+          child: PagePopupInfo(
+            title: "Bildirim",
+            informationText: res.message.toString(),
+            afterDelay: () => CustomRouter.instance.pop(),
+          ),
+          pageConfig: ConfigPopupInfo());
+    } else {
+      sessions.addError(res);
+      CustomRouter.instance.pushWidget(
+          child: PagePopupInfo(
+            title: "Bildirim",
+            informationText: res.message.toString(),
+          ),
+          pageConfig: ConfigPopupInfo());
     }
-    sessions.notifyListeners();
-    debugPrint(res.data.toString());
   }
 /*
   final List<String> listCities = [];

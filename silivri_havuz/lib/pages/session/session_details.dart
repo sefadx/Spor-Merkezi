@@ -1,25 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../pages/session/session_form_content.dart';
-import '../../customWidgets/cards/list_item_session_members.dart';
-import '../../utils/enums.dart';
 import '../../controller/app_state.dart';
 import '../../controller/app_theme.dart';
 import '../../customWidgets/buttons/custom_button.dart';
-import '../../customWidgets/custom_dropdown_list.dart';
-import '../../customWidgets/custom_label_textfield.dart';
-import '../../model/member_model.dart';
 import '../../view_model/session_details.dart';
 
-class PageSessionCreate extends StatefulWidget {
-  const PageSessionCreate({super.key});
+class PageSessionDetails extends StatelessWidget {
+  const PageSessionDetails({required this.vm, super.key});
 
-  @override
-  State<PageSessionCreate> createState() => _PageSessionCreateState();
-}
-
-class _PageSessionCreateState extends State<PageSessionCreate> {
-  ViewModelSessionDetails vm = ViewModelSessionDetails();
+  final ViewModelSessionDetails vm;
 
   @override
   Widget build(BuildContext context) {

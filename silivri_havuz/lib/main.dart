@@ -1,35 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:silivri_havuz/controller/app_theme.dart';
+import 'package:silivri_havuz/view_model/home.dart';
 
 import 'controller/app_state.dart';
+import 'controller/provider.dart';
 import 'navigator/back_dispatcher.dart';
 import 'navigator/custom_navigation_view.dart';
 import 'navigator/ui_page.dart';
 
 void main() async {
   await GetStorage.init();
-  runApp(const SporTesisi());
+  runApp(SporTesisi());
 }
 
-class SporTesisi extends StatefulWidget {
-  const SporTesisi({super.key});
-
-  @override
-  State<SporTesisi> createState() => _SporTesisiState();
-}
-
-class _SporTesisiState extends State<SporTesisi> {
-  late AppState appState;
-  late CustomRouter router;
-  late CustomBackButtonDispatcher backButtonDispatcher;
-
-  _SporTesisiState() {
-    appState = AppState.instance;
+class SporTesisi extends StatelessWidget {
+  SporTesisi({super.key}) {
+    //appState = AppState.instance;
     //Dinamik tema değişimi için AppState sınıfı dinlemeyi başlat
-    appState.addListener(() {
+    /*appState.addListener(() {
       setState(() {});
-    });
+    });*/
     router = CustomRouter.instance;
     backButtonDispatcher = CustomBackButtonDispatcher(router);
 
@@ -37,15 +28,24 @@ class _SporTesisiState extends State<SporTesisi> {
     router.setNewRoutePath(ConfigLogin);
   }
 
+  late final CustomRouter router;
+  late final CustomBackButtonDispatcher backButtonDispatcher;
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      backButtonDispatcher: backButtonDispatcher,
-      routerDelegate: router,
-      theme: appState.themeData,
-      //theme: AppTheme.lightTheme,
-      //themeMode: ThemeMode.system,
-      //darkTheme: AppTheme.darkTheme,
+    final appState = AppState.instance;
+
+    return Provider<AppState>(
+      model: appState,
+      child: MaterialApp.router(
+        backButtonDispatcher: backButtonDispatcher,
+        routerDelegate: router,
+        theme: appState.themeData,
+        debugShowCheckedModeBanner: false,
+        //theme: AppTheme.lightTheme,
+        //themeMode: ThemeMode.system,
+        //darkTheme: AppTheme.darkTheme,
+      ),
     );
   }
 }

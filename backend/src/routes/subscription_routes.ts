@@ -77,6 +77,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     }
 });
 
+/*
 // Aboneliği silme
 router.delete("/:id", async (req: Request, res: Response) => {
     try {
@@ -88,6 +89,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
         res.status(400).json(new BaseResponseModel(false, "Silme başarısız.", error).toJson());
     }
 });
+*/
 
 export default router;
 

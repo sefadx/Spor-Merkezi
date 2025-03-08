@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:silivri_havuz/utils/enums.dart';
-import 'package:silivri_havuz/utils/extension.dart';
-import 'package:silivri_havuz/view_model/home.dart';
-
+import '../../utils/enums.dart';
 import '../../controller/app_state.dart';
 import '../../customWidgets/buttons/custom_button.dart';
 import '../../customWidgets/custom_dropdown_list.dart';
 import '../../customWidgets/custom_label_textfield.dart';
 import '../../view_model/member_details.dart';
 
-class FormContent extends StatefulWidget {
-  const FormContent({required this.vm, this.onSave, this.onSaveText, super.key});
+class FormContentMember extends StatefulWidget {
+  const FormContentMember({required this.vm, this.onSave, this.onSaveText, super.key});
 
   final ViewModelMemberDetails vm;
   final void Function()? onSave;
   final String? onSaveText;
 
   @override
-  State<FormContent> createState() => _FormContentState();
+  State<FormContentMember> createState() => _FormContentMemberState();
 }
 
-class _FormContentState extends State<FormContent> {
+class _FormContentMemberState extends State<FormContentMember> {
   @override
   void initState() {
     widget.vm.addListener(() {

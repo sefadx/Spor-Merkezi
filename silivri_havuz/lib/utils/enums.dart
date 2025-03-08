@@ -16,6 +16,8 @@ enum SportTypes {
         return "Unknown data";
     }
   }
+
+  static SportTypes fromString(String value) => SportTypes.values.firstWhere((e) => e.toString() == value);
 }
 
 enum PaymentMethods {
@@ -36,6 +38,8 @@ enum PaymentMethods {
         return "Unknown data";
     }
   }
+
+  static PaymentMethods fromString(String value) => PaymentMethods.values.firstWhere((e) => e.toString() == value);
 }
 
 enum Genders {
@@ -53,6 +57,8 @@ enum Genders {
         return "Unknown data";
     }
   }
+
+  static Genders fromString(String value) => Genders.values.firstWhere((e) => e.toString() == value);
 }
 
 enum EducationLevels {
@@ -84,6 +90,8 @@ enum EducationLevels {
         return "Unknown data";
     }
   }
+
+  static EducationLevels fromString(String value) => EducationLevels.values.firstWhere((e) => e.toString() == value);
 }
 
 enum Cities {
@@ -338,4 +346,6 @@ enum Cities {
         return "Unknown City";
     }
   }
+
+  static Cities fromString(String value) => Cities.values.firstWhere((e) => e.toString() == value);
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:silivri_havuz/controller/app_theme.dart';
 
 import '../controller/app_state.dart';
+import '../controller/provider.dart';
 
 class CustomTextField extends StatelessWidget {
   const CustomTextField({
@@ -26,15 +28,18 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
     return TextFormField(
       readOnly: readOnly,
       controller: controller,
       validator: validator,
+      style: appState.themeData.textTheme.bodyMedium,
       onTap: onTap,
       inputFormatters: inputFormatter,
-      cursorColor: AppState.instance.themeData.primaryColorDark,
+      cursorColor: appState.themeData.primaryColorDark,
       decoration: InputDecoration(
         hintText: hintText,
+        hintStyle: appState.themeData.textTheme.bodyLarge,
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
         border: OutlineInputBorder(

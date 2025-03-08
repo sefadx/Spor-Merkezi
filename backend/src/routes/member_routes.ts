@@ -102,7 +102,7 @@ router.get("/:id", async (req, res) => {
     if (!member) {
       res.status(400).json(new BaseResponseModel(false, "Üye kaydı bulunamadı").toJson());
     }
-    res.json(member);
+    res.status(200).json(new BaseResponseModel(true, "Üye kaydı başarıyla getirildi", member).toJson());
   } catch (error) {
     res.status(400).send(new BaseResponseModel(false, "Sunucu tarafında bir hatayla karşılaşıldı", (error as Error).message).toJson());
   }
@@ -125,14 +125,18 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// Üyeyi sil
+// Üyeyi sil (soft delete)
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
-    const deletedMember = await Member.findByIdAndDelete(req.params.id);
-    if (!deletedMember) {
+    const updatedMember = await Member.findByIdAndUpdate(
+      req.params.id,
+      { deleted: true },
+      { new: true }
+    );
+    if (!updatedMember) {
       res.status(400).send(new BaseResponseModel(false, "Üye kaydı bulunamadı").toJson());
     }
-    res.status(400).json(new BaseResponseModel(true, "Üye kaydı başarıyla silindi").toJson());
+    res.status(200).send(new BaseResponseModel(true, "Üye kaydı başarıyla silindi").toJson());
   } catch (error) {
     res.status(400).send(new BaseResponseModel(false, "Sunucu tarafında bir hatayla karşılaşıldı", (error as Error).message).toJson());
   }

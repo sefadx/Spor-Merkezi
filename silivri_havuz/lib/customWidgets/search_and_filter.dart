@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../controller/app_state.dart';
+import '../controller/provider.dart';
 import 'buttons/custom_button.dart';
 import 'custom_textfield.dart';
 
@@ -12,13 +13,14 @@ class SearchAndFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
     return Row(
       children: [
         Expanded(
           child: CustomTextField(
             prefixIcon: Icon(
               Icons.search,
-              color: AppState.instance.themeData.iconTheme.color,
+              color: appState.themeData.iconTheme.color,
             ),
             controller: controller,
           ),

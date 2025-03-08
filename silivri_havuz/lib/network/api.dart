@@ -1,12 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-import 'package:silivri_havuz/model/member_model.dart';
-import 'package:silivri_havuz/model/session_model.dart';
-import 'package:silivri_havuz/model/subscription_model.dart';
-import 'package:silivri_havuz/utils/enums.dart';
+import '../utils/enums.dart';
 
 enum Errors {
   invalidUrl,
@@ -71,6 +67,8 @@ class APIS {
   final String _baseAPI = "http://localhost:5001";
   String variables() => "$_baseAPI/variables";
 
+  String login() => "$_baseAPI/login";
+
   String member({int page = 1, int limit = 10, String search = ""}) =>
       "$_baseAPI/member?page=${page.toString()}&limit=${limit.toString()}&search=$search";
   String memberId({required String memberId}) => "$_baseAPI/member/$memberId";
@@ -83,6 +81,12 @@ class APIS {
     if (sportType != null) url += "sportType=${sportType.toString()}";
     return url;
   }
+
+  String trainer({String? search}) {
+    String url = "$_baseAPI/trainer?";
+    if (search != null) url += "search=$search";
+    return url;
+  }
 }
 
 class APIService<T extends JsonProtocol> {
@@ -90,6 +94,158 @@ class APIService<T extends JsonProtocol> {
 
   ///url: APIS.api.member()
   final String url;
+
+  /// If fetch model list (all parsed)
+  ///final response = await APIService<ListWrapped<MemberModel>>(
+  ///   url: APIS.api.member(page: 1, limit: 20)
+  /// ).getBaseResponseModel(
+  ///   fromJsonT: (json) => ListWrapped.fromJson(
+  ///     jsonList: json, // json burada List<dynamic> olacak
+  ///     fromJsonT: (item) => MemberModel.fromJson(json: item),
+  ///   )
+  /// );
+  /// If fetch 1 model (no list) (parsed)
+  ///final response = await APIService<MemberModel>(
+  ///   url: APIS.api.memberId(memberId: "someId")
+  /// ).getBaseResponseModel(
+  ///   fromJsonT: (json) => MemberModel.fromJson(json: json)
+  /// );
+  Future<BaseResponseModel<T>> get({T Function(dynamic json)? fromJsonT, String username = "", String password = ""}) async {
+    try {
+      Response res = await http.get(Uri.parse(url),
+          headers: {"Content-Type": "application/json; charset=UTF-8", "Accept": "application/json"}).onError((error, stackTrace) {
+        debugPrint(error.toString());
+        throw APIError(Errors.invalidUrl);
+      });
+      debugPrint("API'den gelen veri: ${res.body}");
+      final decoded = jsonDecode(res.body);
+      if (decoded is! Map<String, dynamic>) {
+        //debugPrint(decoded);
+        //debugPrint(decoded.runtimeType.toString());
+        throw APIError(Errors.invalidResponseStatus);
+      }
+
+      return BaseResponseModel<T>.fromJson(map: jsonDecode(res.body), fromJsonT: fromJsonT);
+      //return BaseResponseModel.fromJson(map: {"status": true, "message": "mesaj", "data": {"name": "isim"}},data: data);
+    } on APIError catch (err) {
+      debugPrint("API ERROR: ${err.error}");
+      throw APIError(err.message);
+    } on FormatException catch (err) {
+      debugPrint(err.message);
+      throw FormatException(err.message);
+    } on Exception catch (err) {
+      debugPrint(err.toString());
+      throw APIError(Errors.decodeDataError);
+    }
+  }
+
+  Future<BaseResponseModel<T?>> post(T model, {T Function(dynamic json)? fromJsonT, String username = "", String password = ""}) async {
+    String basicAuth = 'Basic ${base64.encode(utf8.encode('$username:$password'))}';
+    debugPrint("auth: $basicAuth");
+    debugPrint("API'ye giden veri: ${model.toJson()}");
+    try {
+      Response res = await http
+          .post(Uri.parse(url),
+              //headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8', 'Authorization': basicAuth},
+              headers: {"Content-Type": "application/json; charset=UTF-8", "Accept": "application/json", "Authorization": basicAuth},
+              body: jsonEncode(model.toJson()))
+          //body: jsonEncode({"username": "14528993102@silivri.bel.tr", "password": "xxx-xxx-xxx"}))
+          .onError((error, stackTrace) {
+        debugPrint(error.toString());
+        throw APIError(Errors.invalidUrl);
+      });
+
+      final decoded = jsonDecode(res.body);
+      if (decoded is! Map<String, dynamic>) {
+        //debugPrint(decoded);
+        //debugPrint(decoded.runtimeType.toString());
+        throw APIError(Errors.invalidResponseStatus);
+      }
+      debugPrint("API'den gelen veri: ${res.body}");
+      return BaseResponseModel.fromJson(map: jsonDecode(res.body));
+    } on APIError catch (err) {
+      debugPrint(err.message);
+      throw APIError(err.message);
+    } on FormatException catch (err) {
+      debugPrint(err.message);
+      throw FormatException(err.message);
+    } on Exception catch (err) {
+      debugPrint(err.toString());
+      throw APIError(Errors.decodeDataError);
+    }
+  }
+
+  Future<BaseResponseModel<T?>> put(T model, {T Function(dynamic json)? fromJsonT, String username = "", String password = ""}) async {
+    String basicAuth = 'Basic ${base64.encode(utf8.encode('$username:$password'))}';
+    debugPrint("auth: $basicAuth");
+    debugPrint("API'ye giden veri: ${model.toJson()}");
+    try {
+      Response res = await http
+          .put(Uri.parse(url),
+              //headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8', 'Authorization': basicAuth},
+              headers: {"Content-Type": "application/json; charset=UTF-8", "Accept": "application/json", "Authorization": basicAuth},
+              body: jsonEncode(model.toJson()))
+          //body: jsonEncode({"username": "14528993102@silivri.bel.tr", "password": "xxx-xxx-xxx"}))
+          .onError((error, stackTrace) {
+        debugPrint(error.toString());
+        throw APIError(Errors.invalidUrl);
+      });
+
+      final decoded = jsonDecode(res.body);
+      if (decoded is! Map<String, dynamic>) {
+        //debugPrint(decoded);
+        //debugPrint(decoded.runtimeType.toString());
+        throw APIError(Errors.invalidResponseStatus);
+      }
+      debugPrint("API'den gelen veri: ${res.body}");
+      return BaseResponseModel.fromJson(map: jsonDecode(res.body));
+    } on APIError catch (err) {
+      debugPrint(err.message);
+      throw APIError(err.message);
+    } on FormatException catch (err) {
+      debugPrint(err.message);
+      throw FormatException(err.message);
+    } on Exception catch (err) {
+      debugPrint(err.toString());
+      throw APIError(Errors.decodeDataError);
+    }
+  }
+
+  Future<BaseResponseModel<T?>> delete(T model, {T Function(dynamic json)? fromJsonT, String username = "", String password = ""}) async {
+    String basicAuth = 'Basic ${base64.encode(utf8.encode('$username:$password'))}';
+    debugPrint("auth: $basicAuth");
+    debugPrint("API'ye giden veri: ${model.toJson()}");
+    try {
+      Response res = await http
+          .delete(Uri.parse(url),
+              //headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8', 'Authorization': basicAuth},
+              headers: {"Content-Type": "application/json; charset=UTF-8", "Accept": "application/json", "Authorization": basicAuth},
+              body: jsonEncode(model.toJson()))
+          //body: jsonEncode({"username": "14528993102@silivri.bel.tr", "password": "xxx-xxx-xxx"}))
+          .onError((error, stackTrace) {
+        debugPrint(error.toString());
+        throw APIError(Errors.invalidUrl);
+      });
+
+      final decoded = jsonDecode(res.body);
+      if (decoded is! Map<String, dynamic>) {
+        //debugPrint(decoded);
+        //debugPrint(decoded.runtimeType.toString());
+        throw APIError(Errors.invalidResponseStatus);
+      }
+      debugPrint("API'den gelen veri: ${res.body}");
+      return BaseResponseModel.fromJson(map: jsonDecode(res.body));
+    } on APIError catch (err) {
+      debugPrint(err.message);
+      throw APIError(err.message);
+    } on FormatException catch (err) {
+      debugPrint(err.message);
+      throw FormatException(err.message);
+    } on Exception catch (err) {
+      debugPrint(err.toString());
+      throw APIError(Errors.decodeDataError);
+    }
+  }
 
   Future getJson() async {
     try {
@@ -117,93 +273,7 @@ class APIService<T extends JsonProtocol> {
     }
   }
 
-  /// If fetch model list (all parsed)
-  ///final response = await APIService<ListWrapped<MemberModel>>(
-  ///   url: APIS.api.member(page: 1, limit: 20)
-  /// ).getBaseResponseModel(
-  ///   fromJsonT: (json) => ListWrapped.fromJson(
-  ///     jsonList: json, // json burada List<dynamic> olacak
-  ///     fromJsonT: (item) => MemberModel.fromJson(json: item),
-  ///   )
-  /// );
-  /// If fetch 1 model (no list) (parsed)
-  ///final response = await APIService<MemberModel>(
-  ///   url: APIS.api.memberId(memberId: "someId")
-  /// ).getBaseResponseModel(
-  ///   fromJsonT: (json) => MemberModel.fromJson(json: json)
-  /// );
-  Future<BaseResponseModel<T>> getBaseResponseModel({
-    T Function(dynamic json)? fromJsonT,
-  }) async {
-    try {
-      Response res = await http.get(Uri.parse(url), headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-      }).onError((error, stackTrace) {
-        debugPrint(error.toString());
-        throw APIError(Errors.invalidUrl);
-      });
-      debugPrint("API'den gelen veri: ${res.body}");
-      final decoded = jsonDecode(res.body);
-      if (decoded is! Map<String, dynamic>) {
-        //debugPrint(decoded);
-        //debugPrint(decoded.runtimeType.toString());
-        throw APIError(Errors.invalidResponseStatus);
-      }
-
-      return BaseResponseModel<T>.fromJson(map: jsonDecode(res.body), fromJsonT: fromJsonT);
-      //return BaseResponseModel.fromJson(map: {"status": true, "message": "mesaj", "data": {"name": "isim"}},data: data);
-    } on APIError catch (err) {
-      debugPrint("API ERROR: ${err.error}");
-      throw APIError(err.message);
-    } on FormatException catch (err) {
-      debugPrint(err.message);
-      throw FormatException(err.message);
-    } on Exception catch (err) {
-      debugPrint(err.toString());
-      throw APIError(Errors.decodeDataError);
-    }
-  }
-
-  Future<BaseResponseModel> post(T model) async {
-    /*String username = "muhammedeminekim";
-    String password = "aa78478c2db63b63b588916b4dea47cea71d7d3b";
-
-    String basicAuth = 'Basic ${base64.encode(utf8.encode('$username:$password'))}';
-    debugPrint("auth: $basicAuth");*/
-    debugPrint("API'ye giden veri: ${model.toJson()}");
-    try {
-      Response res = await http
-          .post(Uri.parse(url),
-              //headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8', 'authorization': basicAuth},
-              headers: {"Content-Type": "application/json", "Accept": "application/json"},
-              body: jsonEncode(model.toJson()))
-          .onError((error, stackTrace) {
-        debugPrint(error.toString());
-        throw APIError(Errors.invalidUrl);
-      });
-
-      final decoded = jsonDecode(res.body);
-      if (decoded is! Map<String, dynamic>) {
-        //debugPrint(decoded);
-        //debugPrint(decoded.runtimeType.toString());
-        throw APIError(Errors.invalidResponseStatus);
-      }
-      debugPrint("API'den gelen veri: ${res.body}");
-      return BaseResponseModel.fromJson(map: jsonDecode(res.body));
-    } on APIError catch (err) {
-      debugPrint(err.message);
-      throw APIError(err.message);
-    } on FormatException catch (err) {
-      debugPrint(err.message);
-      throw FormatException(err.message);
-    } on Exception catch (err) {
-      debugPrint(err.toString());
-      throw APIError(Errors.decodeDataError);
-    }
-  }
-
-  Future postJsonReturnMap(Map<String, dynamic> map) async {
+  Future postJson(Map<String, dynamic> map) async {
     /*String username = "muhammedeminekim";
     String password = "aa78478c2db63b63b588916b4dea47cea71d7d3b";
 
@@ -289,11 +359,16 @@ class BaseResponseModel<T> implements JsonProtocol {
   T? data;
 
   factory BaseResponseModel.fromJson({required Map<String, dynamic> map, T Function(dynamic json)? fromJsonT}) {
-    T? data;
-    debugPrint("Base Response Data type: $T");
-    data = fromJsonT != null ? fromJsonT(map["data"]) : null;
-    debugPrint("Base Response Data type: ${data.toString()}");
-    return BaseResponseModel(success: map["success"], message: map["message"], data: data);
+    try {
+      T? data;
+      debugPrint("Base Response Data type: $T");
+      data = fromJsonT != null ? fromJsonT(map["data"]) : null;
+      debugPrint("Base Response Data type: ${data.toString()}");
+      return BaseResponseModel(success: map["success"], message: map["message"], data: data);
+    } catch (err) {
+      debugPrint(err.toString());
+      rethrow;
+    }
   }
 
   /*
@@ -341,9 +416,14 @@ class ListWrapped<T extends JsonProtocol> implements JsonProtocol {
   ListWrapped(this.items);
 
   factory ListWrapped.fromJson({required List<dynamic> jsonList, required T Function(Map<String, dynamic>) fromJsonT}) {
-    debugPrint("ListWrapped : $jsonList");
-    List<T> items = jsonList.map((json) => fromJsonT(json)).toList();
-    return ListWrapped<T>(items);
+    //debugPrint("ListWrapped : $jsonList");
+    try {
+      List<T> items = jsonList.map((json) => fromJsonT(json)).toList();
+      return ListWrapped<T>(items);
+    } catch (err) {
+      debugPrint(err.toString());
+      rethrow;
+    }
   }
 
   @override

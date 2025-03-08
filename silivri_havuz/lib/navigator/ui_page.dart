@@ -1,14 +1,13 @@
+import 'dart:math';
 import 'dart:ui';
+
+import 'package:flutter/material.dart';
 
 import 'custom_navigation_view.dart';
 
 class PageConfiguration {
   PageConfiguration(
-      {required this.key,
-      required this.path,
-      this.uiPage,
-      this.pageRouteSettings = PageRouteSettings.defaultSettings,
-      this.currentPageAction});
+      {required this.key, required this.path, this.uiPage, this.pageRouteSettings = PageRouteSettings.defaultSettings, this.currentPageAction});
 
   final String key;
   final String path;
@@ -36,15 +35,13 @@ enum Pages { Home, Login, MemberCreate, NemberDetails, SessionCreate, PopupInfo,
 //------------------------------------------------------------------------------
 const String PathHome = '/pages/home';
 
-PageConfiguration ConfigHome =
-    PageConfiguration(key: 'Home', path: PathHome, uiPage: Pages.Home, currentPageAction: null);
+PageConfiguration ConfigHome = PageConfiguration(key: 'Home', path: PathHome, uiPage: Pages.Home, currentPageAction: null);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 const String PathLogin = '/pages/login';
 
-PageConfiguration ConfigLogin =
-    PageConfiguration(key: 'Login', path: PathLogin, uiPage: Pages.Login, currentPageAction: null);
+PageConfiguration ConfigLogin = PageConfiguration(key: 'Login', path: PathLogin, uiPage: Pages.Login, currentPageAction: null);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -57,30 +54,34 @@ PageConfiguration ConfigMemberCreate =
 //------------------------------------------------------------------------------
 const String PathMemberDetails = '/pages/member_details';
 
-PageConfiguration ConfigMemberDetails = PageConfiguration(
-    key: 'MemberDetails', path: PathMemberDetails, uiPage: Pages.NemberDetails, currentPageAction: null);
+PageConfiguration ConfigMemberDetails =
+    PageConfiguration(key: 'MemberDetails', path: PathMemberDetails, uiPage: Pages.NemberDetails, currentPageAction: null);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 const String PathSessionCreate = '/pages/session_create';
 
-PageConfiguration ConfigSessionCreate = PageConfiguration(
-    key: 'SessionCreate', path: PathSessionCreate, uiPage: Pages.SessionCreate, currentPageAction: null);
+PageConfiguration ConfigSessionCreate =
+    PageConfiguration(key: 'SessionCreate', path: PathSessionCreate, uiPage: Pages.SessionCreate, currentPageAction: null);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 const String PathPopupInfo = '/pages/popup_info';
 
-PageConfiguration ConfigPopupInfo = PageConfiguration(
-    key: 'PopupInfo',
-    path: PathPopupInfo,
-    uiPage: Pages.PopupInfo,
-    pageRouteSettings: const PageRouteSettings(
-      barrierDismissible: true,
-      fullScreenDialog: false,
-      backgroundOpaque: false,
-    ),
-    currentPageAction: null);
+PageConfiguration ConfigPopupInfo() {
+  final uniqueKey = UniqueKey().toString();
+
+  return PageConfiguration(
+      key: 'PopupInfo_$uniqueKey)',
+      path: '$PathPopupInfo/$uniqueKey',
+      uiPage: Pages.PopupInfo,
+      pageRouteSettings: const PageRouteSettings(
+        barrierDismissible: true,
+        fullScreenDialog: false,
+        backgroundOpaque: false,
+      ),
+      currentPageAction: null);
+}
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

@@ -4,9 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:silivri_havuz/pages/login.dart';
 import '../navigator/ui_page.dart';
-import '../pages/home.dart';
 
 import '../controller/app_state.dart';
+import '../pages/home.dart';
 import 'custom_page_route_builder.dart';
 
 class PageAction {
@@ -189,7 +189,7 @@ class CustomRouter extends RouterDelegate<PageConfiguration> with ChangeNotifier
       switch (pageConfig.uiPage) {
         case Pages.Home:
           _addPageData(
-            PageHome(),
+            const PageHome(),
             pageConfig,
           );
           break;

@@ -4,13 +4,14 @@ import { validateIdentityNumber } from "../functions/validators";
 
 // Üye modelinin TypeScript arayüzü
 export interface IMember extends Document {
+    createdAt: Date;
     identityNumber: string,
     name: string,
     surname: string,
     birthDate: Date,
     birthPlace: Cities,
     gender: Genders,
-    educationLevel: string,
+    educationLevel: EducationLevels,
     phoneNumber: string,
     email: string,
     address: string,
@@ -20,17 +21,16 @@ export interface IMember extends Document {
     };
     healthStatus: HealthStatus,
     paymentStatus: PaymentStatus,
-    createdAt?: Date;
 }
 
 // Mongoose Şema Tanımı
 const MemberSchema: Schema = new Schema<IMember>({
     identityNumber: {
         type: String, required: true, unique: true,
-        /*validate: {
+        validate: {
             validator: validateIdentityNumber,
             message: 'Geçersiz TC Kimlik Numarası',
-        }*/
+        }
     },
     name: { type: String, required: true, trim: true },
     surname: { type: String, required: true, trim: true },

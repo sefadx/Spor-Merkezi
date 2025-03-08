@@ -3,18 +3,18 @@ import 'package:intl/intl.dart';
 
 import '../controller/app_state.dart';
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 ///
 DateFormat format = DateFormat('dd/MM/yyyy');
 
 //------------------------------------------------------------------------------
 /// Tarih Seçme Widget (fonksiyon)
-Future<DateTime> selectDate(BuildContext context, {DateTime? initialDate}) async => showDatePicker(
+Future<DateTime> selectDate(BuildContext context, {DateTime? initialDate, DateTime? firstDate, DateTime? lastDate}) async => showDatePicker(
         context: context,
         initialEntryMode: DatePickerEntryMode.calendarOnly,
         initialDate: initialDate ?? DateTime.now(),
-        firstDate: DateTime.utc(1900),
-        lastDate: DateTime.now(),
+        firstDate: firstDate ?? DateTime.utc(1900),
+        lastDate: lastDate ?? DateTime.now(),
         builder: (BuildContext context, Widget? widget) => Theme(
             data: ThemeData(
                 colorScheme: AppState.instance.themeData.colorScheme,

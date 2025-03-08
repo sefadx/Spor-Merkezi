@@ -4,8 +4,9 @@ import "../../customWidgets/screen_background.dart";
 import "../../view_model/member_details.dart";
 import 'member_form_content.dart';
 
+@immutable
 class PageMemberDetails extends StatelessWidget {
-  PageMemberDetails({required this.vm, super.key});
+  const PageMemberDetails({required this.vm, super.key});
 
   final ViewModelMemberDetails vm;
 
@@ -16,7 +17,7 @@ class PageMemberDetails extends StatelessWidget {
             appBar: AppBar(title: Text('Üye Detayları', style: AppState.instance.themeData.textTheme.headlineLarge)),
             body: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
-                child: FormContent(
+                child: FormContentMember(
                   vm: vm,
                   onSaveText: "Kaydet",
                   onSave: () async {

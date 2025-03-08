@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:silivri_havuz/model/health_status.dart';
 import 'package:silivri_havuz/model/payment_status.dart';
+import 'package:silivri_havuz/utils/enums.dart';
 import '../navigator/custom_navigation_view.dart';
 import '../pages/alert_dialog.dart';
 import '../pages/info_popup.dart';
@@ -11,15 +12,15 @@ import '../utils/extension.dart';
 import 'home.dart';
 
 class ViewModelMemberDetails extends ChangeNotifier {
-  ViewModelMemberDetails({this.readOnly = false}) {}
+  ViewModelMemberDetails({this.readOnly = false});
   ViewModelMemberDetails.fromModel({required MemberModel model, this.readOnly = true}) {
-    identityController.text = model.identity;
+    identityController.text = model.identityNumber;
     nameController.text = model.name;
     surnameController.text = model.surname;
     birthdateController.text = format.format(model.birthDate);
-    birthPlaceController.text = model.birthPlace;
-    genderController.text = model.gender;
-    educationLevelController.text = model.educationLevel;
+    birthPlaceController.text = model.birthPlace.toString();
+    genderController.text = model.gender.toString();
+    educationLevelController.text = model.educationLevel.toString();
     phoneController.text = model.phoneNumber;
     emailController.text = model.email;
     addressController.text = model.address;
@@ -55,13 +56,13 @@ class ViewModelMemberDetails extends ChangeNotifier {
       if (await CustomRouter.instance.waitForResult(
           const PageAlertDialog(title: "Uyarı", informationText: "Üye kaydı oluşturulacaktır. Onaylıyor musunuz ?"), ConfigAlertDialog)) {
         MemberModel model = MemberModel(
-            identity: identityController.text,
+            identityNumber: identityController.text,
             name: nameController.text,
             surname: surnameController.text,
             birthDate: format.parse(birthdateController.text),
-            birthPlace: birthPlaceController.text,
-            gender: genderController.text,
-            educationLevel: educationLevelController.text,
+            birthPlace: Cities.fromString(birthPlaceController.text),
+            gender: Genders.fromString(genderController.text),
+            educationLevel: EducationLevels.fromString(educationLevelController.text),
             phoneNumber: phoneController.text,
             email: emailController.text,
             address: addressController.text,
@@ -83,14 +84,14 @@ class ViewModelMemberDetails extends ChangeNotifier {
                 informationText: res.message.toString(),
                 afterDelay: () => CustomRouter.instance.pop(),
               ),
-              pageConfig: ConfigPopupInfo);
+              pageConfig: ConfigPopupInfo());
         } else {
           CustomRouter.instance.pushWidget(
               child: PagePopupInfo(
                 title: "Bildirim",
                 informationText: res.message.toString(),
               ),
-              pageConfig: ConfigPopupInfo);
+              pageConfig: ConfigPopupInfo());
         }
       }
     } else {}

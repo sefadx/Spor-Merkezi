@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:silivri_havuz/controller/app_state.dart';
 import 'package:silivri_havuz/controller/app_theme.dart';
 import 'package:silivri_havuz/customWidgets/screen_background.dart';
+import 'package:silivri_havuz/model/member_model.dart';
 import 'package:silivri_havuz/navigator/custom_navigation_view.dart';
 import 'package:silivri_havuz/navigator/ui_page.dart';
+import 'package:silivri_havuz/network/api.dart';
 
 class PageLogin extends StatelessWidget {
   const PageLogin({super.key});
@@ -53,15 +55,18 @@ class PageLogin extends StatelessWidget {
                   child: Ink(
                     width: double.infinity,
                     padding: EdgeInsets.all(8),
-                    decoration: AppTheme.buttonPrimaryDecoration,
+                    decoration: AppTheme.buttonPrimaryDecoration(context),
                     child: Text(
                       "Giriş yap",
-                      style:
-                          AppState.instance.themeData.textTheme.headlineSmall,
+                      style: AppState.instance.themeData.textTheme.headlineSmall,
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  onTap: () {
+                  onTap: () async {
+                    /*BaseResponseModel res = await APIService(url: APIS.api.login()).post(ListWrapped.fromJson(
+                      jsonList: [],
+                      fromJsonT: (p0) => MemberModel.fromJson(json: {}),
+                    ));*/
                     CustomRouter.instance.replaceAll(ConfigHome);
                   },
                 ),

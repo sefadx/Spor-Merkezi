@@ -8,6 +8,7 @@ class CustomLabelTextField extends StatelessWidget {
   const CustomLabelTextField({
     this.controller,
     this.label,
+    this.hintText,
     this.validator,
     this.onTap,
     this.suffixIcon,
@@ -17,7 +18,7 @@ class CustomLabelTextField extends StatelessWidget {
   });
 
   final TextEditingController? controller;
-  final String? label;
+  final String? label, hintText;
   final String? Function(String?)? validator;
   final void Function()? onTap;
   final Widget? suffixIcon;
@@ -36,6 +37,7 @@ class CustomLabelTextField extends StatelessWidget {
         controller: controller,
         validator: validator,
         suffixIcon: suffixIcon,
+        hintText: hintText,
       )
     ]);
   }
