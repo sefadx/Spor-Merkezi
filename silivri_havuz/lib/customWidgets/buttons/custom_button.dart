@@ -11,6 +11,7 @@ class CustomButton extends StatelessWidget {
     this.padding,
     this.decoration,
     this.onTap,
+    this.readOnly = false,
     super.key,
   });
 
@@ -18,6 +19,7 @@ class CustomButton extends StatelessWidget {
   final void Function()? onTap;
   final BoxDecoration? decoration;
   final EdgeInsets? padding, margin;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class CustomButton extends StatelessWidget {
       padding: margin ?? EdgeInsets.zero,
       child: InkWell(
           borderRadius: BorderRadius.circular(8),
-          onTap: onTap,
+          onTap: readOnly ? null : onTap,
           child: Ink(
               decoration: decoration ?? AppTheme.buttonSecondaryDecoration(context),
               padding: padding ?? const EdgeInsets.all(AppTheme.gapsmall),

@@ -7,11 +7,14 @@ import 'package:silivri_havuz/navigator/custom_navigation_view.dart';
 import 'package:silivri_havuz/navigator/ui_page.dart';
 import 'package:silivri_havuz/network/api.dart';
 
+import '../controller/provider.dart';
+
 class PageLogin extends StatelessWidget {
   const PageLogin({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
     return ScreenBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -58,7 +61,7 @@ class PageLogin extends StatelessWidget {
                     decoration: AppTheme.buttonPrimaryDecoration(context),
                     child: Text(
                       "Giriş yap",
-                      style: AppState.instance.themeData.textTheme.headlineSmall,
+                      style: appState.themeData.textTheme.headlineSmall,
                       textAlign: TextAlign.center,
                     ),
                   ),

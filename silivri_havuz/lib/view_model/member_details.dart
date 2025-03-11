@@ -50,7 +50,7 @@ class ViewModelMemberDetails extends ChangeNotifier {
     notifyListeners();
   }
 
-  onSave() async {
+  void onSave() async {
     debugPrint("onSave çalıştı.");
     if (formKey.currentState!.validate() && birthdateController.text.isNotEmpty) {
       if (await CustomRouter.instance.waitForResult(

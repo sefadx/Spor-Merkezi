@@ -22,18 +22,37 @@ class AppTheme {
   static const Color buttonDarkColor = Color(0xFF31464f);
   static const Color buttonLightColor = Color(0xFFd4f0ff);
 
-  // Boşluk (gap) değerleri
+  ///gapxxsmall = 2;
   static const double gapxxsmall = 2;
+
+  ///gapxsmall = 5;
   static const double gapxsmall = 5;
+
+  ///gapsmall = 10;
   static const double gapsmall = 10;
+
+  ///gapmedium = 15;
   static const double gapmedium = 15;
+
+  ///gaplarge = 20;
   static const double gaplarge = 20;
+
+  ///gapxlarge = 40;
   static const double gapxlarge = 40;
+
+  ///gapxxlarge = 60;
   static const double gapxxlarge = 60;
 
-  // Kenar yuvarlama (radius) değerleri
+  ///Home Body Padding EdgeInsets
+  static const EdgeInsets homeEdgeInsets = EdgeInsets.symmetric(vertical: gapxxsmall, horizontal: gapmedium);
+
+  ///radiussmall = 8;
   static const double radiussmall = 8;
+
+  ///radiusmedium = 12;
   static const double radiusmedium = 12;
+
+  ///radiuslarge = 16;
   static const double radiuslarge = 16;
 
   // Yazı Tipi Stilleri
@@ -72,7 +91,7 @@ class AppTheme {
     final appState = Provider.of<AppState>(context);
 
     return BoxDecoration(
-      color: appState.themeData.brightness == Brightness.light ? buttonLightColor : buttonDarkColor,
+      color: appState.colorMode == ColorMode.light ? buttonLightColor : buttonDarkColor,
       borderRadius: BorderRadius.circular(radiussmall),
     );
   }
@@ -81,7 +100,7 @@ class AppTheme {
     final appState = Provider.of<AppState>(context);
 
     return BoxDecoration(
-      color: appState.themeData.brightness == Brightness.light ? buttonColor : buttonDarkColor,
+      color: appState.colorMode == ColorMode.light ? buttonColor : buttonDarkColor,
       borderRadius: BorderRadius.circular(radiussmall),
     );
   }
@@ -157,7 +176,7 @@ class AppTheme {
         iconTheme: const IconThemeData(color: textLightColor),
       ),
       iconTheme: const IconThemeData(color: textColor),
-      buttonTheme: ButtonThemeData(
+      buttonTheme: const ButtonThemeData(
         buttonColor: darkPrimaryColor,
         textTheme: ButtonTextTheme.primary,
       ),

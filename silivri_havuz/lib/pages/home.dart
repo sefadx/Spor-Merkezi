@@ -38,18 +38,18 @@ class HomeBody extends StatelessWidget {
     final appState = Provider.of<AppState>(context);
     final vm = Provider.of<ViewModelHome>(context);
     return Padding(
-        padding: const EdgeInsets.only(right: 16, bottom: 16, left: 16),
+        padding: AppTheme.homeEdgeInsets,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // Header
           Ink(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppTheme.gapxsmall),
             color: appState.themeData.primaryColorLight,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [Text("Hoş Geldiniz, [Yetkili Adı]!", style: appState.themeData.textTheme.headlineMedium), const ThemeSwitchButton()],
             ),
           ),
-          SizedBox(height: AppTheme.gapmedium),
+          SizedBox(height: AppTheme.gapxxsmall),
           // Grid Content
           Expanded(child: IndexedStack(index: vm.screenIndex, children: List.from(vm.screenList.map((e) => e.body))))
         ]));

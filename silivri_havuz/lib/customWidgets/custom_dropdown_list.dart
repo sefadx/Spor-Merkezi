@@ -31,7 +31,9 @@ class CustomDropdownList extends StatelessWidget {
               value: value,
               focusColor: Colors.transparent,
               decoration: InputDecoration(
-                  fillColor: AppState.instance.themeData.primaryColorLight, border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
+                  enabled: !readOnly,
+                  fillColor: AppState.instance.themeData.primaryColorLight,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
               dropdownColor: AppState.instance.themeData.primaryColorLight,
               items: list
                   .map((gender) => DropdownMenuItem(

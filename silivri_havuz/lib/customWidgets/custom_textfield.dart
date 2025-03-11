@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:silivri_havuz/controller/app_theme.dart';
-
 import '../controller/app_state.dart';
 import '../controller/provider.dart';
 
@@ -30,6 +28,7 @@ class CustomTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
     return TextFormField(
+      enabled: !readOnly,
       readOnly: readOnly,
       controller: controller,
       validator: validator,

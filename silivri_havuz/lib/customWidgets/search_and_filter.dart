@@ -5,11 +5,13 @@ import '../controller/provider.dart';
 import 'buttons/custom_button.dart';
 import 'custom_textfield.dart';
 
+@immutable
 class SearchAndFilter extends StatelessWidget {
-  SearchAndFilter({this.controller, this.onTap, super.key});
+  const SearchAndFilter({this.controller, this.onTap, this.hintText, super.key});
 
-  void Function()? onTap;
-  TextEditingController? controller;
+  final String? hintText;
+  final void Function()? onTap;
+  final TextEditingController? controller;
 
   @override
   Widget build(BuildContext context) {
@@ -17,25 +19,13 @@ class SearchAndFilter extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: CustomTextField(
-            prefixIcon: Icon(
-              Icons.search,
-              color: appState.themeData.iconTheme.color,
-            ),
-            controller: controller,
-          ),
-        ),
+            child: CustomTextField(
+          hintText: hintText,
+          prefixIcon: Icon(Icons.search, color: appState.themeData.iconTheme.color),
+          controller: controller,
+        )),
         SizedBox(width: 16),
-        CustomButton(
-          onTap: onTap,
-          text: "Filtrele",
-        ),
-        /*ElevatedButton(
-          onPressed: () {
-            // Filter action
-          },
-          child: Text("Filtrele"),
-        ),*/
+        CustomButton(onTap: onTap, text: "Filtrele")
       ],
     );
   }

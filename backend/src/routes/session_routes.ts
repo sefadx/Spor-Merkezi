@@ -1,7 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { BaseResponseModel } from "../models/base_response";
 import Session, { ISession } from "../models/session";
-import { populate } from "dotenv";
 
 var response: BaseResponseModel;
 
@@ -127,10 +126,10 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req: Request, res: Response) => {
     try {
         const deletedSession = await Session.findByIdAndUpdate(
-              req.params.id,
-              { deleted: true },
-              { new: true }// Silinen veriyi döndür
-            );
+            req.params.id,
+            { deleted: true },
+            { new: true }// Silinen veriyi döndür
+        );
         if (!deletedSession) {
             res.status(404).json(new BaseResponseModel(false, "Seans bulunamadı").toJson());
         }

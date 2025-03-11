@@ -57,7 +57,11 @@ class SessionCard extends StatelessWidget {
                               ],
                             )),
                             // Action Buttons
-                            IconButton(icon: Icon(Icons.people), onPressed: onTapMembers, tooltip: "Katılımcıları Gör")
+                            IconButton(
+                                icon: const Icon(Icons.people),
+                                onPressed: onTapMembers,
+                                tooltip: "Katılımcıları Gör",
+                                color: appState.themeData.iconTheme.color)
                           ],
                         ))))));
   }
