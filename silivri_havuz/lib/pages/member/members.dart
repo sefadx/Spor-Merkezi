@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
+import '../../controller/app_state.dart';
 import '../../controller/app_theme.dart';
 import '../../controller/provider.dart';
-import '../../navigator/custom_navigation_view.dart';
-import '../../navigator/ui_page.dart';
-
-import '../../controller/app_state.dart';
 import '../../customWidgets/buttons/custom_button.dart';
 import '../../customWidgets/cards/list_Item_member.dart';
 import '../../customWidgets/search_and_filter.dart';
+import '../../navigator/custom_navigation_view.dart';
+import '../../navigator/ui_page.dart';
 import '../../network/api.dart';
 import '../../view_model/home.dart';
 import '../../view_model/member_details.dart';
@@ -25,6 +24,7 @@ class PageMembers extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: appState.themeData.primaryColorLight,
           scrolledUnderElevation: 0,
+          leading: IconButton(onPressed: () => vm.fetchMember(), icon: const Icon(Icons.refresh)),
           title: Text("Üye Yönetimi", style: appState.themeData.textTheme.headlineMedium),
           actions: [
             CustomButton(

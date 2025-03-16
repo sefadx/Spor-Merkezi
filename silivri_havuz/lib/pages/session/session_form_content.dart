@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../controller/provider.dart';
-import '../../view_model/session_details.dart';
+
 import '../../controller/app_state.dart';
 import '../../controller/app_theme.dart';
+import '../../controller/provider.dart';
 import '../../customWidgets/buttons/custom_button.dart';
 import '../../customWidgets/cards/list_item_session_members.dart';
 import '../../customWidgets/custom_dropdown_list.dart';
 import '../../customWidgets/custom_label_textfield.dart';
 import '../../utils/enums.dart';
+import '../../view_model/session_details.dart';
 
 class FormContentSession extends StatelessWidget {
   const FormContentSession({super.key});
@@ -121,13 +122,16 @@ class FormContentSession extends StatelessWidget {
                         child: ListView.separated(
                             itemCount: vm.mainMembers?.length ?? 0,
                             separatorBuilder: (context, index) => const SizedBox(height: AppTheme.gapsmall),
-                            itemBuilder: (context, index) => ListItemMemberSelected(member: vm.mainMembers!.elementAt(index)))),
+                            itemBuilder: (context, index) => ListItemSessionMembers(
+                                  member: vm.mainMembers!.elementAt(index),
+                                  onTap: () {},
+                                ))),
                     const SizedBox(width: AppTheme.gapxlarge),
                     Expanded(
                         child: ListView.separated(
                             itemCount: vm.waitingMembers?.length ?? 0,
                             separatorBuilder: (context, index) => const SizedBox(height: AppTheme.gapsmall),
-                            itemBuilder: (context, index) => ListItemMemberSelected(member: vm.waitingMembers!.elementAt(index)))),
+                            itemBuilder: (context, index) => ListItemSessionMembers(member: vm.waitingMembers!.elementAt(index), onTap: () {}))),
                   ],
                 ))
               ],

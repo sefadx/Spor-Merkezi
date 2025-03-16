@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+
 import '../../model/subscription_model.dart';
 import '../../model/trainer_model.dart';
 import '../../utils/enums.dart';
-import '../network/api.dart';
 import '../model/member_model.dart';
 import '../model/session_model.dart';
 import '../navigator/custom_navigation_view.dart';
 import '../navigator/ui_page.dart';
+import '../network/api.dart';
 import '../pages/alert_dialog.dart';
 import '../pages/info_popup.dart';
-import '../view_model/home.dart';
 import '../utils/extension.dart';
+import '../view_model/home.dart';
 
 class ViewModelSessionDetails extends ChangeNotifier {
   ViewModelSessionDetails({this.readOnly = false}) {
@@ -132,20 +133,29 @@ class ViewModelSessionDetails extends ChangeNotifier {
   }
 
   void fetchTrainers() async {
-    BaseResponseModel<ListWrapped<TrainerModel>> res = await APIService<ListWrapped<TrainerModel>>(url: APIS.api.trainer()).get(
-        fromJsonT: (json) => ListWrapped.fromJson(
-              jsonList: json,
-              fromJsonT: (p0) => TrainerModel.fromJson(json: p0),
-            ));
+    BaseResponseModel<ListWrapped<TrainerModel>> res = await APIService<ListWrapped<TrainerModel>>(url: APIS.api.trainer())
+        .get(
+            fromJsonT: (json) => ListWrapped.fromJson(
+                  jsonList: json,
+                  fromJsonT: (p0) => TrainerModel.fromJson(json: p0),
+                ))
+        .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+    ;
     if (res.success) {
       listTrainer = res.data?.items ?? [];
-      notifyListeners();
     } else {
       debugPrint(res.message);
+      CustomRouter.instance.pushWidget(
+          child: PagePopupInfo(
+            title: "Bildirim",
+            informationText: res.message.toString(),
+          ),
+          pageConfig: ConfigPopupInfo());
     }
+    notifyListeners();
   }
 
-  void save() async {
+  void onSave() async {
     if (formKey.currentState!.validate() && sessionPickedDate.text.isNotEmpty && selectedTrainer != null) {
       if (await CustomRouter.instance.waitForResult(
           const PageAlertDialog(title: "Uyarı", informationText: "Girdiğiniz bilgilere göre seans kaydı oluşturulacaktır. Onaylıyor musunuz ?"),

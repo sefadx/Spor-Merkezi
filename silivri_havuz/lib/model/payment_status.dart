@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../utils/enums.dart';
 
 class PaymentStatus {
   PaymentStatus({required this.text}) {

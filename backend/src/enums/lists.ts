@@ -1,6 +1,8 @@
 import exp from "constants";
 
-
+export enum ReportTypes {
+    SaglikRaporu = "Sağlık Raporu",
+}
 
 export enum Genders {
     Erkek = "Erkek",

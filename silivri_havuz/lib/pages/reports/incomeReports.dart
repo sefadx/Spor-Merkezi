@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 
 import '../../controller/app_state.dart';
 
@@ -8,8 +8,7 @@ class PageReportIncome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Gelir Raporları',
-            style: AppState.instance.themeData.textTheme.headlineLarge),
+        title: Text('Gelir Raporları', style: AppState.instance.themeData.textTheme.headlineLarge),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

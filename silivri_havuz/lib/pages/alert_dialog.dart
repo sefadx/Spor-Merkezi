@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:silivri_havuz/navigator/custom_navigation_view.dart';
+
 import '../controller/app_state.dart';
 import '../controller/app_theme.dart';
 import '../customWidgets/buttons/custom_button.dart';
@@ -31,18 +32,15 @@ class PageAlertDialog extends StatelessWidget {
                 child: Ink(
                     padding: const EdgeInsets.all(AppTheme.gapmedium),
                     width: MediaQuery.of(context).size.width / 2,
-                    decoration: BoxDecoration(
-                        color: AppState.instance.themeData.primaryColor,
-                        borderRadius: BorderRadius.circular(AppTheme.radiussmall)),
+                    decoration:
+                        BoxDecoration(color: AppState.instance.themeData.primaryColor, borderRadius: BorderRadius.circular(AppTheme.radiussmall)),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(title,
-                            textAlign: TextAlign.center, style: AppState.instance.themeData.textTheme.headlineLarge),
+                        Text(title, textAlign: TextAlign.center, style: AppState.instance.themeData.textTheme.headlineLarge),
                         const SizedBox(height: AppTheme.gapmedium),
-                        Text(informationText,
-                            textAlign: TextAlign.center, style: AppState.instance.themeData.textTheme.bodyLarge),
+                        Text(informationText, textAlign: TextAlign.center, style: AppState.instance.themeData.textTheme.bodyLarge),
                         const SizedBox(height: AppTheme.gapmedium),
                         Row(mainAxisSize: MainAxisSize.min, children: [
                           Expanded(

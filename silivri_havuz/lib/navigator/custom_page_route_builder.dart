@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../navigator/ui_page.dart';
 
 class CustomPageRouteBuilder extends Page {
@@ -19,8 +20,7 @@ class CustomPageRouteBuilder extends Page {
         barrierDismissible: pageRouteSettings.barrierDismissible,
         fullscreenDialog: pageRouteSettings.fullScreenDialog,
         settings: this,
-        pageBuilder: (BuildContext context, Animation<double> animation,
-            Animation<double> secondaryAnimation) {
+        pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
           return FadeTransition(opacity: animation, child: child);
         });
   }

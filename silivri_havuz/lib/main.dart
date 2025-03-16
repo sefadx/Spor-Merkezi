@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:silivri_havuz/controller/app_theme.dart';
-import 'package:silivri_havuz/view_model/home.dart';
 
 import 'controller/app_state.dart';
 import 'controller/provider.dart';

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../utils/enums.dart';
-
 import '../model/health_status.dart';
 import '../model/payment_status.dart';
-
 import '../network/api.dart';
+import '../utils/enums.dart';
 
 class MemberModel implements JsonProtocol {
   late DateTime _createdAt;

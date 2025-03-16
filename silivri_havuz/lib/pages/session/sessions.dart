@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import '../../pages/session/session_launcher.dart';
-import '../../network/api.dart';
-import '../../view_model/session_details.dart';
+
 import '../../controller/app_state.dart';
-import '../../controller/provider.dart';
-import '../../navigator/custom_navigation_view.dart';
-import '../../navigator/ui_page.dart';
-import '../../view_model/home.dart';
 import '../../controller/app_theme.dart';
+import '../../controller/provider.dart';
 import '../../customWidgets/buttons/custom_button.dart';
 import '../../customWidgets/cards/list_item_session.dart';
 import '../../customWidgets/search_and_filter.dart';
 import '../../model/session_model.dart';
+import '../../navigator/custom_navigation_view.dart';
+import '../../navigator/ui_page.dart';
+import '../../network/api.dart';
+import '../../pages/session/session_launcher.dart';
+import '../../view_model/home.dart';
+import '../../view_model/session_details.dart';
 
 class PageSessions extends StatelessWidget {
   const PageSessions({super.key});
@@ -25,6 +26,7 @@ class PageSessions extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: appState.themeData.primaryColorLight,
           scrolledUnderElevation: 0,
+          leading: IconButton(onPressed: () => vm.fetchSession(), icon: const Icon(Icons.refresh)),
           title: Text("Seans Yönetimi", style: appState.themeData.textTheme.headlineMedium),
           actions: [
             CustomButton(

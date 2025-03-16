@@ -28,5 +28,7 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSDocumentsDirectoryUsageDescription</key>
+    <string>Bu uygulama, dosyalarınıza erişmek için izin istiyor.</string>
 </dict>
 </plist>

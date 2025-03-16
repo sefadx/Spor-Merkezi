@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:silivri_havuz/pages/login.dart';
-import '../navigator/ui_page.dart';
 
 import '../controller/app_state.dart';
+import '../navigator/ui_page.dart';
 import '../pages/home.dart';
 import 'custom_page_route_builder.dart';
 

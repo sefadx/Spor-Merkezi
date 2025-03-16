@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:silivri_havuz/model/health_status.dart';
 import 'package:silivri_havuz/model/payment_status.dart';
 import 'package:silivri_havuz/utils/enums.dart';
-import '../navigator/custom_navigation_view.dart';
-import '../pages/alert_dialog.dart';
-import '../pages/info_popup.dart';
+
 import '../model/member_model.dart';
+import '../navigator/custom_navigation_view.dart';
 import '../navigator/ui_page.dart';
 import '../network/api.dart';
+import '../pages/alert_dialog.dart';
+import '../pages/info_popup.dart';
 import '../utils/extension.dart';
 import 'home.dart';
 

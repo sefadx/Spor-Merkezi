@@ -8,7 +8,9 @@ import subscriptionRoutes from "./routes/subscription_routes";
 import trainerRoutes from "./routes/trainer_routes";
 import variablesRoutes from "./routes/form_variables";
 import loginRoutes from "./routes/auth_routes";
-import session from "./models/session";
+import fileRoutes from "./routes/file_routes";
+import { F } from "@faker-js/faker/dist/airline-CBNP41sR";
+import file from "./models/file";
 
 //brew services start mongodb-community
 //brew services stop mongodb-community
@@ -29,6 +31,10 @@ mongoose
   .then(() => console.log("MongoDB Bağlandı"))
   .catch((err) => console.error(err));
 
+const conn = mongoose.connection;
+
+
+app.use("/uploads", fileRoutes);//express.static("uploads"));
 app.use("/member", memberRoutes);
 app.use("/session", sessionRoutes);
 app.use("/subscription", subscriptionRoutes);
@@ -39,3 +45,5 @@ app.use("/login", loginRoutes);
 app.listen(PORT, () => {
   console.log(`Server ${PORT} portunda çalışıyor`);
 });
+
+export { conn };

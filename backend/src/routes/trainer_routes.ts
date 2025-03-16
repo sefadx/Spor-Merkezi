@@ -1,11 +1,10 @@
-import { Router, Request, Response, NextFunction } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import { BaseResponseModel } from "../models/base_response";
 import Trainer, { ITrainer } from "../models/trainer";
 
-
 var response: BaseResponseModel;
 
-const router = Router();
+const router = express.Router();
 
 router.post("/", async (req: Request, res: Response) => {
     try {

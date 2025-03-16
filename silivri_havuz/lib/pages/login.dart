@@ -1,8 +1,10 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:silivri_havuz/controller/app_state.dart';
 import 'package:silivri_havuz/controller/app_theme.dart';
 import 'package:silivri_havuz/customWidgets/screen_background.dart';
-import 'package:silivri_havuz/model/member_model.dart';
 import 'package:silivri_havuz/navigator/custom_navigation_view.dart';
 import 'package:silivri_havuz/navigator/ui_page.dart';
 import 'package:silivri_havuz/network/api.dart';
@@ -66,11 +68,28 @@ class PageLogin extends StatelessWidget {
                     ),
                   ),
                   onTap: () async {
+                    FilePickerResult? result = await FilePicker.platform.pickFiles(
+                      type: FileType.custom,
+                      allowedExtensions: ['pdf'],
+                    );
+
+                    if (result != null) {
+                      File file = File(result.files.single.path!);
+                      debugPrint("Dosya yolu: ${result.files.single.name}");
+                      debugPrint("Dosya yolu: ${result.files.single.size.toString()}");
+                      BaseResponseModel res = await APIService(url: APIS.api.upload()).uploadFile(
+                        filePath: file.path,
+                        fileFieldName: result.files.single.size.toString(),
+                      );
+                      debugPrint(res.toJson().toString());
+                    } else {
+                      // User canceled the picker
+                    }
                     /*BaseResponseModel res = await APIService(url: APIS.api.login()).post(ListWrapped.fromJson(
                       jsonList: [],
                       fromJsonT: (p0) => MemberModel.fromJson(json: {}),
                     ));*/
-                    CustomRouter.instance.replaceAll(ConfigHome);
+                    //CustomRouter.instance.replaceAll(ConfigHome);
                   },
                 ),
                 /*ElevatedButton(

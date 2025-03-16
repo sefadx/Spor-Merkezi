@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../controller/app_state.dart';
+import '../controller/provider.dart';
 import 'custom_textfield.dart';
 
 class CustomLabelTextField extends StatelessWidget {
@@ -27,18 +28,22 @@ class CustomLabelTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label ?? "", style: AppState.instance.themeData.textTheme.bodyLarge),
-      const SizedBox(height: 5),
-      CustomTextField(
-        inputFormatter: inputFormatter,
-        onTap: onTap,
-        readOnly: readOnly,
-        controller: controller,
-        validator: validator,
-        suffixIcon: suffixIcon,
-        hintText: hintText,
-      )
-    ]);
+    final appState = Provider.of<AppState>(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label ?? "", style: appState.themeData.textTheme.bodyLarge),
+        const SizedBox(height: 5),
+        CustomTextField(
+          inputFormatter: inputFormatter,
+          onTap: onTap,
+          readOnly: readOnly,
+          controller: controller,
+          validator: validator,
+          suffixIcon: suffixIcon,
+          hintText: hintText,
+        )
+      ],
+    );
   }
 }

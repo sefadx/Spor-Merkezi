@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:silivri_havuz/model/trainer_model.dart';
 import 'package:silivri_havuz/utils/enums.dart';
 

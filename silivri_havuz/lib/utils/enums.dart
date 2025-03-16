@@ -1,3 +1,17 @@
+enum ReportTypes {
+  SaglikRaporu;
+
+  @override
+  String toString() {
+    switch (this) {
+      case SaglikRaporu:
+        return "Sağlık Raporu";
+    }
+  }
+
+  static ReportTypes fromString(String value) => ReportTypes.values.firstWhere((e) => e.toString() == value);
+}
+
 enum SportTypes {
   Yuzme,
   Pilates,

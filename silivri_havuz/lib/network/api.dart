@@ -1,7 +1,9 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+
 import '../utils/enums.dart';
 
 enum Errors {
@@ -24,8 +26,6 @@ enum Errors {
         return "The endpoint URL is invalid";
       case Errors.taskError:
         return "Task Error";
-      default:
-        return "null";
     }
   }
 }
@@ -51,8 +51,6 @@ class APIError implements Exception {
           return "The endpoint URL is invalid";
         case Errors.taskError:
           return "Task Error";
-        default:
-          return "null";
       }
     }
     return "Exception: $message";
@@ -63,8 +61,10 @@ class APIS {
   static APIS get api => _start;
   static final APIS _start = APIS._instance();
   APIS._instance();
-
   final String _baseAPI = "http://localhost:5001";
+
+  String upload() => "$_baseAPI/uploads/upload";
+
   String variables() => "$_baseAPI/variables";
 
   String login() => "$_baseAPI/login";
@@ -110,7 +110,11 @@ class APIService<T extends JsonProtocol> {
   /// ).getBaseResponseModel(
   ///   fromJsonT: (json) => MemberModel.fromJson(json: json)
   /// );
-  Future<BaseResponseModel<T>> get({T Function(dynamic json)? fromJsonT, String username = "", String password = ""}) async {
+  Future<BaseResponseModel<T>> get({
+    T Function(dynamic json)? fromJsonT,
+    String username = "",
+    String password = "",
+  }) async {
     try {
       Response res = await http.get(Uri.parse(url),
           headers: {"Content-Type": "application/json; charset=UTF-8", "Accept": "application/json"}).onError((error, stackTrace) {
@@ -139,7 +143,12 @@ class APIService<T extends JsonProtocol> {
     }
   }
 
-  Future<BaseResponseModel<T?>> post(T model, {T Function(dynamic json)? fromJsonT, String username = "", String password = ""}) async {
+  Future<BaseResponseModel<T?>> post(
+    T model, {
+    T Function(dynamic json)? fromJsonT,
+    String username = "",
+    String password = "",
+  }) async {
     String basicAuth = 'Basic ${base64.encode(utf8.encode('$username:$password'))}';
     debugPrint("auth: $basicAuth");
     debugPrint("API'ye giden veri: ${model.toJson()}");
@@ -235,6 +244,53 @@ class APIService<T extends JsonProtocol> {
       }
       debugPrint("API'den gelen veri: ${res.body}");
       return BaseResponseModel.fromJson(map: jsonDecode(res.body));
+    } on APIError catch (err) {
+      debugPrint(err.message);
+      throw APIError(err.message);
+    } on FormatException catch (err) {
+      debugPrint(err.message);
+      throw FormatException(err.message);
+    } on Exception catch (err) {
+      debugPrint(err.toString());
+      throw APIError(Errors.decodeDataError);
+    }
+  }
+
+  Future<BaseResponseModel<T?>> uploadFile({
+    required String filePath,
+    required String fileFieldName, // API'de kullanılan form field adı (örneğin: "file")
+    Map<String, String>? fields, // Ekstra form alanları (opsiyonel)
+    String username = "",
+    String password = "",
+  }) async {
+    try {
+      var request = http.MultipartRequest("POST", Uri.parse(url));
+
+      // Auth ekleme
+      String basicAuth = 'Basic ${base64.encode(utf8.encode('$username:$password'))}';
+      request.headers.addAll({"Authorization": basicAuth, "Accept": "application/json"});
+
+      // Dosyayı ekleyelim
+      var file = await http.MultipartFile.fromPath(fileFieldName, filePath);
+      request.files.add(file);
+
+      // Ekstra alanlar eklenebilir
+      if (fields != null) {
+        request.fields.addAll(fields);
+      }
+
+      // İsteği gönder
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      debugPrint("Dosya yükleme yanıtı: ${response.body}");
+
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic>) {
+        throw APIError(Errors.invalidResponseStatus);
+      }
+
+      return BaseResponseModel.fromJson(map: decoded);
     } on APIError catch (err) {
       debugPrint(err.message);
       throw APIError(err.message);
@@ -370,33 +426,6 @@ class BaseResponseModel<T> implements JsonProtocol {
       rethrow;
     }
   }
-
-  /*
-  factory BaseResponseModel.fromJson({required Map<String, dynamic> map}) {
-    T data;
-    debugPrint("Base Response Data type: $T");
-    switch (T.toString()) {
-      case "List<dynamic>":
-        data = List.from(map["data"]) as T;
-        break;
-      case "MemberModel":
-        data = MemberModel.fromJson(json: map["data"]) as T;
-        break;
-      case "SessionModel":
-        data = SessionModel.fromJson(json: map["data"]) as T;
-        break;
-      case "SubscriptionModel":
-        data = SubscriptionModel.fromJson(json: map["data"]) as T;
-        break;
-      default:
-        debugPrint("default type Map");
-        debugPrint(map["data"].runtimeType.toString());
-        data = map["data"];
-    }
-
-    return BaseResponseModel(success: map["success"], message: map["message"], data: data);
-  }
-*/
   @override
   Map<String, dynamic> toJson() {
     return {"success": success, "message": message, "data": data.toString()};
@@ -433,31 +462,3 @@ class ListWrapped<T extends JsonProtocol> implements JsonProtocol {
     };
   }
 }
-
-/*
-enum APIError {
-  invalidUrl,
-  invalidResponseStatus,
-  taskError,
-  dataError,
-  decodeDataError;
-
-  @override
-  String toString() {
-    switch (this) {
-      case APIError.dataError:
-        return "The data provided appears to be corrupt";
-      case APIError.decodeDataError:
-        return "Decode Data Error";
-      case APIError.invalidResponseStatus:
-        return "The API failed to issue a valid response";
-      case APIError.invalidUrl:
-        return "The endpoint URL is invalid";
-      case APIError.taskError:
-        return "Task Error";
-      default:
-        return "null";
-    }
-  }
-}
-*/
