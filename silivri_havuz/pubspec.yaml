@@ -29,6 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   http: ^1.2.2
+  http_parser: ^4.1.2
   get_storage: ^2.1.1
   fl_chart: ^0.69.2
   google_fonts: ^6.2.1

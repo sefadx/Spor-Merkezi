@@ -204,6 +204,14 @@ class FormContentMember extends StatelessWidget {
                     const SizedBox(height: AppTheme.gapxlarge),
                     Text("Sağlık Raporları", style: appState.themeData.textTheme.headlineMedium),
                     const SizedBox(height: AppTheme.gapsmall),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        vm.pickedFile != null ? Text(vm.pickedFile!.files.single.name) : const SizedBox(),
+                        CustomButton(text: "Sağlık Raporu Ekle", onTap: () => vm.pickFile()),
+                      ],
+                    ),
+                    const SizedBox(height: AppTheme.gapsmall),
                     ListView.builder(
                       shrinkWrap: true,
                       itemCount: 5,
@@ -221,8 +229,6 @@ class FormContentMember extends StatelessWidget {
                         );
                       },
                     ),
-                    SizedBox(height: 10),
-                    CustomButton(text: "Sağlık Raporu Ekle")
                   ],
                 ))));
   }

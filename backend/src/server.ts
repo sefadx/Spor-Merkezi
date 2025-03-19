@@ -12,6 +12,10 @@ import fileRoutes from "./routes/file_routes";
 import { F } from "@faker-js/faker/dist/airline-CBNP41sR";
 import file from "./models/file";
 
+//sudo systemctl start mongod
+//sudo systemctl enable mongod
+
+//brew services start mongodb/brew/mongodb-community@5.0
 //brew services start mongodb-community
 //brew services stop mongodb-community
 //npm run dev
@@ -34,7 +38,7 @@ mongoose
 const conn = mongoose.connection;
 
 
-app.use("/uploads", fileRoutes);//express.static("uploads"));
+app.use("/upload", fileRoutes);//express.static("uploads"));
 app.use("/member", memberRoutes);
 app.use("/session", sessionRoutes);
 app.use("/subscription", subscriptionRoutes);

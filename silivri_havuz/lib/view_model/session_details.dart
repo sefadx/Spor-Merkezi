@@ -140,7 +140,7 @@ class ViewModelSessionDetails extends ChangeNotifier {
                   fromJsonT: (p0) => TrainerModel.fromJson(json: p0),
                 ))
         .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
-    ;
+
     if (res.success) {
       listTrainer = res.data?.items ?? [];
     } else {

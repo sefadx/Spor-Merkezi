@@ -58,7 +58,7 @@ class PageMembers extends StatelessWidget {
                                 onTap: () {
                                   CustomRouter.instance.pushWidget(
                                       child: PageMemberLauncher(
-                                        model: ViewModelMemberDetails.fromModel(model: asyncSnapshot.data!.elementAt(index)),
+                                        model: ViewModelMemberDetails.fromModel(memberModel: asyncSnapshot.data!.elementAt(index)),
                                       ),
                                       pageConfig: ConfigMemberDetails);
                                 });

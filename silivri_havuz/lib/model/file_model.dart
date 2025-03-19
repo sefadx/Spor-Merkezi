@@ -9,7 +9,7 @@ class FileModel implements JsonProtocol {
     required this.trainerModel,
     required this.memberModel,
     required this.approvalDate,
-    required this.endOfValidity,
+    //required this.endOfValidity,
     required this.fileName,
     required this.reportType,
   });
@@ -24,7 +24,7 @@ class FileModel implements JsonProtocol {
   late MemberModel memberModel;
   late String fileName;
   late ReportTypes reportType;
-  late DateTime endOfValidity;
+  //late DateTime endOfValidity;
   late DateTime approvalDate;
 
   FileModel.fromJson({required Map<String, dynamic> json}) {}
@@ -35,7 +35,7 @@ class FileModel implements JsonProtocol {
       'trainerId': trainerModel.id,
       'memberId': memberModel.id,
       'fileName': fileName,
-      'endOfValidity': endOfValidity.toIso8601String(),
+      //'endOfValidity': endOfValidity.toIso8601String(),
       'approvalDate': approvalDate.toIso8601String(),
       'reportType': reportType.toString()
     };

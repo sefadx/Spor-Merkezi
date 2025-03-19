@@ -1,8 +1,11 @@
 import 'dart:convert';
-
+import 'dart:io';
+import 'package:path/path.dart' as path;
+import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:silivri_havuz/model/file_model.dart';
 
 import '../utils/enums.dart';
 
@@ -63,7 +66,7 @@ class APIS {
   APIS._instance();
   final String _baseAPI = "http://localhost:5001";
 
-  String upload() => "$_baseAPI/uploads/upload";
+  String upload() => "$_baseAPI/upload";
 
   String variables() => "$_baseAPI/variables";
 
@@ -95,10 +98,18 @@ class APIService<T extends JsonProtocol> {
   ///url: APIS.api.member()
   final String url;
 
+  dynamic safeJsonDecode(String source) {
+    try {
+      return jsonDecode(source);
+    } catch (e) {
+      throw APIError(Errors.decodeDataError, "JSON parse hatası: $e");
+    }
+  }
+
   /// If fetch model list (all parsed)
   ///final response = await APIService<ListWrapped<MemberModel>>(
   ///   url: APIS.api.member(page: 1, limit: 20)
-  /// ).getBaseResponseModel(
+  /// ).get(
   ///   fromJsonT: (json) => ListWrapped.fromJson(
   ///     jsonList: json, // json burada List<dynamic> olacak
   ///     fromJsonT: (item) => MemberModel.fromJson(json: item),
@@ -110,11 +121,7 @@ class APIService<T extends JsonProtocol> {
   /// ).getBaseResponseModel(
   ///   fromJsonT: (json) => MemberModel.fromJson(json: json)
   /// );
-  Future<BaseResponseModel<T>> get({
-    T Function(dynamic json)? fromJsonT,
-    String username = "",
-    String password = "",
-  }) async {
+  Future<BaseResponseModel<T>> get({T Function(dynamic json)? fromJsonT, String username = "", String password = ""}) async {
     try {
       Response res = await http.get(Uri.parse(url),
           headers: {"Content-Type": "application/json; charset=UTF-8", "Accept": "application/json"}).onError((error, stackTrace) {
@@ -143,12 +150,7 @@ class APIService<T extends JsonProtocol> {
     }
   }
 
-  Future<BaseResponseModel<T?>> post(
-    T model, {
-    T Function(dynamic json)? fromJsonT,
-    String username = "",
-    String password = "",
-  }) async {
+  Future<BaseResponseModel<T?>> post(T model, {T Function(dynamic json)? fromJsonT, String username = "", String password = ""}) async {
     String basicAuth = 'Basic ${base64.encode(utf8.encode('$username:$password'))}';
     debugPrint("auth: $basicAuth");
     debugPrint("API'ye giden veri: ${model.toJson()}");
@@ -256,43 +258,92 @@ class APIService<T extends JsonProtocol> {
     }
   }
 
-  Future<BaseResponseModel<T?>> uploadFile({
+  Future<BaseResponseModel<T?>> uploadFile(
+    T model, {
+    T Function(dynamic json)? fromJsonT,
     required String filePath,
-    required String fileFieldName, // API'de kullanılan form field adı (örneğin: "file")
-    Map<String, String>? fields, // Ekstra form alanları (opsiyonel)
+    // API'de kullanılan form field adı (örneğin: "file")
     String username = "",
     String password = "",
   }) async {
     try {
+      // Dosya boyutu kontrolü
+      final fileObj = File(filePath);
+      final fileSize = await fileObj.length();
+      final fileSizeMB = fileSize / (1024 * 1024);
+
+      debugPrint("Yüklenecek dosya: $filePath, Boyut: ${fileSizeMB.toStringAsFixed(2)}MB");
+
+      // MultipartRequest oluştur
       var request = http.MultipartRequest("POST", Uri.parse(url));
 
-      // Auth ekleme
-      String basicAuth = 'Basic ${base64.encode(utf8.encode('$username:$password'))}';
-      request.headers.addAll({"Authorization": basicAuth, "Accept": "application/json"});
-
-      // Dosyayı ekleyelim
-      var file = await http.MultipartFile.fromPath(fileFieldName, filePath);
-      request.files.add(file);
-
-      // Ekstra alanlar eklenebilir
-      if (fields != null) {
-        request.fields.addAll(fields);
+      // Authentication header'ları ekle (varsa)
+      if (username.isNotEmpty && password.isNotEmpty) {
+        String basicAuth = 'Basic ${base64.encode(utf8.encode('$username:$password'))}';
+        request.headers["Authorization"] = basicAuth;
       }
 
+      // Content type, API'den JSON yanıt almak istediğimizi belirt
+      request.headers["Accept"] = "application/json";
+
+      // Dosyayı ekleyelim
+      final fileName = path.basename(filePath);
+      debugPrint("========= DOSYA YÜKLEME DETAYLARI =========");
+      debugPrint("Dosya yolu: $filePath");
+      debugPrint("Dosya adı: $fileName");
+
+      // MultipartFile oluştur - API'nin beklediği field name'i kullanarak
+      // MultipartFile oluştur - API'nin beklediği field name ile "file" kullan
+      // NOT: Bu değer backend'deki upload.single("file") ile aynı olmalı
+      var file = await http.MultipartFile.fromPath(
+          "file", // Mutlaka "file" kullanıyoruz, değişken değil
+          filePath,
+          filename: fileName,
+          contentType: MediaType.parse("application/pdf"));
+      request.files.add(file);
+      debugPrint("Dosya eklendi: ${file.length} bytes");
+
+      // Ekstra form alanları
+      if (model != null) {
+        debugPrint("Form alanları ekleniyor: $model");
+        request.fields.addAll(Map<String, String>.from(model.toJson()));
+      }
       // İsteği gönder
+      debugPrint("Dosya yükleme isteği gönderiliyor: $url");
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      debugPrint("Dosya yükleme yanıtı: ${response.body}");
+      debugPrint("Yanıt içeriği: ${response.body}");
 
-      final decoded = jsonDecode(response.body);
-      if (decoded is! Map<String, dynamic>) {
-        throw APIError(Errors.invalidResponseStatus);
+      // HTTP durum kodunu kontrol et
+      /*if (response.statusCode >= 400) {
+        try {
+          // Sunucu JSON hata yanıtı döndürmüş mü kontrol et
+          final errorDecoded = jsonDecode(response.body);
+          if (errorDecoded is Map<String, dynamic> && errorDecoded.containsKey('message')) {
+            throw APIError(errorDecoded['message']);
+          }
+        } catch (_) {
+          // JSON parse hatası olabilir, genel hata mesajı döndür
+        }
+        throw APIError(Errors.dataError, "Dosya yükleme başarısız. HTTP kodu: ${response.statusCode}");
+      }*/
+
+      // Başarılı yanıt parse edilmesi
+      try {
+        //final decoded = jsonDecode(response.body);
+        final decoded = safeJsonDecode(response.body);
+        if (decoded is! Map<String, dynamic>) {
+          throw APIError(Errors.invalidResponseStatus);
+        }
+
+        return BaseResponseModel.fromJson(map: decoded);
+      } catch (e) {
+        debugPrint("JSON parse hatası: $e");
+        throw APIError(Errors.decodeDataError);
       }
-
-      return BaseResponseModel.fromJson(map: decoded);
     } on APIError catch (err) {
-      debugPrint(err.message);
+      debugPrint("API hatası: ${err.message}");
       throw APIError(err.message);
     } on FormatException catch (err) {
       debugPrint(err.message);

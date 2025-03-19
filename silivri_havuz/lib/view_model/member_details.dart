@@ -1,6 +1,11 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:silivri_havuz/model/file_model.dart';
 import 'package:silivri_havuz/model/health_status.dart';
 import 'package:silivri_havuz/model/payment_status.dart';
+import 'package:silivri_havuz/model/trainer_model.dart';
 import 'package:silivri_havuz/utils/enums.dart';
 
 import '../model/member_model.dart';
@@ -14,21 +19,22 @@ import 'home.dart';
 
 class ViewModelMemberDetails extends ChangeNotifier {
   ViewModelMemberDetails({this.readOnly = false});
-  ViewModelMemberDetails.fromModel({required MemberModel model, this.readOnly = true}) {
-    identityController.text = model.identityNumber;
-    nameController.text = model.name;
-    surnameController.text = model.surname;
-    birthdateController.text = format.format(model.birthDate);
-    birthPlaceController.text = model.birthPlace.toString();
-    genderController.text = model.gender.toString();
-    educationLevelController.text = model.educationLevel.toString();
-    phoneController.text = model.phoneNumber;
-    emailController.text = model.email;
-    addressController.text = model.address;
-    emergencyNameSurnameController.text = model.emergencyContactName;
-    emergencyPhoneNumberController.text = model.emergencyContactPhoneNumber;
+  ViewModelMemberDetails.fromModel({required this.memberModel, this.readOnly = true}) {
+    identityController.text = memberModel.identityNumber;
+    nameController.text = memberModel.name;
+    surnameController.text = memberModel.surname;
+    birthdateController.text = format.format(memberModel.birthDate);
+    birthPlaceController.text = memberModel.birthPlace.toString();
+    genderController.text = memberModel.gender.toString();
+    educationLevelController.text = memberModel.educationLevel.toString();
+    phoneController.text = memberModel.phoneNumber;
+    emailController.text = memberModel.email;
+    addressController.text = memberModel.address;
+    emergencyNameSurnameController.text = memberModel.emergencyContactName;
+    emergencyPhoneNumberController.text = memberModel.emergencyContactPhoneNumber;
   }
 
+  late MemberModel memberModel;
   bool readOnly;
 
   final formKey = GlobalKey<FormState>();
@@ -44,6 +50,51 @@ class ViewModelMemberDetails extends ChangeNotifier {
   final TextEditingController addressController = TextEditingController();
   final TextEditingController emergencyNameSurnameController = TextEditingController();
   final TextEditingController emergencyPhoneNumberController = TextEditingController();
+
+  FilePickerResult? pickedFile;
+  void pickFile() async {
+    pickedFile = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+
+    if (pickedFile != null) {
+      File file = File(pickedFile!.files.single.path!);
+      final fileSize = pickedFile!.files.single.size / (1024 * 1024);
+      debugPrint("Yüklenecek dosya: ${file.path}, Boyut: ${fileSize.toStringAsFixed(2)}MB");
+
+      // 5MB sınırı
+      if (fileSize > 5 * 1024 * 1024) {
+        CustomRouter.instance.pushWidget(
+            child: PagePopupInfo(
+              title: "Bildirim",
+              informationText: "Dosya boyutu 5MB dan büyük olamaz.\nBoyut: ${fileSize.toStringAsFixed(2)}MB",
+            ),
+            pageConfig: ConfigPopupInfo());
+        return;
+      }
+
+      FileModel model = FileModel(
+          trainerModel: TrainerModel.id(id: "67c4b83e3fc862ea8697fd3d"),
+          memberModel: memberModel,
+          approvalDate: DateTime.now(),
+          fileName: "saglik_raporu",
+          reportType: ReportTypes.SaglikRaporu);
+
+      debugPrint("Dosya yolu: ${pickedFile!.files.single.name}");
+      debugPrint("Dosya yolu: ${pickedFile!.files.single.size.toString()}");
+      BaseResponseModel res = await APIService<FileModel>(url: APIS.api.upload()).uploadFile(model, filePath: file.path);
+      debugPrint(res.toJson().toString());
+    } else {
+      CustomRouter.instance.pushWidget(
+          child: const PagePopupInfo(
+            title: "Bildirim",
+            informationText: "Dosya seçimi iptal edildi.",
+          ),
+          pageConfig: ConfigPopupInfo());
+    }
+    notifyListeners();
+  }
 
   void pickDate(BuildContext context) async {
     DateTime date = await selectDate(context, initialDate: birthdateController.text != "" ? format.parse(birthdateController.text) : null);

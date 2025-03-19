@@ -10,6 +10,7 @@ import 'package:silivri_havuz/navigator/ui_page.dart';
 import 'package:silivri_havuz/network/api.dart';
 
 import '../controller/provider.dart';
+import '../model/trainer_model.dart';
 
 class PageLogin extends StatelessWidget {
   const PageLogin({super.key});
@@ -68,28 +69,11 @@ class PageLogin extends StatelessWidget {
                     ),
                   ),
                   onTap: () async {
-                    FilePickerResult? result = await FilePicker.platform.pickFiles(
-                      type: FileType.custom,
-                      allowedExtensions: ['pdf'],
-                    );
-
-                    if (result != null) {
-                      File file = File(result.files.single.path!);
-                      debugPrint("Dosya yolu: ${result.files.single.name}");
-                      debugPrint("Dosya yolu: ${result.files.single.size.toString()}");
-                      BaseResponseModel res = await APIService(url: APIS.api.upload()).uploadFile(
-                        filePath: file.path,
-                        fileFieldName: result.files.single.size.toString(),
-                      );
-                      debugPrint(res.toJson().toString());
-                    } else {
-                      // User canceled the picker
-                    }
                     /*BaseResponseModel res = await APIService(url: APIS.api.login()).post(ListWrapped.fromJson(
                       jsonList: [],
                       fromJsonT: (p0) => MemberModel.fromJson(json: {}),
                     ));*/
-                    //CustomRouter.instance.replaceAll(ConfigHome);
+                    CustomRouter.instance.replaceAll(ConfigHome);
                   },
                 ),
                 /*ElevatedButton(
