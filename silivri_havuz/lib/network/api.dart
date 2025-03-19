@@ -75,6 +75,8 @@ class APIS {
   String member({int page = 1, int limit = 10, String search = ""}) =>
       "$_baseAPI/member?page=${page.toString()}&limit=${limit.toString()}&search=$search";
   String memberId({required String memberId}) => "$_baseAPI/member/$memberId";
+  String memberFiles({required String memberId}) => "${upload()}/member/$memberId";
+  String downloadFile({required String fileId}) => "download/?fileId=$fileId";
 
   String session({int page = 1, int limit = 10}) => "$_baseAPI/session?page=${page.toString()}&limit=${limit.toString()}";
 
@@ -258,11 +260,128 @@ class APIService<T extends JsonProtocol> {
     }
   }
 
+  /// Dosya indirme metodu
+  /// Bu metod, GET /download/:fileId API'sinden dosya indirme işlemini gerçekleştirir
+  /// [fileId] indirmek istediğiniz dosyanın ID'si
+  /// [savePath] dosyanın kaydedileceği yol (eğer null ise, dosya byte array olarak döndürülür)
+  /// [onProgress] indirme sırasında ilerleme bildirimi sağlayan callback
+  ///
+  /// Örnek kullanım:
+  /// ```dart
+  /// final fileData = await APIService<FileModel>(
+  ///   url: APIS.api.downloadFile(fileId: 'dosya_id_degeri')
+  /// ).downloadFile(
+  ///   onProgress: (received, total) {
+  ///     double progress = received / total;
+  ///     print('Download progress: ${(progress * 100).toStringAsFixed(0)}%');
+  ///   },
+  ///   savePath: '/sdcard/Download/indirilen_dosya.pdf'
+  /// );
+  /// ```
+  Future<Map<String, dynamic>> downloadFile({
+    String? savePath = "/download",
+    Function(int received, int total)? onProgress,
+    String username = "",
+    String password = "",
+  }) async {
+    try {
+      debugPrint("Dosya indirme isteği: $url");
+
+      // HTTP isteği hazırlığı
+      var request = http.Request('GET', Uri.parse(url));
+
+      // Authentication header'ları ekle (varsa)
+      if (username.isNotEmpty && password.isNotEmpty) {
+        String basicAuth = 'Basic ${base64.encode(utf8.encode('$username:$password'))}';
+        request.headers["Authorization"] = basicAuth;
+      }
+
+      // İsteği gönder
+      var streamedResponse = await request.send();
+
+      // HTTP durum kodunu kontrol et
+      if (streamedResponse.statusCode >= 400) {
+        throw APIError(Errors.invalidResponseStatus, "Dosya indirme başarısız. HTTP kodu: ${streamedResponse.statusCode}");
+      }
+
+      // Dosya bilgilerini al
+      final contentLength = streamedResponse.contentLength ?? 0;
+      final contentType = streamedResponse.headers['content-type'] ?? 'application/octet-stream';
+      final fileName = _extractFileNameFromHeaders(streamedResponse.headers) ?? 'downloaded_file';
+
+      debugPrint("Dosya indiriliyor: $fileName, Boyut: ${(contentLength / 1024).toStringAsFixed(2)} KB, Tip: $contentType");
+
+      // İlerleme izleme için akış
+      List<int> bytes = [];
+      int received = 0;
+
+      // Dosyayı belirli bir yola kaydet veya byte array olarak döndür
+      if (savePath != null) {
+        // Dosyayı belirtilen yola kaydet
+        File file = File(savePath);
+        IOSink sink = file.openWrite();
+
+        try {
+          await streamedResponse.stream.listen((chunk) {
+            received += chunk.length;
+            sink.add(chunk);
+            if (onProgress != null) {
+              onProgress(received, contentLength);
+            }
+          }).asFuture();
+
+          await sink.flush();
+          await sink.close();
+
+          debugPrint("Dosya başarıyla kaydedildi: $savePath");
+          return {'success': true, 'path': savePath, 'fileName': fileName, 'contentType': contentType, 'size': contentLength};
+        } catch (e) {
+          await sink.close();
+          throw APIError(Errors.dataError, "Dosya kaydedilirken hata: $e");
+        }
+      } else {
+        // Dosyayı belleğe al
+        try {
+          await for (var chunk in streamedResponse.stream) {
+            received += chunk.length;
+            bytes.addAll(chunk);
+            if (onProgress != null) {
+              onProgress(received, contentLength);
+            }
+          }
+
+          debugPrint("Dosya başarıyla belleğe yüklendi: ${bytes.length} bytes");
+          return {'success': true, 'bytes': bytes, 'fileName': fileName, 'contentType': contentType, 'size': bytes.length};
+        } catch (e) {
+          throw APIError(Errors.dataError, "Dosya indirilirken hata: $e");
+        }
+      }
+    } on APIError catch (err) {
+      debugPrint("API hatası: ${err.message}");
+      throw APIError(err.message);
+    } on Exception catch (err) {
+      debugPrint("Dosya indirme hatası: $err");
+      throw APIError(Errors.dataError, "Dosya indirme hatası: $err");
+    }
+  }
+
+  // Content-Disposition header'ından dosya adını çıkarır
+  String? _extractFileNameFromHeaders(Map<String, String> headers) {
+    final contentDisposition = headers['content-disposition'];
+    if (contentDisposition != null && contentDisposition.contains('filename=')) {
+      final regex = RegExp('filename="?([^"\r\n]*)"?');
+      final matches = regex.firstMatch(contentDisposition);
+      if (matches != null && matches.groupCount >= 1) {
+        return matches.group(1);
+      }
+    }
+    return null;
+  }
+
   Future<BaseResponseModel<T?>> uploadFile(
     T model, {
     T Function(dynamic json)? fromJsonT,
     required String filePath,
-    // API'de kullanılan form field adı (örneğin: "file")
     String username = "",
     String password = "",
   }) async {

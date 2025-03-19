@@ -9,8 +9,6 @@ import trainerRoutes from "./routes/trainer_routes";
 import variablesRoutes from "./routes/form_variables";
 import loginRoutes from "./routes/auth_routes";
 import fileRoutes from "./routes/file_routes";
-import { F } from "@faker-js/faker/dist/airline-CBNP41sR";
-import file from "./models/file";
 
 //sudo systemctl start mongod
 //sudo systemctl enable mongod
@@ -38,7 +36,7 @@ mongoose
 const conn = mongoose.connection;
 
 
-app.use("/upload", fileRoutes);//express.static("uploads"));
+app.use("/", fileRoutes);//express.static("uploads"));
 app.use("/member", memberRoutes);
 app.use("/session", sessionRoutes);
 app.use("/subscription", subscriptionRoutes);

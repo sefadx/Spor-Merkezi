@@ -20,6 +20,7 @@ import 'home.dart';
 class ViewModelMemberDetails extends ChangeNotifier {
   ViewModelMemberDetails({this.readOnly = false});
   ViewModelMemberDetails.fromModel({required this.memberModel, this.readOnly = true}) {
+    listFiles();
     identityController.text = memberModel.identityNumber;
     nameController.text = memberModel.name;
     surnameController.text = memberModel.surname;
@@ -35,6 +36,7 @@ class ViewModelMemberDetails extends ChangeNotifier {
   }
 
   late MemberModel memberModel;
+  List<FileModel>? listMemberFiles;
   bool readOnly;
 
   final formKey = GlobalKey<FormState>();
@@ -84,6 +86,17 @@ class ViewModelMemberDetails extends ChangeNotifier {
       debugPrint("Dosya yolu: ${pickedFile!.files.single.name}");
       debugPrint("Dosya yolu: ${pickedFile!.files.single.size.toString()}");
       BaseResponseModel res = await APIService<FileModel>(url: APIS.api.upload()).uploadFile(model, filePath: file.path);
+      if (res.success) {
+        listMemberFiles = res.data?.items ?? [];
+      } else {
+        debugPrint(res.message);
+        CustomRouter.instance.pushWidget(
+            child: PagePopupInfo(
+              title: "Bildirim",
+              informationText: res.message.toString(),
+            ),
+            pageConfig: ConfigPopupInfo());
+      }
       debugPrint(res.toJson().toString());
     } else {
       CustomRouter.instance.pushWidget(
@@ -93,6 +106,7 @@ class ViewModelMemberDetails extends ChangeNotifier {
           ),
           pageConfig: ConfigPopupInfo());
     }
+
     notifyListeners();
   }
 
@@ -100,6 +114,52 @@ class ViewModelMemberDetails extends ChangeNotifier {
     DateTime date = await selectDate(context, initialDate: birthdateController.text != "" ? format.parse(birthdateController.text) : null);
     birthdateController.text = format.format(date);
     notifyListeners();
+  }
+
+  void listFiles() async {
+    BaseResponseModel<ListWrapped<FileModel>> res = await APIService<ListWrapped<FileModel>>(url: APIS.api.memberFiles(memberId: memberModel.id))
+        .get(
+            fromJsonT: (json) => ListWrapped.fromJson(
+                  jsonList: json,
+                  fromJsonT: (p0) => FileModel.fromJson(json: p0),
+                ))
+        .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+
+    if (res.success) {
+      listMemberFiles = res.data?.items ?? [];
+    } else {
+      debugPrint(res.message);
+      CustomRouter.instance.pushWidget(
+          child: PagePopupInfo(
+            title: "Bildirim",
+            informationText: res.message.toString(),
+          ),
+          pageConfig: ConfigPopupInfo());
+    }
+    notifyListeners();
+  }
+
+  Future<void> downloadFile(String fileId) async {
+    try {
+      // İndirme için geçici dizini al (normalde path_provider paketinden)
+      final tempPath = '/tmp/downloaded_file.pdf'; // Sadece örnek
+
+      // Dosya indirme işlemini başlat
+      final result = await APIService(url: APIS.api.downloadFile(fileId: fileId)).downloadFile(
+        savePath: tempPath,
+        onProgress: (received, total) {
+          final progress = total > 0 ? received / total : 0.0;
+          print('İndirme ilerlemesi: ${(progress * 100).toStringAsFixed(0)}%');
+        },
+      );
+
+      if (result['success'] == true) {
+        print('Dosya başarıyla indirildi: ${result['path']}');
+        // Burada dosyayı açabilir veya başka işlemler yapabilirsiniz
+      }
+    } catch (e) {
+      print('Dosya indirme hatası: $e');
+    }
   }
 
   void onSave() async {

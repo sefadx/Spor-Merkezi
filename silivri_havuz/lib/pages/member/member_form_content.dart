@@ -212,23 +212,43 @@ class FormContentMember extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: AppTheme.gapsmall),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: 5,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          leading: Icon(Icons.picture_as_pdf, color: Colors.red),
-                          title: Text("file name"),
-                          subtitle: Text("Yüklenme Tarihi: "),
-                          trailing: IconButton(
-                            icon: Icon(Icons.remove_red_eye),
-                            onPressed: () {
-                              // TODO: PDF Görüntüleme Fonksiyonu
-                            },
-                          ),
-                        );
-                      },
-                    ),
+                    if (vm.listMemberFiles == null)
+                      Text("Sağlık raporu yok")
+                    else if (vm.listMemberFiles!.isEmpty)
+                      Text("Sağlık raporu yok")
+                    else
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: vm.listMemberFiles?.length,
+                        itemBuilder: (context, index) {
+                          return Row(
+                            children: [
+                              const Icon(Icons.picture_as_pdf, color: Colors.red),
+                              const SizedBox(width: AppTheme.gapmedium),
+                              Text(
+                                  "${vm.listMemberFiles?.elementAt(index).approvalDate.toLocal().toString()} ${vm.listMemberFiles?.elementAt(index).reportType}"),
+                              const SizedBox(width: AppTheme.gapmedium),
+                              IconButton(
+                                  icon: Icon(Icons.remove_red_eye),
+                                  onPressed: () async {
+                                    await vm.downloadFile(vm.listMemberFiles!.elementAt(index).fileId);
+                                    // TODO: PDF Görüntüleme Fonksiyonu
+                                  })
+                            ],
+                          );
+                          return ListTile(
+                            leading: Icon(Icons.picture_as_pdf, color: Colors.red),
+                            title: Text("file name"),
+                            subtitle: Text("Yüklenme Tarihi: "),
+                            trailing: IconButton(
+                              icon: Icon(Icons.remove_red_eye),
+                              onPressed: () {
+                                // TODO: PDF Görüntüleme Fonksiyonu
+                              },
+                            ),
+                          );
+                        },
+                      ),
                   ],
                 ))));
   }

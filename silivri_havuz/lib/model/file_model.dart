@@ -1,6 +1,8 @@
-import 'package:silivri_havuz/model/member_model.dart';
-import 'package:silivri_havuz/model/trainer_model.dart';
-import 'package:silivri_havuz/utils/enums.dart';
+import 'package:flutter/material.dart';
+
+import '../model/member_model.dart';
+import '../model/trainer_model.dart';
+import '../utils/enums.dart';
 
 import '../network/api.dart';
 
@@ -20,14 +22,37 @@ class FileModel implements JsonProtocol {
   late String _id;
   String get id => _id;
 
-  late TrainerModel trainerModel;
-  late MemberModel memberModel;
-  late String fileName;
-  late ReportTypes reportType;
+  late final TrainerModel trainerModel;
+  late final MemberModel memberModel;
+  late final String fileName;
+  late final String fileId;
+  late final ReportTypes reportType;
   //late DateTime endOfValidity;
-  late DateTime approvalDate;
+  late final DateTime approvalDate;
 
-  FileModel.fromJson({required Map<String, dynamic> json}) {}
+  factory FileModel.fromJson({required Map<String, dynamic> json}) {
+    debugPrint(json.toString());
+    FileModel model = FileModel(
+        trainerModel: TrainerModel.id(id: json["trainerId"]),
+        memberModel: MemberModel.id(id: json["memberId"]),
+        approvalDate: DateTime.parse(json["approvalDate"]).toLocal(),
+        fileName: json["fileName"] ?? json["filename"],
+        reportType: ReportTypes.fromString(json["reportType"]));
+    model._id = json["_id"];
+    model.fileId = json["fileId"];
+    model._createdAt = DateTime.parse(json["createdAt"]).toLocal();
+    return model;
+  }
+
+  /*
+  factory FileModel.fromJson({required Map<String, dynamic> json}) => FileModel(
+    trainerModel: TrainerModel.id(id: json["trainerModel"]),
+    memberModel: MemberModel.id(id: json["memberModel"]),
+    approvalDate: json["approvalDate"],
+    fileName: json["fileName"],
+    reportType: ReportTypes.fromString(json["reportType"]),
+  )..fileId = json["fileId"];
+  */
 
   @override
   Map<String, dynamic> toJson() {
