@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export function validateIdentityNumber(tcNo: string): boolean {
     if (!/^[1-9][0-9]{10}$/.test(tcNo)) {
       return false;
@@ -17,3 +19,15 @@ export function validateIdentityNumber(tcNo: string): boolean {
   
     return true;
   }
+
+  /**
+ * ObjectId güvenli dönüşüm fonksiyonu
+ * Geçerli bir ObjectId oluşturma işlemini güvenli hale getirir
+ */
+export function safeObjectId(id: string): Types.ObjectId | null {
+  try {
+    return new Types.ObjectId(id);
+  } catch (error) {
+    return null;
+  }
+}
