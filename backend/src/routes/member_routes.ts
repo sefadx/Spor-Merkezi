@@ -13,9 +13,10 @@ router.post("/", async (req: Request, res: Response) => {
     const savedMember = await newMember.save();
 
     console.log('API POST: "/member" => Post request is successful');
+    console.log(new BaseResponseModel(true, "Veri başarıyla eklendi", savedMember).toJson());
 
     res.status(200).json(
-      new BaseResponseModel(true, "Veri başarıyla eklendi", savedMember)
+      new BaseResponseModel(true, "Veri başarıyla eklendi", savedMember).toJson()
     );
   } catch (error: any) {
     console.error(`API POST: "/member" => Post request failed. ${error.message}`);

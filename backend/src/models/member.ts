@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { Cities, Genders, EducationLevels, HealthStatus, PaymentStatus } from "../enums/lists";
-import { validateIdentityNumber } from "../functions/validators";
+import { validateTCKN } from "../functions/validators";
 
 // Üye modelinin TypeScript arayüzü
 export interface IMember extends Document {
@@ -28,7 +28,7 @@ const MemberSchema: Schema = new Schema<IMember>({
     identityNumber: {
         type: String, required: true, unique: true,
         validate: {
-            validator: validateIdentityNumber,
+            validator: validateTCKN,
             message: 'Geçersiz TC Kimlik Numarası',
         }
     },
@@ -57,7 +57,7 @@ const MemberSchema: Schema = new Schema<IMember>({
         enum: Object.values(PaymentStatus),
         default: PaymentStatus.OdemeYapilmadi
     },
-    createdAt: { type: Date, default: Date.now, index: true},
+    createdAt: { type: Date, default: Date.now, index: true },
 },
     { timestamps: true });
 
