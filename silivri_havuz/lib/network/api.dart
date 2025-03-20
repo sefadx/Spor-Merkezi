@@ -75,8 +75,8 @@ class APIS {
   String member({int page = 1, int limit = 10, String search = ""}) =>
       "$_baseAPI/member?page=${page.toString()}&limit=${limit.toString()}&search=$search";
   String memberId({required String memberId}) => "$_baseAPI/member/$memberId";
-  String memberFiles({required String memberId}) => "${upload()}/member/$memberId";
-  String downloadFile({required String fileId}) => "download/?fileId=$fileId";
+  String memberFiles({required String memberId}) => "$_baseAPI/download/member/$memberId";
+  String downloadFile({required String fileId}) => "$_baseAPI/download/$fileId";
 
   String session({int page = 1, int limit = 10}) => "$_baseAPI/session?page=${page.toString()}&limit=${limit.toString()}";
 
@@ -279,7 +279,7 @@ class APIService<T extends JsonProtocol> {
   /// );
   /// ```
   Future<Map<String, dynamic>> downloadFile({
-    String? savePath = "/download",
+    String? savePath,
     Function(int received, int total)? onProgress,
     String username = "",
     String password = "",
@@ -318,7 +318,8 @@ class APIService<T extends JsonProtocol> {
       // Dosyayı belirli bir yola kaydet veya byte array olarak döndür
       if (savePath != null) {
         // Dosyayı belirtilen yola kaydet
-        File file = File(savePath);
+        final path = "$savePath/$fileName.pdf";
+        File file = File(path);
         IOSink sink = file.openWrite();
 
         try {
@@ -334,7 +335,7 @@ class APIService<T extends JsonProtocol> {
           await sink.close();
 
           debugPrint("Dosya başarıyla kaydedildi: $savePath");
-          return {'success': true, 'path': savePath, 'fileName': fileName, 'contentType': contentType, 'size': contentLength};
+          return {'success': true, 'path': path, 'fileName': fileName, 'contentType': contentType, 'size': contentLength};
         } catch (e) {
           await sink.close();
           throw APIError(Errors.dataError, "Dosya kaydedilirken hata: $e");
@@ -360,7 +361,7 @@ class APIService<T extends JsonProtocol> {
       debugPrint("API hatası: ${err.message}");
       throw APIError(err.message);
     } on Exception catch (err) {
-      debugPrint("Dosya indirme hatası: $err");
+      debugPrint("Dosya indirme hatası: $err}");
       throw APIError(Errors.dataError, "Dosya indirme hatası: $err");
     }
   }
@@ -422,11 +423,9 @@ class APIService<T extends JsonProtocol> {
       request.files.add(file);
       debugPrint("Dosya eklendi: ${file.length} bytes");
 
-      // Ekstra form alanları
-      if (model != null) {
-        debugPrint("Form alanları ekleniyor: $model");
-        request.fields.addAll(Map<String, String>.from(model.toJson()));
-      }
+      debugPrint("Form alanları ekleniyor: $model");
+      request.fields.addAll(Map<String, String>.from(model.toJson()));
+
       // İsteği gönder
       debugPrint("Dosya yükleme isteği gönderiliyor: $url");
       var streamedResponse = await request.send();

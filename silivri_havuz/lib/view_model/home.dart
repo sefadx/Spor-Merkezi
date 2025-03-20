@@ -46,6 +46,7 @@ class ViewModelHome extends ChangeNotifier {
   final TextEditingController memberSearchTextEditingController = TextEditingController();
 
   fetchMember({int page = 1, int limit = 100, String search = ""}) async {
+    memberSearchTextEditingController.clear();
     BaseResponseModel<ListWrapped<MemberModel>> res =
         await APIService<ListWrapped<MemberModel>>(url: APIS.api.member(limit: limit, page: page, search: search))
             .get(
@@ -58,13 +59,14 @@ class ViewModelHome extends ChangeNotifier {
     if (res.success) {
       List<MemberModel> listMember = (res.data?.items) ?? [];
       members.sink.add(listMember);
-      CustomRouter.instance.replacePushWidget(
+      debugPrint("apiden gelen yanıt: ${res.toJson()}");
+      /*CustomRouter.instance.replacePushWidget(
           child: PagePopupInfo(
             title: "Bildirim",
             informationText: res.message.toString(),
             afterDelay: () => CustomRouter.instance.pop(),
           ),
-          pageConfig: ConfigPopupInfo());
+          pageConfig: ConfigPopupInfo());*/
     } else {
       members.addError(res);
       CustomRouter.instance.pushWidget(
@@ -76,7 +78,8 @@ class ViewModelHome extends ChangeNotifier {
     }
   }
 
-  fetchSession({int page = 1, int limit = 10}) async {
+  fetchSession({int page = 1, int limit = 10, String search = ""}) async {
+    sessionSearchTextEditingController.clear();
     BaseResponseModel<ListWrapped<SessionModel>> res = await APIService<ListWrapped<SessionModel>>(url: APIS.api.session(page: page, limit: limit))
         .get(
             fromJsonT: (json) => ListWrapped.fromJson(
@@ -88,13 +91,14 @@ class ViewModelHome extends ChangeNotifier {
     if (res.success) {
       List<SessionModel> listSession = (res.data?.items) ?? [];
       sessions.sink.add(listSession);
-      CustomRouter.instance.replacePushWidget(
+      debugPrint("apiden gelen yanıt: ${res.toJson()}");
+      /*CustomRouter.instance.replacePushWidget(
           child: PagePopupInfo(
             title: "Bildirim",
             informationText: res.message.toString(),
             afterDelay: () => CustomRouter.instance.pop(),
           ),
-          pageConfig: ConfigPopupInfo());
+          pageConfig: ConfigPopupInfo());*/
     } else {
       sessions.addError(res);
       CustomRouter.instance.pushWidget(
@@ -105,38 +109,4 @@ class ViewModelHome extends ChangeNotifier {
           pageConfig: ConfigPopupInfo());
     }
   }
-/*
-  final List<String> listCities = [];
-  final List<String> listGenders = [];
-  final List<String> listMaritalStatus = [];
-  final List<String> listEducationLevels = [];
-  final List<String> listProfessions = [];
-  final List<String> listHealthStatusCheck = [];
-  final List<String> listPaymentStatus = [];
-
-  void fetchVariables() async {
-    BaseResponseModel<Map<String, dynamic>> res = await APIService<Map<String, dynamic>>(url: APIS.api.variables()).getBaseResponseModel();
-    res.data?.forEach((key, value) {
-      switch (key) {
-        case "Cities":
-          listCities.addAll(List<String>.from(value));
-          break;
-        case "Genders":
-          listGenders.addAll(List<String>.from(value));
-          break;
-        case "EducationLevels":
-          listEducationLevels.addAll(List<String>.from(value));
-          break;
-        case "HealthStatusCheck":
-          listHealthStatusCheck.addAll(List<String>.from(value));
-          break;
-        case "PaymentStatus":
-          listPaymentStatus.addAll(List<String>.from(value));
-          break;
-        default:
-          debugPrint("Bilinmeyen değişken: $key");
-      }
-    });
-    notifyListeners();
-  }*/
 }

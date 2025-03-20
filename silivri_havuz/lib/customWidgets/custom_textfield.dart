@@ -12,6 +12,7 @@ class CustomTextField extends StatelessWidget {
     this.controller,
     this.validator,
     this.inputFormatter,
+    this.onFieldSubmitted,
     this.onTap,
     this.readOnly = false,
     super.key,
@@ -24,11 +25,14 @@ class CustomTextField extends StatelessWidget {
   final void Function()? onTap;
   final bool readOnly;
   final List<TextInputFormatter>? inputFormatter;
+  final void Function(String)? onFieldSubmitted;
 
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
     return TextFormField(
+      textInputAction: TextInputAction.search,
+      onFieldSubmitted: onFieldSubmitted,
       enabled: !readOnly,
       readOnly: readOnly,
       controller: controller,

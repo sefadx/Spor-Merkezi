@@ -1,12 +1,13 @@
 import 'dart:io';
-
+import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:silivri_havuz/model/file_model.dart';
-import 'package:silivri_havuz/model/health_status.dart';
-import 'package:silivri_havuz/model/payment_status.dart';
-import 'package:silivri_havuz/model/trainer_model.dart';
-import 'package:silivri_havuz/utils/enums.dart';
+import 'package:open_file/open_file.dart';
+import '../../model/file_model.dart';
+import '../../model/health_status.dart';
+import '../../model/payment_status.dart';
+import '../../model/trainer_model.dart';
+import '../../utils/enums.dart';
 
 import '../model/member_model.dart';
 import '../navigator/custom_navigation_view.dart';
@@ -80,6 +81,7 @@ class ViewModelMemberDetails extends ChangeNotifier {
           trainerModel: TrainerModel.id(id: "67c4b83e3fc862ea8697fd3d"),
           memberModel: memberModel,
           approvalDate: DateTime.now(),
+          //fileSize: pickedFile!.files.single.size,
           fileName: "saglik_raporu",
           reportType: ReportTypes.SaglikRaporu);
 
@@ -126,7 +128,7 @@ class ViewModelMemberDetails extends ChangeNotifier {
         .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
 
     if (res.success) {
-      listMemberFiles = res.data?.items ?? [];
+      listMemberFiles = res.data?.items.reversed.toList() ?? [];
     } else {
       debugPrint(res.message);
       CustomRouter.instance.pushWidget(
@@ -138,11 +140,11 @@ class ViewModelMemberDetails extends ChangeNotifier {
     }
     notifyListeners();
   }
-
+/*
   Future<void> downloadFile(String fileId) async {
     try {
       // İndirme için geçici dizini al (normalde path_provider paketinden)
-      final tempPath = '/tmp/downloaded_file.pdf'; // Sadece örnek
+      final tempPath = '../download/downloaded_file.pdf'; // Sadece örnek
 
       // Dosya indirme işlemini başlat
       final result = await APIService(url: APIS.api.downloadFile(fileId: fileId)).downloadFile(
@@ -159,6 +161,69 @@ class ViewModelMemberDetails extends ChangeNotifier {
       }
     } catch (e) {
       print('Dosya indirme hatası: $e');
+    }
+  }*/
+
+  Future<void> downloadAndOpenFile({
+    required String fileId,
+    required BuildContext context,
+    Function(double progress)? onProgress,
+    bool openAfterDownload = true,
+  }) async {
+    try {
+      // İndirme için geçici dizini al
+      final tempDir = await getDownloadsDirectory();
+
+      // Dosya indirme API'sini çağır
+      final fileData = await APIService(url: APIS.api.downloadFile(fileId: fileId)).downloadFile(
+        savePath: tempDir?.path,
+        onProgress: (received, total) {
+          final progress = total > 0 ? received / total : 0.0;
+          debugPrint('İndirme ilerlemesi: ${(progress * 100).toStringAsFixed(0)}%');
+        },
+      );
+
+      if (fileData['success'] == true && fileData['path'] != null) {
+        CustomRouter.instance.pushWidget(
+            child: const PagePopupInfo(
+              title: "Bildirim",
+              informationText: "Dosya başarıyla indirildi.",
+            ),
+            pageConfig: ConfigPopupInfo());
+
+        if (openAfterDownload) {
+          // Dosyayı aç
+          debugPrint(fileData['path']);
+          OpenFile.open(fileData['path']).then((result) {
+            if (result.type != ResultType.done) {
+              CustomRouter.instance.pushWidget(
+                  child: PagePopupInfo(
+                    title: "Bildirim",
+                    informationText: 'Dosya açılamadı: ${result.message}',
+                  ),
+                  pageConfig: ConfigPopupInfo());
+            }
+          });
+        }
+
+        return fileData['path'];
+      } else {
+        CustomRouter.instance.pushWidget(
+            child: const PagePopupInfo(
+              title: "Bildirim",
+              informationText: "Dosya indirilemedi.",
+            ),
+            pageConfig: ConfigPopupInfo());
+      }
+    } catch (e) {
+      // İndirme sırasında bir hata oluştu, bildirimi kapat
+      debugPrint(e.toString());
+      CustomRouter.instance.pushWidget(
+          child: const PagePopupInfo(
+            title: "Bildirim",
+            informationText: "İndirme sırasında bir hata oluştu",
+          ),
+          pageConfig: ConfigPopupInfo());
     }
   }
 
@@ -183,9 +248,10 @@ class ViewModelMemberDetails extends ChangeNotifier {
             paymentStatus: PaymentStatus(text: "text"),
             healthStatus: HealthStatus(text: "text"));
 
-        BaseResponseModel res = await APIService<MemberModel>(url: APIS.api.member())
-            .post(model)
-            .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+        BaseResponseModel res = await APIService<MemberModel>(url: APIS.api.member()).post(model).onError((error, stackTrace) {
+          debugPrint(error.toString());
+          return BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu, $error");
+        });
 
         if (res.success) {
           ViewModelHome.instance.fetchMember();
@@ -206,6 +272,13 @@ class ViewModelMemberDetails extends ChangeNotifier {
               pageConfig: ConfigPopupInfo());
         }
       }
-    } else {}
+    } else {
+      CustomRouter.instance.pushWidget(
+          child: const PagePopupInfo(
+            title: "Bildirim",
+            informationText: "Verileri kontrol ediniz.",
+          ),
+          pageConfig: ConfigPopupInfo());
+    }
   }
 }

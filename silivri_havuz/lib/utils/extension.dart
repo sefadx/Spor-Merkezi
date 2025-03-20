@@ -54,24 +54,28 @@ Future<TimeOfDay> selectTime(BuildContext context, {TimeOfDay? initialTime}) asy
 
 //------------------------------------------------------------------------------
 /// TC KİMLİK NO DOĞRULAMA ALGORİTMASI (validator)
-String? validateIdentityNumber(String? tcNo) {
-  if (tcNo == null || !RegExp(r'^[1-9][0-9]{10}\$').hasMatch(tcNo)) {
-    return 'Geçersiz TC Kimlik Numarası';
+String? validateTcKimlik(String? value) {
+  if (value == null || value.isEmpty) {
+    return 'T.C. Kimlik Numarası giriniz';
+  }
+  if (!RegExp(r'^[1-9][0-9]{10}$').hasMatch(value)) {
+    return 'Geçerli bir T.C. Kimlik Numarası giriniz';
   }
 
-  List<int> digits = tcNo.split('').map(int.parse).toList();
-  int oddSum = digits[0] + digits[2] + digits[4] + digits[6] + digits[8];
-  int evenSum = digits[1] + digits[3] + digits[5] + digits[7];
-  int tenthDigit = ((oddSum * 7) - evenSum) % 10;
+  List<int> digits = value.split('').map(int.parse).toList();
 
-  if (tenthDigit != digits[9]) return 'Geçersiz TC Kimlik Numarası';
+  // TCKN algoritma kontrolü
+  int sumOdd = digits[0] + digits[2] + digits[4] + digits[6] + digits[8];
+  int sumEven = digits[1] + digits[3] + digits[5] + digits[7];
 
-  int sumAll = digits.sublist(0, 10).reduce((acc, num) => acc + num);
-  int eleventhDigit = sumAll % 10;
+  int check10 = ((sumOdd * 7) - sumEven) % 10;
+  int check11 = (sumOdd + sumEven + digits[9]) % 10;
 
-  if (eleventhDigit != digits[10]) return 'Geçersiz TC Kimlik Numarası';
+  if (digits[9] != check10 || digits[10] != check11) {
+    return 'Geçerli bir T.C. Kimlik Numarası giriniz';
+  }
 
-  return null;
+  return null; // Geçerli ise hata mesajı dönmez
 }
 
 /// TELEFON NO DOĞRULAMA ALGORİTMASI (validator)

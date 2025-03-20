@@ -20,6 +20,7 @@ class SearchAndFilter extends StatelessWidget {
       children: [
         Expanded(
             child: CustomTextField(
+          onFieldSubmitted: (value) => onTap?.call(),
           hintText: hintText,
           prefixIcon: Icon(Icons.search, color: appState.themeData.iconTheme.color),
           controller: controller,

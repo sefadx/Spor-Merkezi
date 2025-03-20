@@ -38,7 +38,8 @@ class PageSessions extends StatelessWidget {
           children: [
             SizedBox(height: AppTheme.gapsmall),
             // Search and Filter Section
-            SearchAndFilter(onTap: () {}),
+            SearchAndFilter(
+                controller: vm.sessionSearchTextEditingController, onTap: () => vm.fetchSession(search: vm.sessionSearchTextEditingController.text)),
 
             SizedBox(height: AppTheme.gapsmall),
 

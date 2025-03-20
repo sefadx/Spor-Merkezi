@@ -7,6 +7,7 @@ import '../../controller/provider.dart';
 import '../../customWidgets/custom_dropdown_list.dart';
 import '../../customWidgets/custom_label_textfield.dart';
 import '../../utils/enums.dart';
+import '../../utils/extension.dart';
 import '../../view_model/member_details.dart';
 
 class FormContentMember extends StatelessWidget {
@@ -29,9 +30,12 @@ class FormContentMember extends StatelessWidget {
                       SizedBox(height: 10),
                       Row(children: [
                         Expanded(
-                            child: CustomLabelTextField(readOnly: vm.readOnly, controller: vm.identityController, label: "T.C. Kimlik No"
-                                //validator: validateIdentityNumber
-                                )),
+                            child: CustomLabelTextField(
+                          readOnly: vm.readOnly,
+                          controller: vm.identityController,
+                          label: "T.C. Kimlik No",
+                          validator: validateTcKimlik,
+                        )),
                         SizedBox(width: 30),
                         Expanded(
                             child: CustomLabelTextField(
@@ -137,18 +141,11 @@ class FormContentMember extends StatelessWidget {
                       Row(mainAxisSize: MainAxisSize.max, children: [
                         Expanded(
                             child: CustomLabelTextField(
-                                readOnly: vm.readOnly,
-                                controller: vm.phoneController,
-                                label: "Telefon Numarası",
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Telefon numarası gerekli';
-                                  }
-                                  if (!RegExp(r'^\d+$').hasMatch(value)) {
-                                    return 'Geçerli bir telefon numarası girin';
-                                  }
-                                  return null;
-                                })),
+                          readOnly: vm.readOnly,
+                          controller: vm.phoneController,
+                          label: "Telefon Numarası",
+                          validator: validatePhoneNo,
+                        )),
                         SizedBox(width: 30),
                         Expanded(
                             child: CustomLabelTextField(
@@ -221,17 +218,19 @@ class FormContentMember extends StatelessWidget {
                         shrinkWrap: true,
                         itemCount: vm.listMemberFiles?.length,
                         itemBuilder: (context, index) {
+                          final date = vm.listMemberFiles!.elementAt(index).approvalDate.toLocal();
                           return Row(
                             children: [
                               const Icon(Icons.picture_as_pdf, color: Colors.red),
                               const SizedBox(width: AppTheme.gapmedium),
                               Text(
-                                  "${vm.listMemberFiles?.elementAt(index).approvalDate.toLocal().toString()} ${vm.listMemberFiles?.elementAt(index).reportType}"),
+                                  "${vm.listMemberFiles?.elementAt(index).reportType} ${date.day.toString()}/${date.month.toString()}/${date.year.toString()}"),
                               const SizedBox(width: AppTheme.gapmedium),
                               IconButton(
                                   icon: Icon(Icons.remove_red_eye),
                                   onPressed: () async {
-                                    await vm.downloadFile(vm.listMemberFiles!.elementAt(index).fileId);
+                                    await vm.downloadAndOpenFile(fileId: vm.listMemberFiles!.elementAt(index).fileId, context: context);
+                                    //await vm.downloadFile(vm.listMemberFiles!.elementAt(index).fileId);
                                     // TODO: PDF Görüntüleme Fonksiyonu
                                   })
                             ],

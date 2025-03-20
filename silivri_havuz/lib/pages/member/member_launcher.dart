@@ -17,11 +17,12 @@ class PageMemberLauncher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
-
     return Provider(
       model: vm,
       child: Scaffold(
+          backgroundColor: appState.themeData.scaffoldBackgroundColor,
           appBar: AppBar(
+            scrolledUnderElevation: 0,
             title: Text('Üye Ekle', style: appState.themeData.textTheme.headlineLarge),
             actions: [
               CustomButton(

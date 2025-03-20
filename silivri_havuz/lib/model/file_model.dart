@@ -13,6 +13,7 @@ class FileModel implements JsonProtocol {
     required this.approvalDate,
     //required this.endOfValidity,
     required this.fileName,
+    //required this.fileSize,
     required this.reportType,
   });
 
@@ -26,6 +27,8 @@ class FileModel implements JsonProtocol {
   late final MemberModel memberModel;
   late final String fileName;
   late final String fileId;
+  //late final int fileSize;
+  //late final String mimeType;
   late final ReportTypes reportType;
   //late DateTime endOfValidity;
   late final DateTime approvalDate;
@@ -33,13 +36,16 @@ class FileModel implements JsonProtocol {
   factory FileModel.fromJson({required Map<String, dynamic> json}) {
     debugPrint(json.toString());
     FileModel model = FileModel(
-        trainerModel: TrainerModel.id(id: json["trainerId"]),
-        memberModel: MemberModel.id(id: json["memberId"]),
-        approvalDate: DateTime.parse(json["approvalDate"]).toLocal(),
-        fileName: json["fileName"] ?? json["filename"],
-        reportType: ReportTypes.fromString(json["reportType"]));
+      trainerModel: TrainerModel.id(id: json["trainerId"]),
+      memberModel: MemberModel.id(id: json["memberId"]),
+      approvalDate: DateTime.parse(json["approvalDate"]).toLocal(),
+      fileName: json["fileName"] ?? json["filename"],
+      reportType: ReportTypes.fromString(json["reportType"]),
+      //fileSize: json["fileSize"],
+    );
     model._id = json["_id"];
     model.fileId = json["fileId"];
+    //model.mimeType = json["mimeType"];
     model._createdAt = DateTime.parse(json["createdAt"]).toLocal();
     return model;
   }
