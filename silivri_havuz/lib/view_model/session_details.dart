@@ -22,7 +22,7 @@ class ViewModelSessionDetails extends ChangeNotifier {
     selectedTrainer = model.trainer;
 
     _dateTimeStart = model.dateTimeStart;
-    sessionPickedDate.text = format.format(model.dateTimeStart);
+    sessionPickedDate.text = dateFormat.format(model.dateTimeStart);
     sessionPickedTimeStart.text = "${model.dateTimeStart.hour}:${model.dateTimeStart.minute}";
 
     _dateTimeEnd = model!.dateTimeEnd;
@@ -50,11 +50,13 @@ class ViewModelSessionDetails extends ChangeNotifier {
   List<MemberModel>? waitingMembers;
 
   void pickDate(BuildContext context) async {
+    final month = DateTime.now().month + 2;
+    final DateTime lastDay = DateTime(DateTime.now().year, DateTime.now().month + 2);
     _dateTimeStart = await selectDate(context,
-        initialDate: sessionPickedDate.text != "" ? format.parse(sessionPickedDate.text) : null,
+        initialDate: sessionPickedDate.text != "" ? dateFormat.parse(sessionPickedDate.text) : null,
         firstDate: DateTime.now(),
         lastDate: DateTime(DateTime.now().year, DateTime.now().month + 2));
-    sessionPickedDate.text = format.format(_dateTimeStart);
+    sessionPickedDate.text = dateFormat.format(_dateTimeStart);
     notifyListeners();
   }
 
@@ -158,8 +160,9 @@ class ViewModelSessionDetails extends ChangeNotifier {
   void onSave() async {
     if (formKey.currentState!.validate() && sessionPickedDate.text.isNotEmpty && selectedTrainer != null) {
       if (await CustomRouter.instance.waitForResult(
-          const PageAlertDialog(title: "Uyarı", informationText: "Girdiğiniz bilgilere göre seans kaydı oluşturulacaktır. Onaylıyor musunuz ?"),
-          ConfigAlertDialog)) {
+          child:
+              const PageAlertDialog(title: "Uyarı", informationText: "Girdiğiniz bilgilere göre seans kaydı oluşturulacaktır. Onaylıyor musunuz ?"),
+          pageConfig: ConfigAlertDialog)) {
         SessionModel model = SessionModel(
             sportType: SportTypes.fromString(sessionPickedSportType.text),
             trainer: selectedTrainer!,

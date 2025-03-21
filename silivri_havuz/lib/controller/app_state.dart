@@ -4,7 +4,6 @@ import '../navigator/custom_navigation_view.dart';
 import 'app_theme.dart';
 
 class AppState extends ChangeNotifier {
-  ///InheritedNotifier olayını yap chatgpt.com
   static AppState get instance => _start;
   static final AppState _start = AppState._instance();
   AppState._instance();
@@ -18,7 +17,6 @@ class AppState extends ChangeNotifier {
 
   void toggleColorMode() {
     colorMode = colorMode == ColorMode.dark ? ColorMode.light : ColorMode.dark;
-    //colorMode == ColorMode.dark ? ColorMode.light : ColorMode.dark;
   }
 
   PageAction _currentAction = PageAction();

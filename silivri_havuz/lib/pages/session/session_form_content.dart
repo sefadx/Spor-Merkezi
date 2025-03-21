@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:silivri_havuz/navigator/ui_page.dart';
+import 'package:silivri_havuz/pages/member/member_launcher.dart';
+import 'package:silivri_havuz/view_model/member_details.dart';
 
 import '../../controller/app_state.dart';
 import '../../controller/app_theme.dart';
@@ -8,6 +11,7 @@ import '../../customWidgets/buttons/custom_button.dart';
 import '../../customWidgets/cards/list_item_session_members.dart';
 import '../../customWidgets/custom_dropdown_list.dart';
 import '../../customWidgets/custom_label_textfield.dart';
+import '../../navigator/custom_navigation_view.dart';
 import '../../utils/enums.dart';
 import '../../view_model/session_details.dart';
 
@@ -34,13 +38,16 @@ class FormContentSession extends StatelessWidget {
                             labelText: "Spor Tipi",
                             value: vm.sessionPickedSportType.text.isNotEmpty ? vm.sessionPickedSportType.text : null,
                             list: List<String>.from(SportTypes.values.map((e) => e.toString())),
-                            onChanged: (text) => vm.sessionPickedSportType.text = text!)),
+                            onChanged: (text) {
+                              vm.sessionPickedSportType.text = text!;
+                              vm.createParticipantsList();
+                            })),
                     const SizedBox(width: AppTheme.gapmedium),
                     Expanded(
                         child: vm.readOnly
                             ? CustomLabelTextField(readOnly: vm.readOnly, label: "Eğitmen Adı Soyadı", hintText: vm.selectedTrainer?.dropdownText)
                             : CustomDropdownList(
-                                labelText: "Eğitmen Adı Soyadı",
+                                labelText: "Eğitmen",
                                 value: vm.selectedTrainer?.dropdownText,
                                 list: vm.listTrainer?.map((e) => e.dropdownText).toList() ?? [],
                                 onChanged: (text) =>
@@ -55,6 +62,11 @@ class FormContentSession extends StatelessWidget {
                             readOnly: vm.readOnly,
                             controller: vm.sessionPickedDate,
                             label: "Seans Tarihi",
+                            inputFormatter: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(8), // Maksimum 8 karakter
+                              DateFormatter()
+                            ],
                             suffixIcon: IconButton(
                                 icon: Icon(Icons.date_range, color: appState.themeData.primaryColorDark),
                                 onPressed: !vm.readOnly ? () => vm.pickDate(context) : null),
@@ -65,6 +77,11 @@ class FormContentSession extends StatelessWidget {
                             readOnly: vm.readOnly,
                             controller: vm.sessionPickedTimeStart,
                             label: "Başlangıç Saati",
+                            inputFormatter: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(8), // Maksimum 8 karakter
+                              DateFormatter(),
+                            ],
                             suffixIcon: IconButton(
                                 icon: Icon(Icons.watch_later_outlined, color: appState.themeData.primaryColorDark),
                                 onPressed: vm.readOnly ? null : () => vm.pickTimeStart(context)),
@@ -124,14 +141,22 @@ class FormContentSession extends StatelessWidget {
                             separatorBuilder: (context, index) => const SizedBox(height: AppTheme.gapsmall),
                             itemBuilder: (context, index) => ListItemSessionMembers(
                                   member: vm.mainMembers!.elementAt(index),
-                                  onTap: () {},
+                                  onTap: () => CustomRouter.instance.pushWidget(
+                                      child: PageMemberLauncher(
+                                          model: ViewModelMemberDetails.fromModel(memberModel: vm.waitingMembers!.elementAt(index))),
+                                      pageConfig: ConfigMemberDetails),
                                 ))),
                     const SizedBox(width: AppTheme.gapxlarge),
                     Expanded(
                         child: ListView.separated(
                             itemCount: vm.waitingMembers?.length ?? 0,
                             separatorBuilder: (context, index) => const SizedBox(height: AppTheme.gapsmall),
-                            itemBuilder: (context, index) => ListItemSessionMembers(member: vm.waitingMembers!.elementAt(index), onTap: () {}))),
+                            itemBuilder: (context, index) => ListItemSessionMembers(
+                                member: vm.waitingMembers!.elementAt(index),
+                                onTap: () => CustomRouter.instance.pushWidget(
+                                    child:
+                                        PageMemberLauncher(model: ViewModelMemberDetails.fromModel(memberModel: vm.waitingMembers!.elementAt(index))),
+                                    pageConfig: ConfigMemberDetails)))),
                   ],
                 ))
               ],

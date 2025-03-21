@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:silivri_havuz/customWidgets/buttons/custom_button.dart';
-
+import '../../customWidgets/buttons/custom_button.dart';
 import '../../controller/app_state.dart';
 import '../../controller/app_theme.dart';
 import '../../controller/provider.dart';
@@ -23,7 +22,7 @@ class PageMemberLauncher extends StatelessWidget {
           backgroundColor: appState.themeData.scaffoldBackgroundColor,
           appBar: AppBar(
             scrolledUnderElevation: 0,
-            title: Text('Üye Ekle', style: appState.themeData.textTheme.headlineLarge),
+            title: Text(vm.readOnly ? "Üye Bilgileri" : "Üye Ekle", style: appState.themeData.textTheme.headlineLarge),
             actions: [
               CustomButton(
                   readOnly: vm.readOnly,

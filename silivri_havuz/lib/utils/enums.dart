@@ -1,3 +1,76 @@
+enum ActivityType {
+  yetiskinKadin,
+  yetiskinErkek,
+  eykom,
+  cocuk,
+  yuzmeAkademisi,
+  havuzBakim;
+
+  @override
+  String toString() {
+    switch (this) {
+      case yetiskinErkek:
+        return "Yetişkin Erkek";
+      case yetiskinKadin:
+        return "Yetişkin Kadın";
+      case ActivityType.eykom:
+        return "EYKOM";
+      case ActivityType.cocuk:
+        return "Çocuk";
+      case ActivityType.yuzmeAkademisi:
+        return "Yüzme Akademisi";
+      case ActivityType.havuzBakim:
+        return "Havuz Bakım";
+    }
+  }
+
+  static ActivityType fromString(String value) => ActivityType.values.firstWhere((e) => e.toString() == value);
+}
+
+enum FeeType {
+  paid,
+  free;
+
+  @override
+  String toString() {
+    switch (this) {
+      case paid:
+        return "Ücretli";
+      case free:
+        return "Ücretsiz";
+    }
+  }
+
+  static FeeType fromString(String value) => FeeType.values.firstWhere((e) => e.toString() == value);
+}
+
+//List<String> ageGroup = ["13+","6-12","7-12","4-6"];
+enum AgeGroup {
+  all,
+  age13Plus,
+  age6to12,
+  age7to12,
+  age4to6;
+
+  @override
+  String toString() {
+    switch (this) {
+      case all:
+        return "Bütün Yaşlar";
+      case age13Plus:
+        return "13+ Yaş";
+      case age6to12:
+        return "6-12 Yaş";
+      case age7to12:
+        return "7-12 Yaş";
+      case age4to6:
+        return "4-6 Yaş";
+    }
+  }
+
+  static AgeGroup fromString(String value) => AgeGroup.values.firstWhere((e) => e.toString() == value);
+}
+
 enum ReportTypes {
   SaglikRaporu;
 

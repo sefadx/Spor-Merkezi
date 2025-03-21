@@ -5,7 +5,6 @@ import '../controller/provider.dart';
 import 'buttons/custom_button.dart';
 import 'custom_textfield.dart';
 
-@immutable
 class SearchAndFilter extends StatelessWidget {
   const SearchAndFilter({this.controller, this.onTap, this.hintText, super.key});
 

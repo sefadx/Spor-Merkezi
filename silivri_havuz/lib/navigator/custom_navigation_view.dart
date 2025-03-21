@@ -68,7 +68,7 @@ class CustomRouter extends RouterDelegate<PageConfiguration> with ChangeNotifier
     return _resultData.future;
   }*/
 
-  Future<bool> waitForResult(Widget child, PageConfiguration pageConfig) async {
+  Future<bool> waitForResult({required Widget child, required PageConfiguration pageConfig}) async {
     _resultData = Completer<bool>();
     _addPageData(child, pageConfig);
     return _resultData.future;

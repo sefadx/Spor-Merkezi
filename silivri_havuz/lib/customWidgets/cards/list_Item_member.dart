@@ -3,6 +3,7 @@ import 'package:silivri_havuz/model/health_status.dart';
 import 'package:silivri_havuz/model/payment_status.dart';
 
 import '../../controller/app_state.dart';
+import '../../controller/app_theme.dart';
 
 class ListItemMember extends StatelessWidget {
   const ListItemMember({
@@ -23,17 +24,14 @@ class ListItemMember extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: Padding(
-        padding: const EdgeInsets.only(top: 7, bottom: 7, left: 7, right: 20),
+        padding: const EdgeInsets.only(bottom: AppTheme.gapxsmall),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: onTap,
           child: Ink(
-            decoration: BoxDecoration(
-                color: AppState.instance.themeData.primaryColorLight,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 7)]),
+            decoration: AppTheme.listItemDecoration(context),
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(AppTheme.gapmedium),
               child: Row(
                 children: [
                   Expanded(

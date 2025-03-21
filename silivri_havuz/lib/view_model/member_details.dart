@@ -8,24 +8,26 @@ import '../../model/health_status.dart';
 import '../../model/payment_status.dart';
 import '../../model/trainer_model.dart';
 import '../../utils/enums.dart';
-
 import '../model/member_model.dart';
 import '../navigator/custom_navigation_view.dart';
 import '../navigator/ui_page.dart';
 import '../network/api.dart';
 import '../pages/alert_dialog.dart';
+import '../pages/file_form.dart';
 import '../pages/info_popup.dart';
+import '../pages/widget_popup.dart';
 import '../utils/extension.dart';
 import 'home.dart';
 
 class ViewModelMemberDetails extends ChangeNotifier {
   ViewModelMemberDetails({this.readOnly = false});
+
   ViewModelMemberDetails.fromModel({required this.memberModel, this.readOnly = true}) {
     listFiles();
     identityController.text = memberModel.identityNumber;
     nameController.text = memberModel.name;
     surnameController.text = memberModel.surname;
-    birthdateController.text = format.format(memberModel.birthDate);
+    birthdateController.text = dateFormat.format(memberModel.birthDate);
     birthPlaceController.text = memberModel.birthPlace.toString();
     genderController.text = memberModel.gender.toString();
     educationLevelController.text = memberModel.educationLevel.toString();
@@ -54,9 +56,12 @@ class ViewModelMemberDetails extends ChangeNotifier {
   final TextEditingController emergencyNameSurnameController = TextEditingController();
   final TextEditingController emergencyPhoneNumberController = TextEditingController();
 
-  FilePickerResult? pickedFile;
+  final TextEditingController fileApprovalDate = TextEditingController();
+
+  FileModel? pickedFileModel;
+
   void pickFile() async {
-    pickedFile = await FilePicker.platform.pickFiles(
+    FilePickerResult? pickedFile = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
@@ -64,57 +69,62 @@ class ViewModelMemberDetails extends ChangeNotifier {
     if (pickedFile != null) {
       File file = File(pickedFile!.files.single.path!);
       final fileSize = pickedFile!.files.single.size / (1024 * 1024);
-      debugPrint("Yüklenecek dosya: ${file.path}, Boyut: ${fileSize.toStringAsFixed(2)}MB");
 
-      // 5MB sınırı
-      if (fileSize > 5 * 1024 * 1024) {
-        CustomRouter.instance.pushWidget(
-            child: PagePopupInfo(
-              title: "Bildirim",
-              informationText: "Dosya boyutu 5MB dan büyük olamaz.\nBoyut: ${fileSize.toStringAsFixed(2)}MB",
-            ),
-            pageConfig: ConfigPopupInfo());
-        return;
-      }
-
-      FileModel model = FileModel(
+      pickedFileModel = FileModel(
           trainerModel: TrainerModel.id(id: "67c4b83e3fc862ea8697fd3d"),
           memberModel: memberModel,
           approvalDate: DateTime.now(),
-          //fileSize: pickedFile!.files.single.size,
+          fileSize: pickedFile!.files.single.size,
           fileName: "saglik_raporu",
           reportType: ReportTypes.SaglikRaporu);
 
-      debugPrint("Dosya yolu: ${pickedFile!.files.single.name}");
-      debugPrint("Dosya yolu: ${pickedFile!.files.single.size.toString()}");
-      BaseResponseModel res = await APIService<FileModel>(url: APIS.api.upload()).uploadFile(model, filePath: file.path);
+      debugPrint("Dosya yolu: ${pickedFile.files.single.name}");
+      debugPrint("Dosya boyutu: $fileSize");
+
+      debugPrint("Yüklenecek dosya: ${file.path}, Boyut: ${fileSize.toStringAsFixed(2)}MB");
+
+      // 5MB sınırı
+      if ((fileSize > 5 * 1024 * 1024) && pickedFileModel != null) {
+        CustomRouter.instance.pushWidget(
+            child: PagePopupInfo(title: "Bildirim", informationText: "Dosya boyutu 5MB dan büyük olamaz.\nBoyut: ${fileSize.toStringAsFixed(2)}MB"),
+            pageConfig: ConfigPopupInfo());
+        return;
+      } else if (await CustomRouter.instance.waitForResult(
+          child: PageFileForm(
+            fileModel: pickedFileModel!,
+            approvalDateController: fileApprovalDate,
+          ),
+          pageConfig: ConfigPopupWidget)) {
+        pickedFileModel?.approvalDate = dateFormat.parse(fileApprovalDate.text);
+        uploadFile(pickedFile);
+      }
+    } else {
+      CustomRouter.instance
+          .pushWidget(child: const PagePopupInfo(title: "Bildirim", informationText: "Dosya yükleme iptal edildi."), pageConfig: ConfigPopupInfo());
+    }
+  }
+
+  void uploadFile(FilePickerResult pickedFile) async {
+    if (pickedFileModel != null) {
+      BaseResponseModel res =
+          await APIService<FileModel>(url: APIS.api.upload()).uploadFile(pickedFileModel!, filePath: pickedFile.files.single.path!);
       if (res.success) {
-        listMemberFiles = res.data?.items ?? [];
+        debugPrint(res.message);
+        CustomRouter.instance
+            .pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
+        listFiles();
       } else {
         debugPrint(res.message);
-        CustomRouter.instance.pushWidget(
-            child: PagePopupInfo(
-              title: "Bildirim",
-              informationText: res.message.toString(),
-            ),
-            pageConfig: ConfigPopupInfo());
+        CustomRouter.instance
+            .pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
       }
       debugPrint(res.toJson().toString());
     } else {
-      CustomRouter.instance.pushWidget(
-          child: const PagePopupInfo(
-            title: "Bildirim",
-            informationText: "Dosya seçimi iptal edildi.",
-          ),
-          pageConfig: ConfigPopupInfo());
+      debugPrint("Seçili dosya yok. PickedFile: ${pickedFile.files.single.path}");
+      CustomRouter.instance
+          .pushWidget(child: const PagePopupInfo(title: "Bildirim", informationText: "Dosya seçimini yapınız."), pageConfig: ConfigPopupInfo());
     }
 
-    notifyListeners();
-  }
-
-  void pickDate(BuildContext context) async {
-    DateTime date = await selectDate(context, initialDate: birthdateController.text != "" ? format.parse(birthdateController.text) : null);
-    birthdateController.text = format.format(date);
     notifyListeners();
   }
 
@@ -166,7 +176,6 @@ class ViewModelMemberDetails extends ChangeNotifier {
 
   Future<void> downloadAndOpenFile({
     required String fileId,
-    required BuildContext context,
     Function(double progress)? onProgress,
     bool openAfterDownload = true,
   }) async {
@@ -231,12 +240,13 @@ class ViewModelMemberDetails extends ChangeNotifier {
     debugPrint("onSave çalıştı.");
     if (formKey.currentState!.validate() && birthdateController.text.isNotEmpty) {
       if (await CustomRouter.instance.waitForResult(
-          const PageAlertDialog(title: "Uyarı", informationText: "Üye kaydı oluşturulacaktır. Onaylıyor musunuz ?"), ConfigAlertDialog)) {
+          child: const PageAlertDialog(title: "Uyarı", informationText: "Üye kaydı oluşturulacaktır. Onaylıyor musunuz ?"),
+          pageConfig: ConfigAlertDialog)) {
         MemberModel model = MemberModel(
             identityNumber: identityController.text,
             name: nameController.text,
             surname: surnameController.text,
-            birthDate: format.parse(birthdateController.text),
+            birthDate: dateFormat.parse(birthdateController.text),
             birthPlace: Cities.fromString(birthPlaceController.text),
             gender: Genders.fromString(genderController.text),
             educationLevel: EducationLevels.fromString(educationLevelController.text),

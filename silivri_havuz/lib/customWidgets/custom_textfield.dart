@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import '../controller/app_theme.dart';
 import '../controller/app_state.dart';
 import '../controller/provider.dart';
 
@@ -40,8 +40,11 @@ class CustomTextField extends StatelessWidget {
       style: appState.themeData.textTheme.bodyMedium,
       onTap: onTap,
       inputFormatters: inputFormatter,
-      cursorColor: appState.themeData.primaryColorDark,
+      cursorColor: AppTheme.blackWhiteReversed(context),
       decoration: InputDecoration(
+        enabledBorder: appState.themeData.inputDecorationTheme.enabledBorder,
+        disabledBorder: appState.themeData.inputDecorationTheme.disabledBorder,
+        focusedBorder: appState.themeData.inputDecorationTheme.focusedBorder,
         hintText: hintText,
         hintStyle: appState.themeData.textTheme.bodyLarge,
         prefixIcon: prefixIcon,

@@ -1,26 +1,23 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:silivri_havuz/customWidgets/buttons/custom_button.dart';
 
 import '../controller/app_state.dart';
 import '../controller/app_theme.dart';
 import '../controller/provider.dart';
 import '../navigator/custom_navigation_view.dart';
 
-class PagePopupInfo extends StatelessWidget {
-  const PagePopupInfo({required this.title, required this.informationText, this.seconds = 2, this.afterDelay, super.key});
+class PagePopupWidget extends StatelessWidget {
+  const PagePopupWidget({required this.widget, this.actionButton, this.onTapClose, super.key});
 
-  final String title, informationText;
-  final int seconds;
-  final void Function()? afterDelay;
+  final Widget widget;
+  final Function()? onTapClose;
+  final CustomButton? actionButton;
 
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
-    Timer(
-      Duration(seconds: seconds),
-      afterDelay ?? () => CustomRouter.instance.pop(),
-    );
     return Material(
         color: Colors.transparent,
         child: Align(
@@ -28,7 +25,7 @@ class PagePopupInfo extends StatelessWidget {
             child: Padding(
                 padding: const EdgeInsets.all(AppTheme.gapxxlarge),
                 child: Ink(
-                    padding: const EdgeInsets.all(AppTheme.gapmedium),
+                    padding: const EdgeInsets.all(AppTheme.gapxxsmall),
                     width: MediaQuery.of(context).size.width / 2,
                     decoration: BoxDecoration(
                         color: appState.themeData.primaryColorLight,
@@ -36,12 +33,16 @@ class PagePopupInfo extends StatelessWidget {
                         boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 7)]),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(title, textAlign: TextAlign.center, style: appState.themeData.textTheme.headlineLarge),
-                        const SizedBox(height: AppTheme.gapmedium),
-                        Text(informationText, textAlign: TextAlign.center, style: appState.themeData.textTheme.bodyLarge),
-                        const SizedBox(height: AppTheme.gapmedium),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(onPressed: onTapClose ?? () => CustomRouter.instance.pop(), icon: const Icon(Icons.close)),
+                            actionButton ?? const SizedBox()
+                          ],
+                        ),
+                        widget,
                       ],
                     )))));
   }

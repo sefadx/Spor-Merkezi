@@ -1,4 +1,4 @@
-import express, {Request, Response, NextFunction } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import { BaseResponseModel } from "../models/base_response";
 import Session, { ISession } from "../models/session";
 
@@ -12,7 +12,7 @@ router.post("/", async (req: Request, res: Response) => {
         const newSession = new Session(sessionData);
         const savedSession = await newSession.save();
 
-        console.log('API POST: "/member" => Post request is successful');
+        console.log('API POST: "/session" => Post request is successful');
 
         res.status(200).send(
             new BaseResponseModel(true, "Veri başarıyla eklendi", savedSession)
@@ -42,7 +42,8 @@ router.post("/", async (req: Request, res: Response) => {
 router.get("/", async (req: Request, res: Response) => {
     try {
         // Query parametreleri ile filtreleme ve sayfalama desteği ekleyelim
-        const { page = "1", limit = "10", search } = req.query;
+        const { page = "1", limit = "100", search } = req.query;
+        console.log(`API GET: "/session" => Page: ${page}, Limit: ${limit}, Search: ${search}`);
 
         // Sayfalama ve sınır parametrelerini sayıya çevir
         const pageNumber = parseInt(page as string, 10);

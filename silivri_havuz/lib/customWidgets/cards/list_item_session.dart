@@ -30,38 +30,53 @@ class SessionCard extends StatelessWidget {
     return Material(
         color: Colors.transparent,
         child: Padding(
-            padding: const EdgeInsets.only(top: 7, bottom: 7, left: 7, right: 20),
+            padding: const EdgeInsets.only(bottom: AppTheme.gapxsmall),
             child: InkWell(
                 onTap: onTapDetails,
                 child: Ink(
                     decoration: AppTheme.listItemDecoration(context),
-                    /*BoxDecoration(
-                        color: AppState.instance.themeData.primaryColorLight,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 7)]),*/
                     child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
+                        padding: const EdgeInsets.all(AppTheme.gapmedium),
+                        child: Column(
                           children: [
-                            // Session Info
-                            Expanded(
-                                child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(sessionName, style: appState.themeData.textTheme.headlineMedium),
-                                const SizedBox(height: 4),
-                                Text("Eğitmen: $trainerName", style: appState.themeData.textTheme.bodyMedium),
-                                Text("Tarih: $date", style: appState.themeData.textTheme.bodyMedium),
-                                Text("Saat: $time", style: appState.themeData.textTheme.bodyMedium),
-                                Text("Kapasite: $capacity", style: appState.themeData.textTheme.bodyMedium)
+                                Expanded(
+                                    child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Eğitmen: $trainerName", style: appState.themeData.textTheme.bodyMedium),
+                                    Text("Kapasite: $capacity", style: appState.themeData.textTheme.bodyMedium)
+                                  ],
+                                )),
+                                Expanded(
+                                    child: Column(
+                                  children: [
+                                    Text(sessionName, style: appState.themeData.textTheme.headlineMedium, textAlign: TextAlign.center),
+                                    Text(time, style: appState.themeData.textTheme.bodyMedium, textAlign: TextAlign.end),
+                                  ],
+                                )),
+                                Expanded(
+                                    child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        date,
+                                        style: appState.themeData.textTheme.bodySmall,
+                                        textAlign: TextAlign.end,
+                                      ),
+                                      IconButton(
+                                          icon: const Icon(Icons.people),
+                                          onPressed: onTapMembers,
+                                          tooltip: "Katılımcıları Gör",
+                                          color: appState.themeData.iconTheme.color),
+                                    ],
+                                  ),
+                                ))
                               ],
-                            )),
-                            // Action Buttons
-                            IconButton(
-                                icon: const Icon(Icons.people),
-                                onPressed: onTapMembers,
-                                tooltip: "Katılımcıları Gör",
-                                color: appState.themeData.iconTheme.color)
+                            ),
                           ],
                         ))))));
   }

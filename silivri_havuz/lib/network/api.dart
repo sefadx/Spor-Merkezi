@@ -72,7 +72,7 @@ class APIS {
 
   String login() => "$_baseAPI/login";
 
-  String member({int page = 1, int limit = 10, String search = ""}) =>
+  String member({int page = 1, int limit = 10, String? search}) =>
       "$_baseAPI/member?page=${page.toString()}&limit=${limit.toString()}&search=$search";
   String memberId({required String memberId}) => "$_baseAPI/member/$memberId";
   String memberFiles({required String memberId}) => "$_baseAPI/download/member/$memberId";

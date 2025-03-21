@@ -45,8 +45,8 @@ class ViewModelHome extends ChangeNotifier {
   final StreamController<List<MemberModel>> members = StreamController();
   final TextEditingController memberSearchTextEditingController = TextEditingController();
 
-  fetchMember({int page = 1, int limit = 100, String search = ""}) async {
-    memberSearchTextEditingController.clear();
+  fetchMember({int page = 1, int limit = 100, String? search}) async {
+    search == null ? memberSearchTextEditingController.clear() : null;
     BaseResponseModel<ListWrapped<MemberModel>> res =
         await APIService<ListWrapped<MemberModel>>(url: APIS.api.member(limit: limit, page: page, search: search))
             .get(
@@ -78,8 +78,8 @@ class ViewModelHome extends ChangeNotifier {
     }
   }
 
-  fetchSession({int page = 1, int limit = 10, String search = ""}) async {
-    sessionSearchTextEditingController.clear();
+  fetchSession({int page = 1, int limit = 100, String? search}) async {
+    search == null ? sessionSearchTextEditingController.clear() : null;
     BaseResponseModel<ListWrapped<SessionModel>> res = await APIService<ListWrapped<SessionModel>>(url: APIS.api.session(page: page, limit: limit))
         .get(
             fromJsonT: (json) => ListWrapped.fromJson(

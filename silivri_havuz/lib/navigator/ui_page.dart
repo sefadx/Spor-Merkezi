@@ -27,7 +27,7 @@ class PageRouteSettings {
   final bool backgroundOpaque, barrierDismissible, fullScreenDialog;
 }
 
-enum Pages { Home, Login, MemberCreate, NemberDetails, SessionCreate, PopupInfo, AlertDialog, Widget }
+enum Pages { Home, Login, MemberCreate, NemberDetails, SessionCreate, PopupInfo, AlertDialog, PopupWidget, Widget }
 
 //------------------------------------------------------------------------------
 const String PathHome = '/pages/home';
@@ -82,6 +82,21 @@ PageConfiguration ConfigPopupInfo() {
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+const String PathPopupWidget = '/pages/popup_widget';
+
+PageConfiguration ConfigPopupWidget = PageConfiguration(
+    key: 'PopupWidget',
+    path: PathPopupWidget,
+    uiPage: Pages.PopupWidget,
+    pageRouteSettings: const PageRouteSettings(
+      barrierDismissible: true,
+      fullScreenDialog: false,
+      backgroundOpaque: false,
+    ),
+    currentPageAction: null);
+
+//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 const String PathAlertDialog = '/pages/alert_dialog';
 
 PageConfiguration ConfigAlertDialog = PageConfiguration(

@@ -26,9 +26,9 @@ class SessionModel implements JsonProtocol {
   final SportTypes sportType;
   final TrainerModel trainer;
   final DateTime dateTimeStart, dateTimeEnd;
-  String get date => format.format(dateTimeStart);
-  String get timeStart => "${dateTimeStart.hour}:${dateTimeStart.minute}";
-  String get timeEnd => "${dateTimeEnd.hour}:${dateTimeEnd.minute}";
+  String get date => dateFormat.format(dateTimeStart);
+  String get timeStart => timeFormat.format(dateTimeStart);
+  String get timeEnd => timeFormat.format(dateTimeEnd);
 
   final int capacity;
   List<MemberModel> mainMembers;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'controller/app_state.dart';
 import 'controller/provider.dart';
@@ -14,15 +15,8 @@ void main() async {
 
 class SporTesisi extends StatelessWidget {
   SporTesisi({super.key}) {
-    //appState = AppState.instance;
-    //Dinamik tema değişimi için AppState sınıfı dinlemeyi başlat
-    /*appState.addListener(() {
-      setState(() {});
-    });*/
     router = CustomRouter.instance;
     backButtonDispatcher = CustomBackButtonDispatcher(router);
-
-    //router.setNewRoutePath(PageCustomerServicesMainConfig);
     router.setNewRoutePath(ConfigLogin);
   }
 
@@ -32,7 +26,7 @@ class SporTesisi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appState = AppState.instance;
-
+    initializeDateFormatting('tr');
     return Provider<AppState>(
       model: appState,
       child: MaterialApp.router(

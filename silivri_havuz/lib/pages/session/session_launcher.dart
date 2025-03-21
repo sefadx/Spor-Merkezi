@@ -23,7 +23,6 @@ class PageSessionLauncher extends StatelessWidget {
         backgroundColor: appState.themeData.scaffoldBackgroundColor,
         appBar: AppBar(
           scrolledUnderElevation: 0,
-          backgroundColor: appState.themeData.appBarTheme.backgroundColor,
           title: Text('Seans Yönetimi', style: appState.themeData.textTheme.headlineLarge),
           actions: [
             CustomButton(
