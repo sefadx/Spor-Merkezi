@@ -14,6 +14,7 @@ class CustomLabelTextField extends StatelessWidget {
     this.onTap,
     this.suffixIcon,
     this.readOnly = false,
+    this.onChanged,
     this.inputFormatter,
     super.key,
   });
@@ -25,6 +26,7 @@ class CustomLabelTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final bool readOnly;
   final List<TextInputFormatter>? inputFormatter;
+  final void Function(String)? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +38,7 @@ class CustomLabelTextField extends StatelessWidget {
         const SizedBox(height: 5),
         CustomTextField(
           inputFormatter: inputFormatter,
+          onChanged: onChanged,
           onTap: onTap,
           readOnly: readOnly,
           controller: controller,

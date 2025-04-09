@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:silivri_havuz/pages/widget_popup.dart';
 
 import '../../controller/app_state.dart';
 import '../../controller/app_theme.dart';
@@ -13,6 +14,7 @@ import '../../network/api.dart';
 import '../../pages/session/session_launcher.dart';
 import '../../view_model/home.dart';
 import '../../view_model/session_details.dart';
+import '../table.dart';
 
 class PageSessions extends StatelessWidget {
   const PageSessions({super.key});
@@ -28,7 +30,9 @@ class PageSessions extends StatelessWidget {
           scrolledUnderElevation: 0,
           leading: IconButton(onPressed: () => vm.fetchSession(), icon: const Icon(Icons.refresh)),
           title: Text("Seans Yönetimi", style: appState.themeData.textTheme.headlineMedium),
+          centerTitle: true,
           actions: [
+            CustomButton(text: "Seans Tablosu", onTap: () => CustomRouter.instance.pushWidget(child: PageTable(), pageConfig: ConfigPopupInfo())),
             CustomButton(
                 text: "Seans Ekle", onTap: () => CustomRouter.instance.pushWidget(child: PageSessionLauncher(), pageConfig: ConfigSessionCreate))
           ],

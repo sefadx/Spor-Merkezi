@@ -67,8 +67,8 @@ class PageLogin extends StatelessWidget {
                       jsonList: [],
                       fromJsonT: (p0) => MemberModel.fromJson(json: {}),
                     ));*/
-                              CustomRouter.instance.replacePushWidget(child: PageTable(), pageConfig: ConfigHome);
-                              //CustomRouter.instance.replaceAll(ConfigHome);
+                              //CustomRouter.instance.replacePushWidget(child: PageTable(), pageConfig: ConfigHome);
+                              CustomRouter.instance.replaceAll(ConfigHome);
                             })
                       ],
                     )))));

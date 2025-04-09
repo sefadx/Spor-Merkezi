@@ -27,6 +27,11 @@ class AppTheme {
     return appState.colorMode == ColorMode.light ? Colors.black : Colors.white;
   }
 
+  static Color blackWhite(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
+    return appState.colorMode == ColorMode.dark ? Colors.black : Colors.white;
+  }
+
   ///gapxxsmall = 2;
   static const double gapxxsmall = 2;
 

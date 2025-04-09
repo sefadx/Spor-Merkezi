@@ -79,12 +79,13 @@ class FormContentSession extends StatelessWidget {
                             label: "Başlangıç Saati",
                             inputFormatter: [
                               FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(8), // Maksimum 8 karakter
+                              LengthLimitingTextInputFormatter(4), // Maksimum 8 karakter
                               DateFormatter(),
                             ],
                             suffixIcon: IconButton(
                                 icon: Icon(Icons.watch_later_outlined, color: appState.themeData.primaryColorDark),
                                 onPressed: vm.readOnly ? null : () => vm.pickTimeStart(context)),
+                            onChanged: (value) {},
                             validator: (value) => value == null ? "Başlama saati seçiniz" : null)),
                     const SizedBox(width: AppTheme.gapmedium),
                     Expanded(

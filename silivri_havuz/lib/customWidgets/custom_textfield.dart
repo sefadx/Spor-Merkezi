@@ -13,6 +13,7 @@ class CustomTextField extends StatelessWidget {
     this.validator,
     this.inputFormatter,
     this.onFieldSubmitted,
+    this.onChanged,
     this.onTap,
     this.readOnly = false,
     super.key,
@@ -26,6 +27,7 @@ class CustomTextField extends StatelessWidget {
   final bool readOnly;
   final List<TextInputFormatter>? inputFormatter;
   final void Function(String)? onFieldSubmitted;
+  final void Function(String)? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +41,7 @@ class CustomTextField extends StatelessWidget {
       validator: validator,
       style: appState.themeData.textTheme.bodyMedium,
       onTap: onTap,
+      onChanged: onChanged,
       inputFormatters: inputFormatter,
       cursorColor: AppTheme.blackWhiteReversed(context),
       decoration: InputDecoration(

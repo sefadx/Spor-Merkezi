@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum ActivityType {
   yetiskinKadin,
   yetiskinErkek,
@@ -21,6 +23,23 @@ enum ActivityType {
         return "Yüzme Akademisi";
       case ActivityType.havuzBakim:
         return "Havuz Bakım";
+    }
+  }
+
+  Color getBackgroundColor() {
+    switch (this) {
+      case yetiskinErkek:
+        return Colors.blue.shade700;
+      case yetiskinKadin:
+        return Colors.blue.shade200;
+      case eykom:
+        return Colors.orange;
+      case cocuk:
+        return Colors.green;
+      case yuzmeAkademisi:
+        return Colors.lime;
+      case havuzBakim:
+        return Colors.cyan;
     }
   }
 
