@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 enum ActivityType {
+  empty,
   yetiskinKadin,
   yetiskinErkek,
   eykom,
@@ -11,10 +12,12 @@ enum ActivityType {
   @override
   String toString() {
     switch (this) {
+      case empty:
+        return "-";
       case yetiskinErkek:
-        return "Yetişkin Erkek";
+        return "Erkek";
       case yetiskinKadin:
-        return "Yetişkin Kadın";
+        return "Kadın";
       case ActivityType.eykom:
         return "EYKOM";
       case ActivityType.cocuk:
@@ -28,6 +31,8 @@ enum ActivityType {
 
   Color getBackgroundColor() {
     switch (this) {
+      case empty:
+        return Colors.grey;
       case yetiskinErkek:
         return Colors.blue.shade700;
       case yetiskinKadin:
@@ -47,12 +52,15 @@ enum ActivityType {
 }
 
 enum FeeType {
+  empty,
   paid,
   free;
 
   @override
   String toString() {
     switch (this) {
+      case empty:
+        return "-";
       case paid:
         return "Ücretli";
       case free:
@@ -65,6 +73,7 @@ enum FeeType {
 
 //List<String> ageGroup = ["13+","6-12","7-12","4-6"];
 enum AgeGroup {
+  empty,
   all,
   age13Plus,
   age6to12,
@@ -74,6 +83,8 @@ enum AgeGroup {
   @override
   String toString() {
     switch (this) {
+      case empty:
+        return "-";
       case all:
         return "Bütün Yaşlar";
       case age13Plus:

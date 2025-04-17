@@ -9,11 +9,13 @@ import '../controller/provider.dart';
 import '../navigator/custom_navigation_view.dart';
 
 class PagePopupWidget extends StatelessWidget {
-  const PagePopupWidget({required this.widget, this.actionButton, this.onTapClose, super.key});
+  const PagePopupWidget({this.title, required this.widget, this.actionButton, this.onTapClose, this.backgroundColor, super.key});
 
   final Widget widget;
   final Function()? onTapClose;
   final CustomButton? actionButton;
+  final String? title;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,7 @@ class PagePopupWidget extends StatelessWidget {
                     padding: const EdgeInsets.all(AppTheme.gapxxsmall),
                     width: MediaQuery.of(context).size.width / 2,
                     decoration: BoxDecoration(
-                        color: appState.themeData.primaryColorLight,
+                        color: backgroundColor ?? appState.themeData.primaryColorLight,
                         borderRadius: BorderRadius.circular(AppTheme.radiussmall),
                         boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 7)]),
                     child: Column(
@@ -39,7 +41,11 @@ class PagePopupWidget extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             IconButton(onPressed: onTapClose ?? () => CustomRouter.instance.pop(), icon: const Icon(Icons.close)),
-                            actionButton ?? const SizedBox()
+                            Text(title ?? "", style: appState.themeData.textTheme.headlineMedium),
+                            actionButton ??
+                                const SizedBox(
+                                  width: 15,
+                                )
                           ],
                         ),
                         widget,

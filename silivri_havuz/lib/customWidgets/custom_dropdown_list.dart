@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../controller/app_state.dart';
+import '../controller/provider.dart';
 
 class CustomDropdownList extends StatelessWidget {
   CustomDropdownList({
@@ -22,23 +23,24 @@ class CustomDropdownList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
     return IgnorePointer(
         ignoring: readOnly,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(labelText ?? "", style: AppState.instance.themeData.textTheme.bodyLarge),
+          Text(labelText ?? "", style: appState.themeData.textTheme.bodyLarge),
           const SizedBox(height: 5),
           DropdownButtonFormField<String>(
               value: value,
               focusColor: Colors.transparent,
               decoration: InputDecoration(
                   enabled: !readOnly,
-                  fillColor: AppState.instance.themeData.primaryColorLight,
+                  fillColor: appState.themeData.primaryColorLight,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
-              dropdownColor: AppState.instance.themeData.primaryColorLight,
+              dropdownColor: appState.themeData.primaryColorLight,
               items: list
                   .map((gender) => DropdownMenuItem(
                         value: gender,
-                        child: Text(gender, style: AppState.instance.themeData.textTheme.bodyLarge),
+                        child: Text(gender, style: appState.themeData.textTheme.bodyLarge),
                       ))
                   .toList(),
               onChanged: onChanged,

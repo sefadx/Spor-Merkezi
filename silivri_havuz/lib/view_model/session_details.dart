@@ -1,10 +1,146 @@
 import 'package:flutter/material.dart';
+import 'package:silivri_havuz/view_model/table.dart';
 
 import '../../model/subscription_model.dart';
 import '../../model/trainer_model.dart';
 import '../../utils/enums.dart';
 import '../model/member_model.dart';
 import '../model/session_model.dart';
+import '../model/table_model.dart';
+import '../navigator/custom_navigation_view.dart';
+import '../navigator/ui_page.dart';
+import '../network/api.dart';
+import '../pages/alert_dialog.dart';
+import '../pages/info_popup.dart';
+import '../utils/extension.dart';
+import '../view_model/home.dart';
+
+class ViewModelSessionDetails extends ChangeNotifier {
+  ViewModelSessionDetails({this.readOnly = false});
+  ViewModelSessionDetails.fromModel({this.readOnly = true, required this.model}) {
+    sessionCapacityController.text = model.capacity.toString();
+    _fetchMembersOfSession(main: model.mainMembers, waiting: model.waitingMembers);
+  }
+
+  late final SessionModel model;
+
+  final formKey = GlobalKey<FormState>();
+  bool readOnly;
+
+  final TextEditingController sessionCapacityController = TextEditingController();
+  List<MemberModel>? mainMembers;
+  List<MemberModel>? waitingMembers;
+
+  ///MemberModelin sadece _id değeri olduğu için bu değere göre veritabanından tam membermodel verisi çekilecek
+  void _fetchMembersOfSession({required List<MemberModel> main, required List<MemberModel> waiting}) async {
+    List<MemberModel> fetchedMain = [];
+    List<MemberModel> fetchedWaiting = [];
+
+    for (var element in main) {
+      BaseResponseModel<MemberModel> res = await APIService<MemberModel>(url: APIS.api.memberId(memberId: element.id))
+          .get(fromJsonT: (json) => MemberModel.fromJson(json: json))
+          .onError((error, stackTrace) {
+        debugPrint(error.toString());
+        return BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu");
+      });
+      if (res.success) fetchedMain.add(res.data!);
+    }
+    for (var element in waiting) {
+      BaseResponseModel<MemberModel> res = await APIService<MemberModel>(url: APIS.api.memberId(memberId: element.id))
+          .get(fromJsonT: (json) => MemberModel.fromJson(json: json))
+          .onError((error, stackTrace) {
+        debugPrint(error.toString());
+        return BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu");
+      });
+      if (res.success) fetchedWaiting.add(res.data!);
+    }
+    mainMembers = fetchedMain;
+    waitingMembers = fetchedWaiting;
+
+    notifyListeners();
+  }
+
+  void createParticipantsList() async {
+    BaseResponseModel<ListWrapped<SubscriptionModel>> res =
+        await APIService<ListWrapped<SubscriptionModel>>(url: APIS.api.subscription(sportType: SportTypes.Yuzme))
+            .get(
+                fromJsonT: (json) => ListWrapped.fromJson(
+                      jsonList: json,
+                      fromJsonT: (p0) => SubscriptionModel.fromJson(json: p0),
+                    ))
+            .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+
+    if (res.success) {
+      mainMembers = [];
+      waitingMembers = [];
+
+      List<SubscriptionModel> listSubs = (res.data?.items) ?? [];
+      int capacity = ((int.tryParse(sessionCapacityController.text)) ?? 0) > listSubs.length
+          ? listSubs.length
+          : ((int.tryParse(sessionCapacityController.text)) ?? 0);
+      mainMembers?.addAll(listSubs.map((e) => e.member).toList().getRange(0, capacity));
+      waitingMembers?.addAll(listSubs.map((e) => e.member).toList().getRange(capacity, listSubs.length));
+    } else {
+      CustomRouter.instance.pushWidget(
+          child: PagePopupInfo(
+            title: "Bildirim",
+            informationText: res.message.toString(),
+          ),
+          pageConfig: ConfigPopupInfo());
+    }
+    notifyListeners();
+  }
+
+  void onSave() async {
+    if (formKey.currentState!.validate()) {
+      if (await CustomRouter.instance.waitForResult(
+          child:
+              const PageAlertDialog(title: "Uyarı", informationText: "Girdiğiniz bilgilere göre seans kaydı oluşturulacaktır. Onaylıyor musunuz ?"),
+          pageConfig: ConfigAlertDialog)) {
+        SessionModel model = SessionModel(
+            dayIndex: 0,
+            activityIndex: 0,
+            capacity: int.tryParse(sessionCapacityController.text)!,
+            mainMembers: mainMembers ?? [],
+            waitingMembers: waitingMembers ?? []);
+
+        BaseResponseModel res = await APIService<SessionModel>(url: APIS.api.session())
+            .post(model)
+            .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+
+        if (res.success) {
+          ViewModelHome.instance.fetchSession();
+
+          CustomRouter.instance.replacePushWidget(
+              child: PagePopupInfo(
+                title: "Bildirim",
+                informationText: res.message.toString(),
+                afterDelay: () => CustomRouter.instance.pop(),
+              ),
+              pageConfig: ConfigPopupInfo());
+        } else {
+          CustomRouter.instance
+              .pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
+        }
+      }
+    }
+  }
+
+  void delete() async {
+    BaseResponseModel res = await APIService(url: APIS.api.session()).delete(model);
+  }
+}
+
+/*
+import 'package:flutter/material.dart';
+import 'package:silivri_havuz/view_model/table.dart';
+
+import '../../model/subscription_model.dart';
+import '../../model/trainer_model.dart';
+import '../../utils/enums.dart';
+import '../model/member_model.dart';
+import '../model/session_model.dart';
+import '../model/table_model.dart';
 import '../navigator/custom_navigation_view.dart';
 import '../navigator/ui_page.dart';
 import '../network/api.dart';
@@ -31,6 +167,7 @@ class ViewModelSessionDetails extends ChangeNotifier {
     sessionCapacityController.text = model.capacity.toString();
     _fetchMembersOfSession(main: model.mainMembers, waiting: model.waitingMembers);
   }
+
   late final SessionModel model;
 
   final formKey = GlobalKey<FormState>();
@@ -198,3 +335,5 @@ class ViewModelSessionDetails extends ChangeNotifier {
     BaseResponseModel res = await APIService(url: APIS.api.session()).delete(model);
   }
 }
+
+ */

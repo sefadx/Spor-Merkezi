@@ -21,6 +21,7 @@ class PageMemberLauncher extends StatelessWidget {
       child: Scaffold(
           backgroundColor: appState.themeData.scaffoldBackgroundColor,
           appBar: AppBar(
+            backgroundColor: appState.themeData.scaffoldBackgroundColor,
             scrolledUnderElevation: 0,
             title: Text(vm.readOnly ? "Üye Bilgileri" : "Üye Ekle", style: appState.themeData.textTheme.headlineLarge),
             actions: [
