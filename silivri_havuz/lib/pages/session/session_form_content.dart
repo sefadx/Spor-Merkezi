@@ -39,13 +39,13 @@ class FormContentSession extends StatelessWidget {
                       child: CustomDropdownList(
                           readOnly: false,
                           labelText: "Kategori",
-                          value: vmTable.table.week.days.elementAt(1).activities.elementAt(0)!.type.toString(),
+                          value: vmTable.week.days.elementAt(1).activities.elementAt(0)!.type.toString(),
                           list: List<String>.from(ActivityType.values.map((e) => e.toString())),
                           onChanged: (text) => vmTable.setActivity(
                               Activity(
                                   type: ActivityType.fromString(text!),
-                                  ageGroup: vmTable.table.week.days.elementAt(1).activities.elementAt(0)!.ageGroup,
-                                  fee: vmTable.table.week.days.elementAt(1).activities.elementAt(0)!.fee),
+                                  ageGroup: vmTable.week.days.elementAt(1).activities.elementAt(0)!.ageGroup,
+                                  fee: vmTable.week.days.elementAt(1).activities.elementAt(0)!.fee),
                               1,
                               0)),
                     ),
@@ -54,40 +54,19 @@ class FormContentSession extends StatelessWidget {
                       child: CustomDropdownList(
                           readOnly: false,
                           labelText: "Grup",
-                          value: vmTable.table.week.days.elementAt(1).activities.elementAt(0)!.ageGroup.toString(),
+                          value: vmTable.week.days.elementAt(1).activities.elementAt(0)!.ageGroup.toString(),
                           list: List<String>.from(AgeGroup.values.map((e) => e.toString())),
                           onChanged: (text) => vmTable.setActivity(
                               Activity(
-                                  type: vmTable.table.week.days.elementAt(1).activities.elementAt(0)!.type,
+                                  type: vmTable.week.days.elementAt(1).activities.elementAt(0)!.type,
                                   ageGroup: AgeGroup.fromString(text!),
-                                  fee: vmTable.table.week.days.elementAt(1).activities.elementAt(0)!.fee),
+                                  fee: vmTable.week.days.elementAt(1).activities.elementAt(0)!.fee),
                               //vmSession.model.dayIndex,
                               1,
                               0)),
                     ), //vmSession.model.activityIndex)),
                     const SizedBox(width: AppTheme.gapsmall),
-                    Expanded(
-                      child: CustomDropdownList(
-                          readOnly: false,
-                          labelText: "Ücret",
-                          value: vmTable.table.week.days.elementAt(1).activities.elementAt(0)!.fee.toString(),
-                          list: List<String>.from(FeeType.values.map((e) => e.toString())),
-                          onChanged: (text) => vmTable.setActivity(
-                              Activity(
-                                  type: vmTable.table.week.days
-                                      .elementAt(vmSession.model.dayIndex)
-                                      .activities
-                                      .elementAt(vmSession.model.activityIndex)!
-                                      .type,
-                                  ageGroup: vmTable.table.week.days
-                                      .elementAt(vmSession.model.dayIndex)
-                                      .activities
-                                      .elementAt(vmSession.model.activityIndex)!
-                                      .ageGroup,
-                                  fee: FeeType.fromString(text!)),
-                              1,
-                              0)),
-                    ),
+
                     const SizedBox(width: AppTheme.gapsmall),
                     Expanded(
                         child: CustomLabelTextField(

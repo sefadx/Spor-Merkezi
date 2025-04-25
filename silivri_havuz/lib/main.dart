@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -30,6 +31,14 @@ class SporTesisi extends StatelessWidget {
     return Provider<AppState>(
       model: appState,
       child: MaterialApp.router(
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('tr'),
+        ],
         backButtonDispatcher: backButtonDispatcher,
         routerDelegate: router,
         theme: appState.themeData,

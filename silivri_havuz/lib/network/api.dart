@@ -78,7 +78,8 @@ class APIS {
   String memberFiles({required String memberId}) => "$_baseAPI/download/member/$memberId";
   String downloadFile({required String fileId}) => "$_baseAPI/download/$fileId";
 
-  String session({int page = 1, int limit = 10}) => "$_baseAPI/session?page=${page.toString()}&limit=${limit.toString()}";
+  String session({int page = 1, int limit = 10, String? search}) =>
+      "$_baseAPI/session?page=${page.toString()}&limit=${limit.toString()}&search=$search";
 
   String subscription({SportTypes? sportType, DateTime? endDate}) {
     String url = "$_baseAPI/subscription?";
@@ -160,7 +161,7 @@ class APIService<T extends JsonProtocol> {
       Response res = await http
           .post(Uri.parse(url),
               //headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8', 'Authorization': basicAuth},
-              headers: {"Content-Type": "application/json; charset=UTF-8", "Accept": "application/json", "Authorization": basicAuth},
+              headers: <String, String>{"Content-Type": "application/json; charset=UTF-8", "Accept": "application/json", "Authorization": basicAuth},
               body: jsonEncode(model.toJson()))
           //body: jsonEncode({"username": "14528993102@silivri.bel.tr", "password": "xxx-xxx-xxx"}))
           .onError((error, stackTrace) {
@@ -170,8 +171,8 @@ class APIService<T extends JsonProtocol> {
 
       final decoded = jsonDecode(res.body);
       if (decoded is! Map<String, dynamic>) {
-        //debugPrint(decoded);
-        //debugPrint(decoded.runtimeType.toString());
+        debugPrint(decoded);
+        debugPrint(decoded.runtimeType.toString());
         throw APIError(Errors.invalidResponseStatus);
       }
       debugPrint("API'den gelen veri: ${res.body}");

@@ -24,7 +24,7 @@ class PageMembers extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: appState.themeData.primaryColorLight,
           scrolledUnderElevation: 0,
-          leading: IconButton(onPressed: () => vm.fetchMember(), icon: const Icon(Icons.refresh)),
+          leading: IconButton(onPressed: () => vm.resetAndFetchMemberModel(), icon: const Icon(Icons.refresh)),
           title: Text("Üye Yönetimi", style: appState.themeData.textTheme.headlineMedium),
           actions: [
             CustomButton(
@@ -37,7 +37,8 @@ class PageMembers extends StatelessWidget {
         body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SizedBox(height: AppTheme.gapsmall),
           SearchAndFilter(
-              controller: vm.memberSearchTextEditingController, onTap: () => vm.fetchMember(search: vm.memberSearchTextEditingController.text)),
+              controller: vm.memberSearchTextEditingController,
+              onTap: () => vm.resetAndFetchMemberModel(search: vm.memberSearchTextEditingController.text)),
 
           SizedBox(height: AppTheme.gapsmall),
 
@@ -48,6 +49,7 @@ class PageMembers extends StatelessWidget {
                   builder: (context, asyncSnapshot) {
                     if (asyncSnapshot.hasData) {
                       return ListView.builder(
+                          controller: vm.memberScrollController,
                           itemCount: asyncSnapshot.data!.length ?? 0, // Example data
 
                           itemBuilder: (context, index) {

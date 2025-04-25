@@ -81,12 +81,8 @@ class ViewModelSessionDetails extends ChangeNotifier {
       mainMembers?.addAll(listSubs.map((e) => e.member).toList().getRange(0, capacity));
       waitingMembers?.addAll(listSubs.map((e) => e.member).toList().getRange(capacity, listSubs.length));
     } else {
-      CustomRouter.instance.pushWidget(
-          child: PagePopupInfo(
-            title: "Bildirim",
-            informationText: res.message.toString(),
-          ),
-          pageConfig: ConfigPopupInfo());
+      CustomRouter.instance
+          .pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
     }
     notifyListeners();
   }
@@ -94,22 +90,16 @@ class ViewModelSessionDetails extends ChangeNotifier {
   void onSave() async {
     if (formKey.currentState!.validate()) {
       if (await CustomRouter.instance.waitForResult(
-          child:
-              const PageAlertDialog(title: "Uyarı", informationText: "Girdiğiniz bilgilere göre seans kaydı oluşturulacaktır. Onaylıyor musunuz ?"),
+          child: const PageAlertDialog(title: "Uyarı", informationText: "Girdiğiniz bilgilere göre yeni hafta oluşturulacaktır. Onaylıyor musunuz ?"),
           pageConfig: ConfigAlertDialog)) {
-        SessionModel model = SessionModel(
-            dayIndex: 0,
-            activityIndex: 0,
-            capacity: int.tryParse(sessionCapacityController.text)!,
-            mainMembers: mainMembers ?? [],
-            waitingMembers: waitingMembers ?? []);
+        //SessionModel model = SessionModel(capacity: int.tryParse(sessionCapacityController.text)!, mainMembers: mainMembers ?? [], waitingMembers: waitingMembers ?? []);
 
         BaseResponseModel res = await APIService<SessionModel>(url: APIS.api.session())
             .post(model)
             .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
 
         if (res.success) {
-          ViewModelHome.instance.fetchSession();
+          ViewModelHome.instance.fetchWeeks();
 
           CustomRouter.instance.replacePushWidget(
               child: PagePopupInfo(

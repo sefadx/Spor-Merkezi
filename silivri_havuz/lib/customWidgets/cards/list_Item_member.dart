@@ -37,14 +37,14 @@ class ListItemMember extends StatelessWidget {
                   Expanded(
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(memberName, style: AppState.instance.themeData.textTheme.headlineMedium),
-                    RichText(
+                    /*RichText(
                         text: TextSpan(text: "Sağlık Raporu: ", style: AppState.instance.themeData.textTheme.bodyMedium, children: [
                       TextSpan(text: checkHealthy.text, style: AppState.instance.themeData.textTheme.bodyMedium?.copyWith(color: checkHealthy.color))
                     ])),
                     RichText(
                         text: TextSpan(text: "Ödeme: ", style: AppState.instance.themeData.textTheme.bodyMedium, children: [
                       TextSpan(text: checkPayment.text, style: AppState.instance.themeData.textTheme.bodyMedium?.copyWith(color: checkPayment.color))
-                    ])),
+                    ])),*/
                   ])),
                   const Icon(Icons.chevron_right)
                 ],

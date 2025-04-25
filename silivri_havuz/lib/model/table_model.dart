@@ -19,6 +19,19 @@ class Activity implements JsonProtocol {
   FeeType fee; // e.g., "40 TL", "Ücretsiz"
 
   Activity({this.sessionModel, required this.type, required this.ageGroup, required this.fee});
+  factory Activity.fromJson({required Map<String, dynamic> json}) {
+    try {
+      //debugPrint("activity json veri" + json.toString());
+      return Activity(
+          sessionModel: json["sessionModel"] != null ? SessionModel.fromJson(json: json["sessionModel"]) : null,
+          type: ActivityType.fromString(json["type"]),
+          ageGroup: AgeGroup.fromString(json["ageGroup"]),
+          fee: FeeType.fromString(json["fee"]));
+    } catch (err) {
+      debugPrint("Activity fromJson: $err");
+      rethrow;
+    }
+  }
 
   @override
   Map<String, dynamic> toJson() {
@@ -37,39 +50,103 @@ class Day implements JsonProtocol {
   final List<Activity?> activities; // Matches timeSlots length, null for breaks or no activity
 
   Day({required this.name, required this.day, required this.activities});
+  factory Day.fromJson({required Map<String, dynamic> json}) {
+    try {
+      return Day(
+        day: json["day"],
+        name: json["name"],
+        activities: List<Activity?>.of(
+          (json["activities"] as List).map((e) => e != null ? Activity.fromJson(json: e) : null),
+        ),
+      );
+    } catch (err) {
+      debugPrint("Day fromJson: $err");
+      rethrow;
+    }
+  }
 
   @override
   Map<String, dynamic> toJson() {
     return {
       'name': name.toString(),
       'day': day,
-      'activities': activities.map((e) => e!.toJson()).toList(),
+      'activities': activities.map((e) => e?.toJson()).toList(),
     };
   }
 }
 
-class Week implements JsonProtocol {
+class WeekModel implements JsonProtocol {
+  final DateTime initialDayOfWeek;
+  String get name => "${initialDayOfWeek.day}/${initialDayOfWeek.month}/${initialDayOfWeek.year}";
+  String getWeekRangeTitle() {
+    DateTime monday = initialDayOfWeek.subtract(Duration(days: initialDayOfWeek.weekday - 1));
+    DateTime sunday = monday.add(const Duration(days: 6));
+
+    String formatDate(DateTime d) => "${d.day} ${_getMonthName(d.month)} ${d.year}";
+    return "${initialDayOfWeek.year} - ${_getWeekNumber(initialDayOfWeek)}. Hafta (${monday.day} - ${sunday.day} ${_getMonthName(initialDayOfWeek.month)})";
+  }
+
+  String _getMonthName(int month) {
+    const months = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+    return months[month - 1];
+  }
+
+  int _getWeekNumber(DateTime date) {
+    // Haftanın ilk günü Pazartesi olarak ayarlandı
+    final firstDayOfYear = DateTime(date.year, 1, 1);
+    final daysOffset = firstDayOfYear.weekday - DateTime.monday;
+
+    final firstMonday = firstDayOfYear.subtract(Duration(days: daysOffset));
+    final difference = date.difference(firstMonday).inDays;
+
+    return ((difference) / 7).ceil();
+  }
+
   final List<Day> days;
 
-  Week({required this.days});
-
-  @override
-  Map<String, dynamic> toJson() {
-    return {
-      'days': days.map(
-        (e) => e.toJson(),
-      )
-    };
-  }
-}
-
-class TableModel {
-  TableModel();
   late DateTime _createdAt;
   DateTime get createdAt => _createdAt;
 
   late String _id;
   String get id => _id;
+
+  WeekModel({required this.initialDayOfWeek, required this.days});
+
+  factory WeekModel.fromJson({required Map<String, dynamic> json}) {
+    try {
+      WeekModel model = WeekModel(
+        initialDayOfWeek: DateTime.parse(json['initialDayOfWeek']).toLocal(),
+        days: List<Day>.of((json["days"] as List).map((e) => Day.fromJson(json: e))),
+      );
+      model._id = json["_id"];
+      model._createdAt = DateTime.parse(json['createdAt']).toLocal();
+      return model;
+    } catch (err) {
+      debugPrint("WeekModel fromJson: $err");
+      rethrow;
+    }
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'initialDayOfWeek': initialDayOfWeek.toUtc().toIso8601String(),
+      'days': days.map((e) => e.toJson()).toList(),
+    };
+  }
+}
+/*
+class TableModel extends JsonProtocol {
+  TableModel({this.initialDayOfWeek});
+  TableModel.fromWeek({required this.week, required this.initialDayOfWeek});
+
+  late DateTime _createdAt;
+  DateTime get createdAt => _createdAt;
+
+  late String _id;
+  String get id => _id;
+
+  DateTime? initialDayOfWeek;
 
   final List<TimeSlot> timeSlots = [
     TimeSlot(start: "08:30", end: "09:30", isBreak: false),
@@ -93,7 +170,7 @@ class TableModel {
 
   //null => seansarası
   //activity => seanslar
-  final Week week = Week(days: [
+  WeekModel week = WeekModel(initialDayOfWeek: DateTime(2020), days: [
     Day(name: "Pazartesi", day: 1, activities: [
       Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
       null,
@@ -231,30 +308,22 @@ class TableModel {
 
   factory TableModel.fromJson({required Map<String, dynamic> json}) {
     try {
-      TableModel model = TableModel();
+      TableModel model = TableModel.fromWeek(
+        week: WeekModel.fromJson(json: json["week"]),
+        initialDayOfWeek: DateTime.parse(json['initialDateOfWeek']).toLocal(),
+      );
       model._id = json["_id"];
       model._createdAt = DateTime.parse(json['createdAt']).toLocal();
       return model;
     } catch (err) {
-      if (err.toString() == "type 'List<dynamic>' is not a subtype of type 'List<MemberModel>'") {
-        SessionModel model = SessionModel(
-          dayIndex: 0,
-          activityIndex: 0,
-          mainMembers: List<MemberModel>.from((json["mainMembers"] as List).map(
-            (e) => MemberModel.id(id: e.toString()),
-          )),
-          waitingMembers: List<MemberModel>.from((json["waitingMembers"] as List).map(
-            (e) => MemberModel.id(id: e.toString()),
-          )),
-          capacity: json["capacity"],
-        );
-        model._id = json["_id"];
-        model._createdAt = DateTime.parse(json['createdAt']).toLocal();
-        return model;
-      } else {
-        debugPrint(err.toString());
-        rethrow;
-      }
+      debugPrint("TableModel fromJson: $err");
+      rethrow;
     }
   }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {"week": week.toJson()};
+  }
 }
+*/

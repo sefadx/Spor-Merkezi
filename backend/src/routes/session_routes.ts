@@ -1,18 +1,20 @@
 import express, { Request, Response, NextFunction } from "express";
 import { BaseResponseModel } from "../models/base_response";
-import Session, { ISession } from "../models/session";
+import TableModel, { ITableModel } from "../models/session";
 
 var response: BaseResponseModel;
 
 const router = express.Router();
 
+
 router.post("/", async (req: Request, res: Response) => {
     try {
-        const sessionData: ISession = req.body;
-        const newSession = new Session(sessionData);
+        const sessionData: ITableModel = req.body;
+        const newSession = new TableModel(sessionData);
         const savedSession = await newSession.save();
 
         console.log('API POST: "/session" => Post request is successful');
+        console.log(savedSession);
 
         res.status(200).send(
             new BaseResponseModel(true, "Veri başarıyla eklendi", savedSession)
@@ -56,27 +58,41 @@ router.get("/", async (req: Request, res: Response) => {
 
         // Arama işlemi
         let query: any = {};
-        if (search) {
-            query = { deleted: false };
-        }
+        if (search && search != "null") {
+            //query = { deleted: false };
+            const date = new Date(search as string);
 
+            if (isNaN(date.getTime())) {
+                return res.status(400).json(new BaseResponseModel(false, "Geçersiz tarih formatı").toJson());
+            }
+
+            const startOfDay = new Date(date);
+            startOfDay.setUTCHours(0, 0, 0, 0);
+
+            const endOfDay = new Date(date);
+            endOfDay.setUTCHours(23, 59, 59, 999);
+
+            query.initialDayOfWeek = { $gte: startOfDay, $lte: endOfDay };
+        }
+        console.log("Query: ", query);
         // MongoDB sorgusunu oluştur
-        const sessions = await Session.find(query).
-            populate("trainer")
-            .skip((pageNumber - 1) * limitNumber)
+        const tableModel = await TableModel.find(query).
+            //populate("trainer")
+            skip((pageNumber - 1) * limitNumber)
             .limit(limitNumber)
-            .sort({ dateTimeStart: -1 });
+            .sort({ initialDayOfWeek: -1 });
 
         // Toplam kayıt sayısını al
-        const totalSessions = await Session.countDocuments(query);
+        const totalSessions = await TableModel.countDocuments(query);
 
         console.log('API GET: "/session" => Successfully read from database');
+        console.log(tableModel);
 
         // Yanıtı JSON formatında döndür
         res.status(200).send(new BaseResponseModel(
             true,
             "Veriler başarıyla yüklendi.",
-            sessions,
+            tableModel,
             /*{
               session,
               total: totalMembers,
@@ -96,7 +112,7 @@ router.get("/", async (req: Request, res: Response) => {
 // Belirli bir üyeyi getir
 router.get("/:id", async (req, res) => {
     try {
-        const session = await Session.findById(req.params.id);
+        const session = await TableModel.findById(req.params.id);
         if (!session) {
             res.status(404).send(new BaseResponseModel(false, "Seans bulunamadı").toJson());
         }
@@ -109,7 +125,7 @@ router.get("/:id", async (req, res) => {
 // Üyeyi güncelle
 router.put("/:id", async (req, res) => {
     try {
-        const updatedSession = await Session.findByIdAndUpdate(
+        const updatedSession = await TableModel.findByIdAndUpdate(
             req.params.id,
             req.body,
             { new: true }// Güncellenen veriyi döndür
@@ -126,7 +142,7 @@ router.put("/:id", async (req, res) => {
 // Seansı sil
 router.delete("/:id", async (req: Request, res: Response) => {
     try {
-        const deletedSession = await Session.findByIdAndUpdate(
+        const deletedSession = await TableModel.findByIdAndUpdate(
             req.params.id,
             { deleted: true },
             { new: true }// Silinen veriyi döndür

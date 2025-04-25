@@ -18,6 +18,7 @@ class PageFileForm extends StatelessWidget {
     approvalDateController = null;
   }
 
+  final formKey = GlobalKey<FormState>();
   final FileModel fileModel;
   late final TextEditingController? approvalDateController;
 
@@ -27,40 +28,46 @@ class PageFileForm extends StatelessWidget {
     return PagePopupWidget(
       widget: Padding(
           padding: const EdgeInsets.all(AppTheme.gapmedium),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /*Text("Üye Bilgisi : ${vm.memberModel.displayName}", style: appState.themeData.textTheme.bodyLarge),
-              const SizedBox(height: AppTheme.gapxsmall),*/
-              Text("Dosya Adı : ${fileModel.fileName}", style: appState.themeData.textTheme.bodyLarge),
-              const SizedBox(height: AppTheme.gapxsmall),
-              Text("Dosya Boyutu : ${(fileModel.fileSize / (1024 * 1024)).toStringAsFixed(2)} MB", style: appState.themeData.textTheme.bodyLarge),
-              const SizedBox(height: AppTheme.gapxsmall),
-              Text("Rapor Tipi : ${fileModel.reportType}", style: appState.themeData.textTheme.bodyLarge),
-              const SizedBox(height: AppTheme.gapxsmall),
-              Text("Yükleme Tarihi : ${DateTime.now()}", style: appState.themeData.textTheme.bodyLarge),
-              const SizedBox(height: AppTheme.gapxsmall),
-              approvalDateController != null
-                  ? CustomLabelTextField(
-                      readOnly: false,
-                      controller: approvalDateController,
-                      label: "Rapor Onay Tarihi   (GG/AA/YYYY)",
-                      inputFormatter: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(8), // Maksimum 8 karakter
-                        DateFormatter()
-                      ],
-                      suffixIcon: IconButton(
-                          icon: Icon(Icons.date_range, color: appState.themeData.primaryColorDark),
-                          onPressed: () async => pickDate(context, controller: approvalDateController!)),
-                      validator: (value) => value == null || value.isEmpty ? 'Rapor Onay Tarihi giriniz' : null)
-                  : Text("Rapor Onay Tarihi : ${fileModel.approvalDate.day}/${fileModel.approvalDate.month}/${fileModel.approvalDate.year}",
-                      style: appState.themeData.textTheme.bodyLarge)
-            ],
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /*Text("Üye Bilgisi : ${vm.memberModel.displayName}", style: appState.themeData.textTheme.bodyLarge),
+                const SizedBox(height: AppTheme.gapxsmall),*/
+                Text("Dosya Adı : ${fileModel.fileName}", style: appState.themeData.textTheme.bodyLarge),
+                const SizedBox(height: AppTheme.gapxsmall),
+                Text("Dosya Boyutu : ${(fileModel.fileSize / (1024 * 1024)).toStringAsFixed(2)} MB", style: appState.themeData.textTheme.bodyLarge),
+                const SizedBox(height: AppTheme.gapxsmall),
+                Text("Rapor Tipi : ${fileModel.reportType}", style: appState.themeData.textTheme.bodyLarge),
+                const SizedBox(height: AppTheme.gapxsmall),
+                Text("Yükleme Tarihi : ${DateTime.now()}", style: appState.themeData.textTheme.bodyLarge),
+                const SizedBox(height: AppTheme.gapxsmall),
+                approvalDateController != null
+                    ? CustomLabelTextField(
+                        readOnly: false,
+                        controller: approvalDateController,
+                        label: "Rapor Onay Tarihi   (GG/AA/YYYY)",
+                        inputFormatter: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(8), // Maksimum 8 karakter
+                          DateFormatter()
+                        ],
+                        suffixIcon: IconButton(
+                            icon: Icon(Icons.date_range, color: appState.themeData.primaryColorDark),
+                            onPressed: () async => pickDate(context, controller: approvalDateController!)),
+                        validator: validateDate)
+                    : Text("Rapor Onay Tarihi : ${dateFormat.format(fileModel.approvalDate).toString()}",
+                        style: appState.themeData.textTheme.bodyLarge)
+              ],
+            ),
           )),
       actionButton: approvalDateController != null
-          ? CustomButton(margin: const EdgeInsets.all(AppTheme.gapxxsmall), text: "Yükle", onTap: () => CustomRouter.instance.returnWith(true))
+          ? CustomButton(
+              margin: const EdgeInsets.all(AppTheme.gapxxsmall),
+              text: "Yükle",
+              onTap: () => formKey.currentState!.validate() == true ? CustomRouter.instance.returnWith(true) : null)
           : CustomButton(
               margin: const EdgeInsets.all(AppTheme.gapxxsmall), text: "Raporu Görüntüle", onTap: () => CustomRouter.instance.returnWith(true)),
       onTapClose: () => CustomRouter.instance.returnWith(false),

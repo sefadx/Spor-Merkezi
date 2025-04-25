@@ -27,7 +27,7 @@ class PageRouteSettings {
   final bool backgroundOpaque, barrierDismissible, fullScreenDialog;
 }
 
-enum Pages { Home, Login, MemberCreate, NemberDetails, SessionCreate, PopupInfo, AlertDialog, PopupWidget, Widget }
+enum Pages { Home, Login, MemberCreate, NemberDetails, SessionCreate, Table, PopupInfo, AlertDialog, PopupWidget, Widget }
 
 //------------------------------------------------------------------------------
 const String PathHome = '/pages/home';
@@ -60,6 +60,12 @@ const String PathSessionCreate = '/pages/session_create';
 
 PageConfiguration ConfigSessionCreate =
     PageConfiguration(key: 'SessionCreate', path: PathSessionCreate, uiPage: Pages.SessionCreate, currentPageAction: null);
+
+//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+const String PathTable = '/pages/table';
+
+PageConfiguration ConfigTable = PageConfiguration(key: 'Table', path: PathTable, uiPage: Pages.Table, currentPageAction: null);
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

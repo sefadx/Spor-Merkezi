@@ -13,10 +13,10 @@ import '/controller/provider.dart';
 import 'session/session_launcher.dart';
 
 class PageTable extends StatelessWidget {
-  PageTable({this.title, this.sessionMode = false, super.key});
+  PageTable({required this.vm, this.title, this.sessionMode = false, super.key});
   //final void Function()? onTapCell;
 
-  final ViewModelTable vm = ViewModelTable();
+  final ViewModelTable vm;
   final String? title;
   final bool sessionMode;
 
@@ -66,32 +66,29 @@ class _PageTableBody extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: AppTheme.gapmedium, horizontal: AppTheme.gapxsmall),
                         child: Center(child: Text("SAAT", textAlign: TextAlign.center, style: appState.themeData.textTheme.headlineSmall))),
                     Expanded(
-                      child: Material(
-                        child: ScrollConfiguration(
-                          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-                          child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 120),
-                              child: ListView.builder(
-                                  shrinkWrap: false,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: vm.table.timeSlots.length,
-                                  itemBuilder: (context, index) => vm.table.timeSlots.elementAt(index).isBreak
-                                      ? Ink(
-                                          padding: const EdgeInsets.all(AppTheme.gapxxsmall),
-                                          color: Colors.grey,
-                                          child: Text("${vm.table.timeSlots.elementAt(index).start} - ${vm.table.timeSlots.elementAt(index).end}",
-                                              style: appState.themeData.textTheme.bodyMedium, textAlign: TextAlign.center))
-                                      : Ink(
-                                          padding: const EdgeInsets.symmetric(vertical: AppTheme.gaplarge, horizontal: AppTheme.gapxsmall),
-                                          height: 70,
-                                          color: AppTheme.blackWhite(context),
-                                          child: Center(
-                                            child: Text("${vm.table.timeSlots.elementAt(index).start} - ${vm.table.timeSlots.elementAt(index).end}",
-                                                style: appState.themeData.textTheme.bodyMedium, textAlign: TextAlign.center),
-                                          )))),
-                        ),
-                      ),
-                    )
+                        child: Material(
+                            child: ScrollConfiguration(
+                                behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                                child: ConstrainedBox(
+                                    constraints: const BoxConstraints(maxWidth: 120),
+                                    child: ListView.builder(
+                                        shrinkWrap: false,
+                                        physics: const NeverScrollableScrollPhysics(),
+                                        itemCount: vm.timeSlots.length,
+                                        itemBuilder: (context, index) => vm.timeSlots.elementAt(index).isBreak
+                                            ? Ink(
+                                                padding: const EdgeInsets.all(AppTheme.gapxxsmall),
+                                                color: Colors.grey,
+                                                child: Text("${vm.timeSlots.elementAt(index).start} - ${vm.timeSlots.elementAt(index).end}",
+                                                    style: appState.themeData.textTheme.bodyMedium, textAlign: TextAlign.center))
+                                            : Ink(
+                                                padding: const EdgeInsets.symmetric(vertical: AppTheme.gaplarge, horizontal: AppTheme.gapxsmall),
+                                                height: 70,
+                                                color: AppTheme.blackWhite(context),
+                                                child: Center(
+                                                  child: Text("${vm.timeSlots.elementAt(index).start} - ${vm.timeSlots.elementAt(index).end}",
+                                                      style: appState.themeData.textTheme.bodyMedium, textAlign: TextAlign.center),
+                                                )))))))
                   ],
                 ),
                 Expanded(
@@ -100,7 +97,7 @@ class _PageTableBody extends StatelessWidget {
                             shrinkWrap: false,
                             padding: const EdgeInsets.symmetric(horizontal: AppTheme.gapxsmall),
                             scrollDirection: Axis.horizontal,
-                            itemCount: vm.table.week.days.length,
+                            itemCount: vm.week.days.length,
                             separatorBuilder: (context, index) => const SizedBox(width: AppTheme.gapxsmall),
                             itemBuilder: (context, index) => Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -112,7 +109,7 @@ class _PageTableBody extends StatelessWidget {
                                             width: 170,
                                             padding: const EdgeInsets.symmetric(vertical: AppTheme.gapmedium, horizontal: AppTheme.gapxsmall),
                                             color: vm.getDaysOff(index) ? Colors.red.shade800 : null,
-                                            child: Text(vm.table.week.days.elementAt(index).name,
+                                            child: Text(vm.week.days.elementAt(index).name,
                                                 textAlign: TextAlign.center, style: appState.themeData.textTheme.headlineSmall))),
                                     if (!vm.getDaysOff(index)) //0 pazartesi anlamına geliyor
                                       Expanded(
@@ -124,12 +121,12 @@ class _PageTableBody extends StatelessWidget {
                                                       child: ListView.builder(
                                                           shrinkWrap: true,
                                                           physics: const NeverScrollableScrollPhysics(),
-                                                          itemCount: vm.table.week.days
+                                                          itemCount: vm.week.days
                                                               .elementAt(index)
                                                               .activities
                                                               .length, //week.days.elementAt(index).activities.length,
                                                           itemBuilder: (context, indexActivities) =>
-                                                              vm.table.week.days.elementAt(index).activities.elementAt(indexActivities) == null
+                                                              vm.week.days.elementAt(index).activities.elementAt(indexActivities) == null
                                                                   ? Ink(
                                                                       padding: const EdgeInsets.all(AppTheme.gapxxsmall),
                                                                       color: Colors.grey,
@@ -159,7 +156,7 @@ class _PageTableBody extends StatelessWidget {
                                                                                         CustomDropdownList(
                                                                                             readOnly: false,
                                                                                             labelText: "Kategori",
-                                                                                            value: vm.table.week.days
+                                                                                            value: vm.week.days
                                                                                                 .elementAt(index)
                                                                                                 .activities
                                                                                                 .elementAt(indexActivities)!
@@ -170,12 +167,12 @@ class _PageTableBody extends StatelessWidget {
                                                                                             onChanged: (text) => vm.setActivity(
                                                                                                 Activity(
                                                                                                     type: ActivityType.fromString(text!),
-                                                                                                    ageGroup: vm.table.week.days
+                                                                                                    ageGroup: vm.week.days
                                                                                                         .elementAt(index)
                                                                                                         .activities
                                                                                                         .elementAt(indexActivities)!
                                                                                                         .ageGroup,
-                                                                                                    fee: vm.table.week.days
+                                                                                                    fee: vm.week.days
                                                                                                         .elementAt(index)
                                                                                                         .activities
                                                                                                         .elementAt(indexActivities)!
@@ -186,7 +183,7 @@ class _PageTableBody extends StatelessWidget {
                                                                                         CustomDropdownList(
                                                                                             readOnly: false,
                                                                                             labelText: "Grup",
-                                                                                            value: vm.table.week.days
+                                                                                            value: vm.week.days
                                                                                                 .elementAt(index)
                                                                                                 .activities
                                                                                                 .elementAt(indexActivities)!
@@ -196,13 +193,13 @@ class _PageTableBody extends StatelessWidget {
                                                                                                 AgeGroup.values.map((e) => e.toString())),
                                                                                             onChanged: (text) => vm.setActivity(
                                                                                                 Activity(
-                                                                                                    type: vm.table.week.days
+                                                                                                    type: vm.week.days
                                                                                                         .elementAt(index)
                                                                                                         .activities
                                                                                                         .elementAt(indexActivities)!
                                                                                                         .type,
                                                                                                     ageGroup: AgeGroup.fromString(text!),
-                                                                                                    fee: vm.table.week.days
+                                                                                                    fee: vm.week.days
                                                                                                         .elementAt(index)
                                                                                                         .activities
                                                                                                         .elementAt(indexActivities)!
@@ -213,7 +210,7 @@ class _PageTableBody extends StatelessWidget {
                                                                                         CustomDropdownList(
                                                                                             readOnly: false,
                                                                                             labelText: "Ücret",
-                                                                                            value: vm.table.week.days
+                                                                                            value: vm.week.days
                                                                                                 .elementAt(index)
                                                                                                 .activities
                                                                                                 .elementAt(indexActivities)!
@@ -223,12 +220,12 @@ class _PageTableBody extends StatelessWidget {
                                                                                                 FeeType.values.map((e) => e.toString())),
                                                                                             onChanged: (text) => vm.setActivity(
                                                                                                 Activity(
-                                                                                                    type: vm.table.week.days
+                                                                                                    type: vm.week.days
                                                                                                         .elementAt(index)
                                                                                                         .activities
                                                                                                         .elementAt(indexActivities)!
                                                                                                         .type,
-                                                                                                    ageGroup: vm.table.week.days
+                                                                                                    ageGroup: vm.week.days
                                                                                                         .elementAt(index)
                                                                                                         .activities
                                                                                                         .elementAt(indexActivities)!
@@ -245,7 +242,7 @@ class _PageTableBody extends StatelessWidget {
                                                                           padding: const EdgeInsets.symmetric(
                                                                               vertical: AppTheme.gapxxsmall, horizontal: AppTheme.gapxsmall),
                                                                           height: 70,
-                                                                          color: vm.table.week.days
+                                                                          color: vm.week.days
                                                                               .elementAt(index)
                                                                               .activities
                                                                               .elementAt(indexActivities)!
@@ -254,16 +251,11 @@ class _PageTableBody extends StatelessWidget {
                                                                           child: Column(
                                                                             children: [
                                                                               Text(
-                                                                                  vm.table.week.days
-                                                                                      .elementAt(index)
-                                                                                      .activities
-                                                                                      .elementAt(indexActivities)!
-                                                                                      .type
-                                                                                      .toString(),
+                                                                                  "${vm.week.days.elementAt(index).activities.elementAt(indexActivities)!.type} (${vm.week.days.elementAt(index).activities.elementAt(indexActivities)!.sessionModel?.mainMembers.length.toString() ?? "0"})",
                                                                                   style: appState.themeData.textTheme.bodyMedium,
                                                                                   textAlign: TextAlign.center),
                                                                               Text(
-                                                                                  vm.table.week.days
+                                                                                  vm.week.days
                                                                                       .elementAt(index)
                                                                                       .activities
                                                                                       .elementAt(indexActivities)!
@@ -272,7 +264,7 @@ class _PageTableBody extends StatelessWidget {
                                                                                   style: appState.themeData.textTheme.bodyMedium,
                                                                                   textAlign: TextAlign.center),
                                                                               Text(
-                                                                                  vm.table.week.days
+                                                                                  vm.week.days
                                                                                       .elementAt(index)
                                                                                       .activities
                                                                                       .elementAt(indexActivities)!

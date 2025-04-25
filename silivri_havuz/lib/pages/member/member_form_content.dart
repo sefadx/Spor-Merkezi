@@ -188,8 +188,7 @@ class FormContentMember extends StatelessWidget {
                                         children: [
                                           const Icon(Icons.picture_as_pdf, color: Colors.red),
                                           const SizedBox(width: AppTheme.gapmedium),
-                                          Text(
-                                              "${vm.listMemberFiles?.elementAt(index).reportType} ${date.day.toString()}/${date.month.toString()}/${date.year.toString()}"),
+                                          Text("${vm.listMemberFiles?.elementAt(index).reportType} ${dateFormat.format(date).toString()}"),
                                           const SizedBox(width: AppTheme.gapmedium),
                                           IconButton(
                                               icon: const Icon(Icons.remove_red_eye),
