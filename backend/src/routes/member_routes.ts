@@ -45,7 +45,7 @@ router.post("/", async (req: Request, res: Response) => {
 router.get("/", async (req: Request, res: Response) => {
   try {
     // Query parametreleri ile filtreleme ve sayfalama desteği ekleyelim
-    const { page = "1", limit = "10", search, paymentStatus, healthStatus } = req.query;
+    const { page, limit, search, paymentStatus, healthStatus } = req.query;
 
     // Sayfalama ve sınır parametrelerini sayıya çevir
     const pageNumber = parseInt(page as string, 10);
@@ -61,7 +61,10 @@ router.get("/", async (req: Request, res: Response) => {
     if (search && search != "null") {
       query.$or = [
         { name: { $regex: search, $options: "i" } }, // İsme göre arama (Büyük/Küçük harf duyarsız)
-        { surname: { $regex: search, $options: "i" } } // Soyisme göre arama
+        { surname: { $regex: search, $options: "i" }, }, // Soyisme göre arama
+        { identityNumber: { $regex: search, $options: "i" } }, // TC Kimlik Numarasına göre arama
+        { phoneNumber: { $regex: search, $options: "i" } }, // Telefon numarasına göre arama
+        { email: { $regex: search, $options: "i" } }, // E-posta adresine göre arama
       ];
     }
 
