@@ -19,17 +19,19 @@ import '/view_model/session_details.dart';
 
 class PageSessionLauncher extends StatelessWidget {
   //PageSessionLauncher({ViewModelSessionDetails? model, required this.vmTable, super.key}) {
-  PageSessionLauncher({super.key});
-  ViewModelSessionDetails vmSession = ViewModelSessionDetails();
+  PageSessionLauncher({required this.vmSession, super.key});
+  ViewModelSessionDetails vmSession;
 
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
     final vmTable = Provider.of<ViewModelTable>(context);
-    if (vmTable.week.days.elementAt(vmTable.selectedDayIndex!).activities.elementAt(vmTable.selectedActivityIndex!)!.sessionModel != null) {
+    /*if (vmTable.week.days.elementAt(vmTable.selectedDayIndex!).activities.elementAt(vmTable.selectedActivityIndex!)!.sessionModel != null) {
       vmSession = ViewModelSessionDetails.fromModel(
           model: vmTable.week.days.elementAt(vmTable.selectedDayIndex!).activities.elementAt(vmTable.selectedActivityIndex!)!.sessionModel!);
-    }
+    } else {
+      vmSession = ViewModelSessionDetails();
+    }*/
     return Provider<ViewModelSessionDetails>(
         model: vmSession,
         child: Scaffold(
@@ -37,26 +39,42 @@ class PageSessionLauncher extends StatelessWidget {
             appBar: AppBar(
               backgroundColor: appState.themeData.scaffoldBackgroundColor,
               scrolledUnderElevation: 0,
-              title: Text(
-                  'Seans Yönetimi - ${vmTable.week.days.elementAt(vmTable.selectedDayIndex!).name} ${vmTable.timeSlots.elementAt(vmTable.selectedActivityIndex!).start}-${vmTable.timeSlots.elementAt(vmTable.selectedActivityIndex!).end}',
-                  style: appState.themeData.textTheme.headlineMedium),
-              actions: [
-                CustomButton(
-                    readOnly: vmSession.readOnly,
-                    text: "Seansı kaydet", //vmSession.readOnly ? "Seansı Güncelle" : "Seansı kaydet",
-                    margin: const EdgeInsets.only(right: AppTheme.gapsmall),
-                    onTap: () {
-                      vmTable.setSessionModel(
-                          model: SessionModel(
-                              dateTimeStart: vmTable.timeSlots.elementAt(vmTable.selectedActivityIndex!).start,
-                              dateTimeEnd: vmTable.timeSlots.elementAt(vmTable.selectedActivityIndex!).end,
-                              capacity: int.tryParse(vmSession.sessionCapacityController.text) ?? 0,
-                              mainMembers: vmSession.mainMembers ?? [],
-                              waitingMembers: vmSession.waitingMembers ?? []));
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                      'Seans Yönetimi - ${vmTable.week.days.elementAt(vmTable.selectedDayIndex!).name} ${vmTable.timeSlots.elementAt(vmTable.selectedActivityIndex!).start}-${vmTable.timeSlots.elementAt(vmTable.selectedActivityIndex!).end}',
+                      style: appState.themeData.textTheme.headlineMedium),
+                  const SizedBox(width: AppTheme.gaplarge),
+                  CustomButton(
+                      text: "Düzenle", //vmSession.readOnly ? "Seansı Güncelle" : "Seansı kaydet",
+                      margin: const EdgeInsets.only(right: AppTheme.gapsmall),
+                      onTap: () {
+                        vmSession.readOnly = !vmSession.readOnly;
+                        vmTable.updateProvider();
+                        debugPrint("vmSession.readOnly : ${vmSession.readOnly}");
+                      })
+                ],
+              ),
+              actions: !vmSession.readOnly
+                  ? [
+                      CustomButton(
+                          readOnly: vmSession.readOnly,
+                          text: "Seansı kaydet", //vmSession.readOnly ? "Seansı Güncelle" : "Seansı kaydet",
+                          margin: const EdgeInsets.only(right: AppTheme.gapsmall),
+                          onTap: () {
+                            vmTable.setSessionModel(
+                                model: SessionModel(
+                                    dateTimeStart: vmTable.timeSlots.elementAt(vmTable.selectedActivityIndex!).start,
+                                    dateTimeEnd: vmTable.timeSlots.elementAt(vmTable.selectedActivityIndex!).end,
+                                    capacity: int.tryParse(vmSession.sessionCapacityController.text) ?? 0,
+                                    mainMembers: vmSession.mainMembers ?? [],
+                                    waitingMembers: vmSession.waitingMembers ?? []));
 
-                      CustomRouter.instance.pop();
-                    })
-              ],
+                            CustomRouter.instance.pop();
+                          })
+                    ]
+                  : null,
             ),
             body: const _FormContentSession()));
   }
@@ -83,7 +101,7 @@ class _FormContentSession extends StatelessWidget {
                   children: [
                     Expanded(
                         child: CustomDropdownList(
-                            readOnly: false,
+                            readOnly: vmSession.readOnly,
                             labelText: "Kategori",
                             value: vmTable.week.days
                                 .elementAt(vmTable.selectedDayIndex!)
@@ -110,7 +128,7 @@ class _FormContentSession extends StatelessWidget {
                     const SizedBox(width: AppTheme.gapsmall),
                     Expanded(
                         child: CustomDropdownList(
-                            readOnly: false,
+                            readOnly: vmSession.readOnly,
                             labelText: "Grup",
                             value: vmTable.week.days
                                 .elementAt(vmTable.selectedDayIndex!)
@@ -138,7 +156,7 @@ class _FormContentSession extends StatelessWidget {
                     const SizedBox(width: AppTheme.gapsmall),
                     Expanded(
                         child: CustomDropdownList(
-                            readOnly: false,
+                            readOnly: vmSession.readOnly,
                             labelText: "Ücret",
                             value: vmTable.week.days
                                 .elementAt(vmTable.selectedDayIndex!)
@@ -178,7 +196,9 @@ class _FormContentSession extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    CustomButton(readOnly: vmSession.readOnly, text: "Üyeleri Yükle", onTap: () => vmSession.createParticipantsList()),
+                    !vmSession.readOnly
+                        ? CustomButton(readOnly: vmSession.readOnly, text: "Üyeleri Yükle", onTap: () => vmSession.createParticipantsList())
+                        : const SizedBox(),
                     const SizedBox(height: AppTheme.gapmedium),
                     Row(
                       children: [

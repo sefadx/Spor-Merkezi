@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { faker } from "@faker-js/faker";
-import Session from "../src/models/session"; // Model dosyanın yolunu güncelle
+import Session from "./models/week"; // Model dosyanın yolunu güncelle
 import { Cities, EducationLevels, Genders, HealthStatus, PaymentStatus } from "./enums/lists";
 
 // 🔹 MongoDB bağlantısını aç

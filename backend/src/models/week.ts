@@ -23,7 +23,7 @@ export interface IDay {
 }
 
 export interface IWeek {
-
+    daysOff: number[]; // 0-6 (0: Pazartesi, 1: Salı, 2: Çarşamba, 3: Perşembe, 4: Cuma, 5: Cumartesi, 6: Pazar)
     initialDayOfWeek: Date;
     days: IDay[];
 }
@@ -55,6 +55,7 @@ const DaySchema: Schema = new Schema<IDay>({
 });
 
 const WeekSchema: Schema = new Schema<IWeek>({
+    daysOff: { type: [Number], default: [] },
     initialDayOfWeek: { type: Date, required: true, index: true },
     days: [DaySchema]
 },

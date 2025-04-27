@@ -9,7 +9,6 @@ import '/controller/app_state.dart';
 import '/controller/app_theme.dart';
 import '/controller/provider.dart';
 import '/customWidgets/buttons/custom_button.dart';
-import '/customWidgets/search_and_filter.dart';
 import '/navigator/custom_navigation_view.dart';
 import '/navigator/ui_page.dart';
 import '/network/api.dart';
@@ -19,141 +18,144 @@ import '../table.dart';
 class PageSessions extends StatelessWidget {
   PageSessions({super.key});
 
-  final WeekModel week = WeekModel(initialDayOfWeek: DateTime(2020), days: [
-    Day(name: "Pazartesi", day: 1, activities: [
-      Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
-      null,
-      Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
-      null,
-      Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
-      null,
-      Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
-      null,
-      Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
-      null,
-      Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
-      null,
-      Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
-      null,
-      Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
-      null,
-      Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty)
-    ]),
-    Day(name: "Salı", day: 2, activities: [
-      Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age6to12, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid)
-    ]),
-    Day(name: "Çarşamba", day: 3, activities: [
-      Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age6to12, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age6to12, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid)
-    ]),
-    Day(name: "Perşembe", day: 4, activities: [
-      Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age6to12, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid)
-    ]),
-    Day(name: "Cuma", day: 5, activities: [
-      Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age6to12, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age6to12, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.free),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid)
-    ]),
-    Day(name: "Cumartesi", day: 6, activities: [
-      Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.havuzBakim, ageGroup: AgeGroup.all, fee: FeeType.free)
-    ]),
-    Day(name: "Pazar", day: 7, activities: [
-      Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
-      null,
-      Activity(type: ActivityType.havuzBakim, ageGroup: AgeGroup.all, fee: FeeType.free)
-    ]),
-  ]);
+  final WeekModel week = WeekModel(
+      daysOff: [],
+      initialDayOfWeek: DateTime(2020),
+      days: [
+        Day(name: "Pazartesi", day: 1, activities: [
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty)
+        ]),
+        Day(name: "Salı", day: 2, activities: [
+          Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age6to12, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid)
+        ]),
+        Day(name: "Çarşamba", day: 3, activities: [
+          Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age6to12, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age6to12, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid)
+        ]),
+        Day(name: "Perşembe", day: 4, activities: [
+          Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age6to12, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid)
+        ]),
+        Day(name: "Cuma", day: 5, activities: [
+          Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age13Plus, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age6to12, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.eykom, ageGroup: AgeGroup.age6to12, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.free),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid)
+        ]),
+        Day(name: "Cumartesi", day: 6, activities: [
+          Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.havuzBakim, ageGroup: AgeGroup.all, fee: FeeType.free)
+        ]),
+        Day(name: "Pazar", day: 7, activities: [
+          Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yetiskinKadin, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age7to12, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.cocuk, ageGroup: AgeGroup.age4to6, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yuzmeAkademisi, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.yetiskinErkek, ageGroup: AgeGroup.age13Plus, fee: FeeType.paid),
+          null,
+          Activity(type: ActivityType.havuzBakim, ageGroup: AgeGroup.all, fee: FeeType.free)
+        ]),
+      ]);
 
   @override
   Widget build(BuildContext context) {
@@ -173,8 +175,8 @@ class PageSessions extends StatelessWidget {
           CustomRouter.instance.pushWidget(
               child: PageTable(
                 title: "Seans Yönetimi",
-                sessionMode: true,
-                vm: ViewModelTable(week: WeekModel(days: week.days, initialDayOfWeek: initialDayOfWeek)),
+                tableMode: TableMode.add,
+                vm: ViewModelTable(week: WeekModel(daysOff: week.daysOff, days: week.days, initialDayOfWeek: initialDayOfWeek)),
               ),
               pageConfig: ConfigPopupInfo());
         } else {
@@ -201,10 +203,7 @@ class PageSessions extends StatelessWidget {
             CustomButton(
                 text: "Haftalık Seans Düzeni",
                 onTap: () => CustomRouter.instance.pushWidget(
-                    child: PageTable(
-                      title: "Haftalık Seans Düzeni",
-                      vm: ViewModelTable(week: week),
-                    ),
+                    child: PageTable(tableMode: TableMode.empty, title: "Haftalık Seans Düzeni", vm: ViewModelTable(week: week)),
                     pageConfig: ConfigPopupInfo())),
             CustomButton(text: "Hafta Ekle", onTap: addWeekButton)
           ],
@@ -214,8 +213,8 @@ class PageSessions extends StatelessWidget {
           children: [
             const SizedBox(height: AppTheme.gapsmall),
             // Search and Filter Section
-            SearchAndFilter(
-                controller: vm.weekSearchTextEditingController, onTap: () => vm.resetAndFetchWeek(search: vm.weekSearchTextEditingController.text)),
+            /*SearchAndFilter(
+                controller: vm.weekSearchTextEditingController, onTap: () => vm.resetAndFetchWeek(search: vm.weekSearchTextEditingController.text)),*/
 
             const SizedBox(height: AppTheme.gapsmall),
 
@@ -233,8 +232,8 @@ class PageSessions extends StatelessWidget {
                                   weekName: asyncSnapshot.data!.elementAt(index).getWeekRangeTitle(),
                                   onTapDetails: () => CustomRouter.instance.pushWidget(
                                       child: PageTable(
-                                        sessionMode: true,
-                                        title: asyncSnapshot.data!.elementAt(index).createdAt.toString(),
+                                        tableMode: TableMode.update,
+                                        title: asyncSnapshot.data!.elementAt(index).getWeekRangeTitle(),
                                         vm: ViewModelTable(week: asyncSnapshot.data!.elementAt(index)),
                                       ),
                                       pageConfig: ConfigTable));

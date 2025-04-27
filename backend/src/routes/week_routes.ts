@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import { BaseResponseModel } from "../models/base_response";
-import TableModel, { ITableModel } from "../models/session";
+import TableModel, { ITableModel } from "../models/week";
 
 var response: BaseResponseModel;
 
@@ -125,6 +125,7 @@ router.get("/:id", async (req, res) => {
 // Üyeyi güncelle
 router.put("/:id", async (req, res) => {
     try {
+        console.log("Güncellenen veri: ", req.body);
         const updatedSession = await TableModel.findByIdAndUpdate(
             req.params.id,
             req.body,
@@ -133,8 +134,9 @@ router.put("/:id", async (req, res) => {
         if (!updatedSession) {
             res.status(404).send(new BaseResponseModel(false, "Seans bulunamadı").toJson());
         }
-        res.json(updatedSession);
+        res.send(new BaseResponseModel(true, "Seans güncellendi", updatedSession).toJson());
     } catch (error) {
+        console.error("Güncelleme hatası: ", error);
         res.status(400).send(new BaseResponseModel(false, "Güncelleme başarısız.", (error as Error).message).toJson());
     }
 });

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:silivri_havuz/view_model/home.dart';
+import '/view_model/home.dart';
 import '../model/session_model.dart';
 import '../model/table_model.dart';
 import '../navigator/custom_navigation_view.dart';
@@ -12,8 +12,9 @@ class ViewModelTable extends ChangeNotifier {
   ViewModelTable({required this.week});
 
   int? selectedDayIndex, selectedActivityIndex;
-  List<int> daysOff = [];
+  //List<int> daysOff = [];
   WeekModel week;
+  void updateProvider() => notifyListeners();
 
   final List<TimeSlot> timeSlots = [
     TimeSlot(start: "08:30", end: "09:30", isBreak: false),
@@ -42,33 +43,72 @@ class ViewModelTable extends ChangeNotifier {
 
   void setDaysOff(int dayIndex) {
     if (getDaysOff(dayIndex)) {
-      daysOff.removeAt(daysOff.indexWhere((e) => e == dayIndex));
+      week.daysOff.removeAt(week.daysOff.indexWhere((e) => e == dayIndex));
     } else {
-      daysOff.add(dayIndex);
+      week.daysOff.add(dayIndex);
+      week.days.elementAt(dayIndex).activities.forEach((e) => e?.sessionModel = null);
+      /*for (var e in week.days) {
+        if (week.daysOff.indexWhere((dayOff) => dayOff == e.day) != -1) {
+          for (var a in e.activities) {
+            a?.sessionModel = null;
+          }
+        }
+      }*/
     }
+
     notifyListeners();
   }
 
-  bool getDaysOff(int dayIndex) => daysOff.firstWhere((e) => e == dayIndex, orElse: () => -1) == -1 ? false : true;
+  bool getDaysOff(int dayIndex) => week.daysOff.firstWhere((e) => e == dayIndex, orElse: () => -1) == -1 ? false : true;
 
   void setSessionModel({required SessionModel? model}) {
     try {
       week.days.elementAt(selectedDayIndex!).activities.elementAt(selectedActivityIndex!)!.sessionModel = model;
+      notifyListeners();
     } catch (err) {
       CustomRouter.instance.pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: err.toString()), pageConfig: ConfigPopupInfo());
     }
   }
 
-  void addWeekToList() async {
+  Future<void> postWeek() async {
     if (await CustomRouter.instance.waitForResult(
         child: const PageAlertDialog(title: "Uyarı", informationText: "Girdiğiniz bilgilere göre yeni hafta oluşturulacaktır. Onaylıyor musunuz ?"),
         pageConfig: ConfigAlertDialog)) {
       //TableModel model = TableModel();
       WeekModel model = week;
 
-      BaseResponseModel res = await APIService<WeekModel>(url: APIS.api.session()).post(model).onError((error, stackTrace) {
+      BaseResponseModel res = await APIService<WeekModel>(url: APIS.api.week()).post(model).onError((error, stackTrace) {
         debugPrint(error.toString());
         return BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu");
+      });
+
+      if (res.success) {
+        ViewModelHome.instance.fetchWeeks();
+        CustomRouter.instance.replacePushWidget(
+            child: PagePopupInfo(
+              title: "Bildirim",
+              informationText: res.message.toString(),
+              afterDelay: () => CustomRouter.instance.pop(),
+            ),
+            pageConfig: ConfigPopupInfo());
+        notifyListeners();
+      } else {
+        CustomRouter.instance
+            .pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
+      }
+    }
+  }
+
+  Future<void> updateWeek() async {
+    if (await CustomRouter.instance.waitForResult(
+        child: const PageAlertDialog(title: "Uyarı", informationText: "Hafta düzeni güncellenecektir. Onaylıyor musunuz ?"),
+        pageConfig: ConfigAlertDialog)) {
+      //TableModel model = TableModel();
+      WeekModel model = week;
+
+      BaseResponseModel res = await APIService<WeekModel>(url: APIS.api.weekId(weekId: model.id)).put(model).onError((error, stackTrace) {
+        debugPrint(error.toString());
+        return BaseResponseModel(success: false, message: "İşlem gerçekleştirilemedi. Bilinmeyen bir hata oluştu.");
       });
 
       if (res.success) {
@@ -88,7 +128,7 @@ class ViewModelTable extends ChangeNotifier {
   }
 
   static Future<bool> queryWeek({required DateTime date}) async {
-    BaseResponseModel<ListWrapped<WeekModel>> res = await APIService<ListWrapped<WeekModel>>(url: APIS.api.session(search: date.toIso8601String()))
+    BaseResponseModel<ListWrapped<WeekModel>> res = await APIService<ListWrapped<WeekModel>>(url: APIS.api.week(search: date.toIso8601String()))
         .get(
             fromJsonT: (json) => ListWrapped.fromJson(
                   jsonList: json,

@@ -76,6 +76,8 @@ class Day implements JsonProtocol {
 }
 
 class WeekModel implements JsonProtocol {
+  List<int> daysOff;
+
   final DateTime initialDayOfWeek;
   String get name => "${initialDayOfWeek.day}/${initialDayOfWeek.month}/${initialDayOfWeek.year}";
   String getWeekRangeTitle() {
@@ -83,7 +85,7 @@ class WeekModel implements JsonProtocol {
     DateTime sunday = monday.add(const Duration(days: 6));
 
     String formatDate(DateTime d) => "${d.day} ${_getMonthName(d.month)} ${d.year}";
-    return "${initialDayOfWeek.year} - ${_getWeekNumber(initialDayOfWeek)}. Hafta (${monday.day} - ${sunday.day} ${_getMonthName(initialDayOfWeek.month)})";
+    return "${initialDayOfWeek.year} - ${_getWeekNumber(initialDayOfWeek)}. Hafta (${monday.day} ${_getMonthName(initialDayOfWeek.month)} - ${sunday.day} ${_getMonthName(initialDayOfWeek.month)})";
   }
 
   String _getMonthName(int month) {
@@ -110,11 +112,12 @@ class WeekModel implements JsonProtocol {
   late String _id;
   String get id => _id;
 
-  WeekModel({required this.initialDayOfWeek, required this.days});
+  WeekModel({required this.daysOff, required this.initialDayOfWeek, required this.days});
 
   factory WeekModel.fromJson({required Map<String, dynamic> json}) {
     try {
       WeekModel model = WeekModel(
+        daysOff: List<int>.from(json["daysOff"]),
         initialDayOfWeek: DateTime.parse(json['initialDayOfWeek']).toLocal(),
         days: List<Day>.of((json["days"] as List).map((e) => Day.fromJson(json: e))),
       );
@@ -130,6 +133,7 @@ class WeekModel implements JsonProtocol {
   @override
   Map<String, dynamic> toJson() {
     return {
+      'daysOff': daysOff,
       'initialDayOfWeek': initialDayOfWeek.toUtc().toIso8601String(),
       'days': days.map((e) => e.toJson()).toList(),
     };

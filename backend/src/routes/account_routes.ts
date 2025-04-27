@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { BaseResponseModel } from "../models/base_response";
-import Session, { ISession } from "../models/session";
+import Session, { ISession } from "../models/week";
 
 var response: BaseResponseModel;
 

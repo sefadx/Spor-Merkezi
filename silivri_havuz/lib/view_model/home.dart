@@ -56,7 +56,7 @@ class ViewModelHome extends ChangeNotifier {
   int _currentPageWeek = 1;
   bool _isFetchingWeek = false;
   bool _hasMoreDataWeek = true;
-  final List<MemberModel> _allWeeks = [];
+  final List<WeekModel> _allWeeks = [];
 
   final StreamController<List<MemberModel>> members = StreamController();
   final TextEditingController memberSearchTextEditingController = TextEditingController();
@@ -75,7 +75,7 @@ class ViewModelHome extends ChangeNotifier {
     await fetchMember(search: search);
   }
 
-  fetchMember({int limit = 10, String? search}) async {
+  Future<void> fetchMember({int limit = 10, String? search}) async {
     if (_isFetchingMember || !_hasMoreDataMember) return;
     _isFetchingMember = true;
     if (search == null) memberSearchTextEditingController.clear();
@@ -127,25 +127,27 @@ class ViewModelHome extends ChangeNotifier {
     await fetchWeeks(search: search);
   }
 
-  fetchWeeks({int limit = 100, String? search}) async {
+  Future<void> fetchWeeks({int limit = 100, String? search}) async {
     if (_isFetchingWeek || !_hasMoreDataWeek) return;
     _isFetchingWeek = true;
     if (search == null) weekSearchTextEditingController.clear();
-    BaseResponseModel<ListWrapped<WeekModel>> res =
-        await APIService<ListWrapped<WeekModel>>(url: APIS.api.session(page: _currentPageWeek, limit: limit))
-            .get(
-                fromJsonT: (json) => ListWrapped.fromJson(
-                      jsonList: json,
-                      fromJsonT: (p0) => WeekModel.fromJson(json: p0),
-                    ))
-            .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+
+    BaseResponseModel<ListWrapped<WeekModel>> res = await APIService<ListWrapped<WeekModel>>(url: APIS.api.week(page: _currentPageWeek, limit: limit))
+        .get(
+            fromJsonT: (json) => ListWrapped.fromJson(
+                  jsonList: json,
+                  fromJsonT: (p0) => WeekModel.fromJson(json: p0),
+                ))
+        .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
 
     if (res.success) {
       List<WeekModel> newWeek = (res.data?.items) ?? [];
       if (newWeek.isEmpty || newWeek.length < limit) {
         _hasMoreDataWeek = false; // Daha fazla veri yoksa flag'i kapat
       }
-      weeks.sink.add(newWeek);
+      _allWeeks.addAll(newWeek);
+      weeks.sink.add(_allWeeks);
+      _currentPageWeek++;
       debugPrint("apiden gelen yanıt: ${res.toJson()}");
       /*CustomRouter.instance.replacePushWidget(
           child: PagePopupInfo(

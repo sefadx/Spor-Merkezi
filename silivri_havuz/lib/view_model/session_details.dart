@@ -16,13 +16,13 @@ import '../utils/extension.dart';
 import '../view_model/home.dart';
 
 class ViewModelSessionDetails extends ChangeNotifier {
-  ViewModelSessionDetails({this.readOnly = false});
-  ViewModelSessionDetails.fromModel({this.readOnly = true, required this.model}) {
-    sessionCapacityController.text = model.capacity.toString();
-    _fetchMembersOfSession(main: model.mainMembers, waiting: model.waitingMembers);
+  ViewModelSessionDetails({this.readOnly = true, required this.model}) {
+    sessionCapacityController.text = model?.capacity.toString() ?? "";
+    _fetchMembersOfSession(main: model?.mainMembers ?? [], waiting: model?.waitingMembers ?? []);
   }
 
-  late final SessionModel model;
+  SessionModel? model;
+  void updateProvider() => notifyListeners();
 
   final formKey = GlobalKey<FormState>();
   bool readOnly;
@@ -94,8 +94,8 @@ class ViewModelSessionDetails extends ChangeNotifier {
           pageConfig: ConfigAlertDialog)) {
         //SessionModel model = SessionModel(capacity: int.tryParse(sessionCapacityController.text)!, mainMembers: mainMembers ?? [], waitingMembers: waitingMembers ?? []);
 
-        BaseResponseModel res = await APIService<SessionModel>(url: APIS.api.session())
-            .post(model)
+        BaseResponseModel res = await APIService<SessionModel>(url: APIS.api.week())
+            .post(model!)
             .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
 
         if (res.success) {
@@ -117,7 +117,7 @@ class ViewModelSessionDetails extends ChangeNotifier {
   }
 
   void delete() async {
-    BaseResponseModel res = await APIService(url: APIS.api.session()).delete(model);
+    BaseResponseModel res = await APIService(url: APIS.api.week()).delete(model!);
   }
 }
 

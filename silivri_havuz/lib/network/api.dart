@@ -5,7 +5,6 @@ import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-import 'package:silivri_havuz/model/file_model.dart';
 
 import '../utils/enums.dart';
 
@@ -78,8 +77,9 @@ class APIS {
   String memberFiles({required String memberId}) => "$_baseAPI/download/member/$memberId";
   String downloadFile({required String fileId}) => "$_baseAPI/download/$fileId";
 
-  String session({int page = 1, int limit = 10, String? search}) =>
-      "$_baseAPI/session?page=${page.toString()}&limit=${limit.toString()}&search=$search";
+  String week({int page = 1, int limit = 10, String? search}) => "$_baseAPI/week?page=${page.toString()}&limit=${limit.toString()}&search=$search";
+
+  String weekId({required String weekId}) => "$_baseAPI/week/$weekId";
 
   String subscription({SportTypes? sportType, DateTime? endDate}) {
     String url = "$_baseAPI/subscription?";

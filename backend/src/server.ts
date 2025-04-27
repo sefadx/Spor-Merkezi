@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import memberRoutes from "./routes/member_routes";
-import sessionRoutes from "./routes/session_routes";
+import weekRoutes from "./routes/week_routes";
 import subscriptionRoutes from "./routes/subscription_routes";
 import trainerRoutes from "./routes/trainer_routes";
 import variablesRoutes from "./routes/form_variables";
@@ -38,7 +38,7 @@ const conn = mongoose.connection;
 
 app.use("/", fileRoutes);//express.static("uploads"));
 app.use("/member", memberRoutes);
-app.use("/session", sessionRoutes);
+app.use("/week", weekRoutes);
 app.use("/subscription", subscriptionRoutes);
 app.use("/trainer", trainerRoutes);
 app.use("/variables", variablesRoutes);
