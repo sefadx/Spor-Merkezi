@@ -1,4 +1,28 @@
 import exp from "constants";
+export enum ActivityTypes {
+    empty = "-",
+    yetiskinKadin = "Yetişkin Kadın",
+    yetiskinErkek = "Yetişkin Erkek",
+    eykom = "EYKOM",
+    cocuk = "Çocuk",
+    yuzmeAkademisi = "Yüzme Akademisi",
+    havuzBakim = "Havuz Bakım",
+}
+
+export enum AgeGroups {
+    empty = "-",
+    all = "Bütün Yaşlar",
+    age13plus = "13+ Yaş",
+    age6to12 = "6-12 Yaş",
+    age7to12 = "7-12 Yaş",
+    age4to6 = "4-6 Yaş",
+}
+
+export enum FeeTypes {
+    empty = "-",
+    paid = "Ücretli",
+    free = "Ücretsiz",
+}
 
 export enum ReportTypes {
     SaglikRaporu = "Sağlık Raporu",
