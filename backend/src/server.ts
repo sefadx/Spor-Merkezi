@@ -19,14 +19,14 @@ import fileRoutes from "./routes/file_routes";
 //npm run dev
 
 dotenv.config();
-
+ 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
 //app.use(cors());
 app.use(cors({ origin: "*" }));
 
-app.use(express.json());
+app.use(express.json()); 
 
 mongoose
   .connect(process.env.MONGO_URI as string)
@@ -46,6 +46,6 @@ app.use("/login", loginRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server ${PORT} portunda çalışıyor`);
-});
+}); 
 
 export { conn };

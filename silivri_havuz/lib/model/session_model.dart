@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:silivri_havuz/model/trainer_model.dart';
-import 'package:silivri_havuz/utils/enums.dart';
 
 import '../network/api.dart';
-import '../utils/extension.dart';
 import 'member_model.dart';
 
 class SessionModel implements JsonProtocol {

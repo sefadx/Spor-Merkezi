@@ -9,7 +9,6 @@ import '../customWidgets/custom_label_textfield.dart';
 import '../controller/app_state.dart';
 import '../controller/provider.dart';
 import '../utils/extension.dart';
-import '../view_model/member_details.dart';
 
 @immutable
 class PageFileForm extends StatelessWidget {

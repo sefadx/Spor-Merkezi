@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../network/api.dart';
 import '../utils/enums.dart';
 import 'member_model.dart';
@@ -20,28 +22,35 @@ class SubscriptionModel implements JsonProtocol {
   final ActivityType type;
   final AgeGroup ageGroup;
   final FeeType fee;
+  int? credit;
   final int amount;
   final MemberModel member;
   final DateTime paymentDate;
 
   factory SubscriptionModel.fromJson({required Map<String, dynamic> json}) {
-    SubscriptionModel model = SubscriptionModel(
-      type: ActivityType.fromString(json["type"]),
-      ageGroup: AgeGroup.fromString(json["ageGroup"]),
-      fee: FeeType.fromString(json["fee"]),
-      amount: json["amount"],
-      member: MemberModel.fromJson(json: json["memberId"]),
-      paymentDate: DateTime.parse(json["paymentDate"]).toLocal(),
-    );
-    model._id = json["_id"];
-    model._createdAt = DateTime.parse(json['createdAt']).toLocal();
-    return model;
+    try {
+      SubscriptionModel model = SubscriptionModel(
+        type: ActivityType.fromString(json["type"]),
+        ageGroup: AgeGroup.fromString(json["ageGroup"]),
+        fee: FeeType.fromString(json["fee"]),
+        amount: json["amount"],
+        member: MemberModel.fromJson(json: json["memberId"]),
+        paymentDate: DateTime.parse(json["paymentDate"]).toLocal(),
+      );
+      model.credit = json["credit"];
+      model._id = json["_id"];
+      model._createdAt = DateTime.parse(json['createdAt']).toLocal();
+      return model;
+    } catch (err) {
+      debugPrint("Subscription fromJson: $err");
+      rethrow;
+    }
   }
 
   @override
   Map<String, dynamic> toJson() {
     return {
-      'memberId': member.toJson(),
+      'memberId': member.id.toString(),
       'type': type.toString(),
       'ageGroup': ageGroup.toString(),
       'fee': fee.toString(),

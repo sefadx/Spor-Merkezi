@@ -9,7 +9,7 @@ export interface ISubscription extends Document {
     fee: FeeTypes;
     credit: number; // Kredi Miktarı
     //paymentMethod: PaymentMethods; // Ödeme Yöntemi (Nakit, Kredi Kartı vs.)
-    paymentDate: Date; // Ödeme Tarihi
+    paymentDate: Date; // Ödeme Tarihi 
     //startDate: Date; // Abonelik Başlangıç Tarihi
     //endDate: Date; // Abonelik Bitiş Tarihi
 }
@@ -18,13 +18,14 @@ const SubscriptionSchema = new Schema<ISubscription>({
     memberId: {
         type: Schema.Types.ObjectId,
         ref: "Member",
-        required: true
+        required: true,
     },
     //sportType: { type: String, required: true, enum: Object.values(SportTypes) },
     type: { type: String, required: true, enum: Object.values(ActivityTypes) },
     ageGroup: { type: String, required: true, enum: Object.values(AgeGroups) },
     fee: { type: String, required: true, enum: Object.values(FeeTypes) },
-    amount: { type: Number, required: true },
+    amount: { type: Number, required: true, trim: true},
+    credit: { type: Number, default: 8, trim: true }, // Kredi Miktarı (Varsayılan: 0)
     /*paymentMethod: {
         type: String,
         required: true,

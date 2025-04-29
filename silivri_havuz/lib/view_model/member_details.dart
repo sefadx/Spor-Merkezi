@@ -15,7 +15,6 @@ import '../network/api.dart';
 import '../pages/alert_dialog.dart';
 import '../pages/file_form.dart';
 import '../pages/info_popup.dart';
-import '../pages/widget_popup.dart';
 import '../utils/extension.dart';
 import 'home.dart';
 
@@ -67,14 +66,14 @@ class ViewModelMemberDetails extends ChangeNotifier {
     );
 
     if (pickedFile != null) {
-      File file = File(pickedFile!.files.single.path!);
-      final fileSize = pickedFile!.files.single.size / (1024 * 1024);
+      File file = File(pickedFile.files.single.path!);
+      final fileSize = pickedFile.files.single.size / (1024 * 1024);
 
       pickedFileModel = FileModel(
           trainerModel: TrainerModel.id(id: "67c4b83e3fc862ea8697fd3d"),
           memberModel: memberModel,
           approvalDate: DateTime.now(),
-          fileSize: pickedFile!.files.single.size,
+          fileSize: pickedFile.files.single.size,
           fileName: "saglik_raporu",
           reportType: ReportTypes.SaglikRaporu);
 

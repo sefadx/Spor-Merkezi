@@ -1,17 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:silivri_havuz/model/subscription_model.dart';
 import 'package:silivri_havuz/model/table_model.dart';
+import 'package:silivri_havuz/pages/subscription/subscription.dart';
 
 import '../model/home_screen_model.dart';
 import '../model/member_model.dart';
-import '../model/session_model.dart';
 import '../navigator/custom_navigation_view.dart';
 import '../navigator/ui_page.dart';
 import '../network/api.dart';
 import '../pages/info_popup.dart';
 import '../pages/member/members.dart';
-import '../pages/reports/incomeReports.dart';
 import '../pages/session/sessions.dart';
 
 class ViewModelHome extends ChangeNotifier {
@@ -23,6 +23,7 @@ class ViewModelHome extends ChangeNotifier {
   ViewModelHome._instance() {
     fetchWeeks();
     fetchMember();
+    fetchSubscriptions();
     weekScrollController.addListener(() {
       if (weekScrollController.offset >= weekScrollController.position.maxScrollExtent * 1.00 && !weekScrollController.position.outOfRange) {
         fetchWeeks(search: weekSearchTextEditingController.text);
@@ -33,13 +34,17 @@ class ViewModelHome extends ChangeNotifier {
         fetchMember(search: memberSearchTextEditingController.text);
       }
     });
+    subscriptionScrollController.addListener(() {
+      if (subscriptionScrollController.offset >= subscriptionScrollController.position.maxScrollExtent * 1.00 && !subscriptionScrollController.position.outOfRange) {
+        fetchSubscriptions(search: subscriptionSearchTextEditingController.text);
+      }
+    });
   }
 
   List<HomeScreenModel> screenList = [
     HomeScreenModel(title: "Seans Yönetimi", icon: Icons.schedule, body: PageSessions()),
-    HomeScreenModel(title: "Üye Yönetimi", icon: Icons.people, body: PageMembers()),
-    //HomeScreenModel(title: "Abonelik", icon: Icons.attach_money, body: PageReportIncome()),
-    //HomeScreenModel(title: "Bildirimler", icon: Icons.notifications, body: SizedBox())
+    HomeScreenModel(title: "Üye Yönetimi", icon: Icons.people, body: const PageMembers()),
+    HomeScreenModel(title: "Abonelik Yönetimi", icon: Icons.card_membership, body: PageSubscription()),
   ];
 
   int _index = 0;
@@ -66,6 +71,14 @@ class ViewModelHome extends ChangeNotifier {
   bool _hasMoreDataMember = true;
   final List<MemberModel> _allMembers = [];
 
+  final StreamController<List<SubscriptionModel>> subscriptions = StreamController();
+  final TextEditingController subscriptionSearchTextEditingController = TextEditingController();
+  final ScrollController subscriptionScrollController = ScrollController();
+  int _currentPageSubscription = 1;
+  bool _isFetchingSubscription = false;
+  bool _hasMoreDataSubscription = true;
+  List<SubscriptionModel> _allSubscriptions = [];
+
   Future<void> resetAndFetchMemberModel({String? search}) async {
     _currentPageMember = 1;
     _hasMoreDataMember = true;
@@ -80,14 +93,13 @@ class ViewModelHome extends ChangeNotifier {
     _isFetchingMember = true;
     if (search == null) memberSearchTextEditingController.clear();
 
-    BaseResponseModel<ListWrapped<MemberModel>> res =
-        await APIService<ListWrapped<MemberModel>>(url: APIS.api.member(limit: limit, page: _currentPageMember, search: search))
-            .get(
-                fromJsonT: (json) => ListWrapped.fromJson(
-                      jsonList: json,
-                      fromJsonT: (p0) => MemberModel.fromJson(json: p0),
-                    ))
-            .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+    BaseResponseModel<ListWrapped<MemberModel>> res = await APIService<ListWrapped<MemberModel>>(url: APIS.api.member(limit: limit, page: _currentPageMember, search: search))
+        .get(
+            fromJsonT: (json) => ListWrapped.fromJson(
+                  jsonList: json,
+                  fromJsonT: (p0) => MemberModel.fromJson(json: p0),
+                ))
+        .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
 
     if (res.success) {
       List<MemberModel> newMember = (res.data?.items) ?? [];
@@ -127,7 +139,7 @@ class ViewModelHome extends ChangeNotifier {
     await fetchWeeks(search: search);
   }
 
-  Future<void> fetchWeeks({int limit = 100, String? search}) async {
+  Future<void> fetchWeeks({int limit = 10, String? search}) async {
     if (_isFetchingWeek || !_hasMoreDataWeek) return;
     _isFetchingWeek = true;
     if (search == null) weekSearchTextEditingController.clear();
@@ -166,6 +178,57 @@ class ViewModelHome extends ChangeNotifier {
           pageConfig: ConfigPopupInfo());
     }
     _isFetchingWeek = false;
+  }
+
+  Future<void> resetAndFetchSubscription({String? search}) async {
+    _currentPageSubscription = 1;
+    _hasMoreDataSubscription = true;
+    _allSubscriptions.clear(); // Liste temizlenir
+    subscriptions.sink.add([]); // UI hemen sıfırlanır
+    //if (search == null) memberSearchTextEditingController.clear();
+    await fetchSubscriptions(search: search);
+  }
+
+  Future<void> fetchSubscriptions({int limit = 10, String? search}) async {
+    if (_isFetchingSubscription || !_hasMoreDataSubscription) return;
+    _isFetchingSubscription = true;
+    if (search == null) subscriptionSearchTextEditingController.clear();
+
+    BaseResponseModel<ListWrapped<SubscriptionModel>> res =
+        await APIService<ListWrapped<SubscriptionModel>>(url: APIS.api.subscription(page: _currentPageSubscription, limit: limit))
+            .get(
+                fromJsonT: (json) => ListWrapped.fromJson(
+                      jsonList: json,
+                      fromJsonT: (p0) => SubscriptionModel.fromJson(json: p0),
+                    ))
+            .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+
+    if (res.success) {
+      List<SubscriptionModel> newSubscription = (res.data?.items) ?? [];
+      if (newSubscription.isEmpty || newSubscription.length < limit) {
+        _hasMoreDataSubscription = false; // Daha fazla veri yoksa flag'i kapat
+      }
+      _allSubscriptions.addAll(newSubscription);
+      subscriptions.sink.add(_allSubscriptions);
+      _currentPageSubscription++;
+      debugPrint("apiden gelen yanıt: ${res.toJson()}");
+      /*CustomRouter.instance.replacePushWidget(
+          child: PagePopupInfo(
+            title: "Bildirim",
+            informationText: res.message.toString(),
+            afterDelay: () => CustomRouter.instance.pop(),
+          ),
+          pageConfig: ConfigPopupInfo());*/
+    } else {
+      subscriptions.addError(res);
+      CustomRouter.instance.pushWidget(
+          child: PagePopupInfo(
+            title: "Bildirim",
+            informationText: res.message.toString(),
+          ),
+          pageConfig: ConfigPopupInfo());
+    }
+    _isFetchingSubscription = false;
   }
 }
 

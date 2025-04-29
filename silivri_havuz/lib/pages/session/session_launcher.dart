@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:silivri_havuz/model/session_model.dart';
+
+import '/controller/app_state.dart';
+import '/controller/app_theme.dart';
+import '/controller/provider.dart';
+import '/customWidgets/buttons/custom_button.dart';
 import '/customWidgets/cards/list_item_session_members.dart';
 import '/customWidgets/custom_dropdown_list.dart';
 import '/customWidgets/custom_label_textfield.dart';
@@ -9,13 +14,9 @@ import '/navigator/custom_navigation_view.dart';
 import '/navigator/ui_page.dart';
 import '/utils/enums.dart';
 import '/view_model/member_details.dart';
-import '../member/member_launcher.dart';
-import '/view_model/table.dart';
-import '/controller/app_state.dart';
-import '/controller/app_theme.dart';
-import '/controller/provider.dart';
-import '/customWidgets/buttons/custom_button.dart';
 import '/view_model/session_details.dart';
+import '/view_model/table.dart';
+import '../member/member_launcher.dart';
 
 class PageSessionLauncher extends StatelessWidget {
   //PageSessionLauncher({ViewModelSessionDetails? model, required this.vmTable, super.key}) {
@@ -103,26 +104,13 @@ class _FormContentSession extends StatelessWidget {
                         child: CustomDropdownList(
                             readOnly: vmSession.readOnly,
                             labelText: "Kategori",
-                            value: vmTable.week.days
-                                .elementAt(vmTable.selectedDayIndex!)
-                                .activities
-                                .elementAt(vmTable.selectedActivityIndex!)!
-                                .type
-                                .toString(),
+                            value: vmTable.week.days.elementAt(vmTable.selectedDayIndex!).activities.elementAt(vmTable.selectedActivityIndex!)!.type.toString(),
                             list: List<String>.from(ActivityType.values.map((e) => e.toString())),
                             onChanged: (text) => vmTable.setActivity(
                                 Activity(
                                     type: ActivityType.fromString(text!),
-                                    ageGroup: vmTable.week.days
-                                        .elementAt(vmTable.selectedDayIndex!)
-                                        .activities
-                                        .elementAt(vmTable.selectedActivityIndex!)!
-                                        .ageGroup,
-                                    fee: vmTable.week.days
-                                        .elementAt(vmTable.selectedDayIndex!)
-                                        .activities
-                                        .elementAt(vmTable.selectedActivityIndex!)!
-                                        .fee),
+                                    ageGroup: vmTable.week.days.elementAt(vmTable.selectedDayIndex!).activities.elementAt(vmTable.selectedActivityIndex!)!.ageGroup,
+                                    fee: vmTable.week.days.elementAt(vmTable.selectedDayIndex!).activities.elementAt(vmTable.selectedActivityIndex!)!.fee),
                                 vmTable.selectedDayIndex!,
                                 vmTable.selectedActivityIndex!))),
                     const SizedBox(width: AppTheme.gapsmall),
@@ -130,26 +118,13 @@ class _FormContentSession extends StatelessWidget {
                         child: CustomDropdownList(
                             readOnly: vmSession.readOnly,
                             labelText: "Grup",
-                            value: vmTable.week.days
-                                .elementAt(vmTable.selectedDayIndex!)
-                                .activities
-                                .elementAt(vmTable.selectedActivityIndex!)!
-                                .ageGroup
-                                .toString(),
+                            value: vmTable.week.days.elementAt(vmTable.selectedDayIndex!).activities.elementAt(vmTable.selectedActivityIndex!)!.ageGroup.toString(),
                             list: List<String>.from(AgeGroup.values.map((e) => e.toString())),
                             onChanged: (text) => vmTable.setActivity(
                                 Activity(
-                                    type: vmTable.week.days
-                                        .elementAt(vmTable.selectedDayIndex!)
-                                        .activities
-                                        .elementAt(vmTable.selectedActivityIndex!)!
-                                        .type,
+                                    type: vmTable.week.days.elementAt(vmTable.selectedDayIndex!).activities.elementAt(vmTable.selectedActivityIndex!)!.type,
                                     ageGroup: AgeGroup.fromString(text!),
-                                    fee: vmTable.week.days
-                                        .elementAt(vmTable.selectedDayIndex!)
-                                        .activities
-                                        .elementAt(vmTable.selectedActivityIndex!)!
-                                        .fee),
+                                    fee: vmTable.week.days.elementAt(vmTable.selectedDayIndex!).activities.elementAt(vmTable.selectedActivityIndex!)!.fee),
                                 //vmSession.model.dayIndex,
                                 vmTable.selectedDayIndex!,
                                 vmTable.selectedActivityIndex!))), //vmSession.model.activityIndex)),
@@ -158,25 +133,12 @@ class _FormContentSession extends StatelessWidget {
                         child: CustomDropdownList(
                             readOnly: vmSession.readOnly,
                             labelText: "Ücret",
-                            value: vmTable.week.days
-                                .elementAt(vmTable.selectedDayIndex!)
-                                .activities
-                                .elementAt(vmTable.selectedActivityIndex!)!
-                                .fee
-                                .toString(),
+                            value: vmTable.week.days.elementAt(vmTable.selectedDayIndex!).activities.elementAt(vmTable.selectedActivityIndex!)!.fee.toString(),
                             list: List<String>.from(FeeType.values.map((e) => e.toString())),
                             onChanged: (text) => vmTable.setActivity(
                                 Activity(
-                                    type: vmTable.week.days
-                                        .elementAt(vmTable.selectedDayIndex!)
-                                        .activities
-                                        .elementAt(vmTable.selectedActivityIndex!)!
-                                        .type,
-                                    ageGroup: vmTable.week.days
-                                        .elementAt(vmTable.selectedDayIndex!)
-                                        .activities
-                                        .elementAt(vmTable.selectedActivityIndex!)!
-                                        .ageGroup,
+                                    type: vmTable.week.days.elementAt(vmTable.selectedDayIndex!).activities.elementAt(vmTable.selectedActivityIndex!)!.type,
+                                    ageGroup: vmTable.week.days.elementAt(vmTable.selectedDayIndex!).activities.elementAt(vmTable.selectedActivityIndex!)!.ageGroup,
                                     fee: FeeType.fromString(text!)),
                                 vmTable.selectedDayIndex!,
                                 vmTable.selectedActivityIndex!))),
@@ -197,19 +159,21 @@ class _FormContentSession extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     !vmSession.readOnly
-                        ? CustomButton(readOnly: vmSession.readOnly, text: "Üyeleri Yükle", onTap: () => vmSession.createParticipantsList())
+                        ? CustomButton(
+                            readOnly: vmSession.readOnly,
+                            text: "Üyeleri Yükle",
+                            onTap: () => vmSession.createParticipantsList(
+                                type: vmTable.week.days.elementAt(vmTable.selectedDayIndex!).activities.elementAt(vmTable.selectedActivityIndex!)!.type,
+                                age: vmTable.week.days.elementAt(vmTable.selectedDayIndex!).activities.elementAt(vmTable.selectedActivityIndex!)!.ageGroup,
+                                fee: vmTable.week.days.elementAt(vmTable.selectedDayIndex!).activities.elementAt(vmTable.selectedActivityIndex!)!.fee))
                         : const SizedBox(),
                     const SizedBox(height: AppTheme.gapmedium),
                     Row(
                       children: [
                         const SizedBox(width: AppTheme.gapsmall),
-                        Expanded(
-                            child: Text("Asil Liste / Kişi Sayısı ${vmSession.mainMembers?.length ?? "-"}",
-                                style: appState.themeData.textTheme.headlineSmall)),
+                        Expanded(child: Text("Asil Liste / Kişi Sayısı ${vmSession.mainMembers?.length ?? "-"}", style: appState.themeData.textTheme.headlineSmall)),
                         const SizedBox(width: AppTheme.gapxlarge),
-                        Expanded(
-                            child: Text("Yedek Liste / Kişi Sayısı ${vmSession.waitingMembers?.length ?? "-"}",
-                                style: appState.themeData.textTheme.headlineSmall)),
+                        Expanded(child: Text("Yedek Liste / Kişi Sayısı ${vmSession.waitingMembers?.length ?? "-"}", style: appState.themeData.textTheme.headlineSmall)),
                       ],
                     )
                   ],
@@ -226,8 +190,7 @@ class _FormContentSession extends StatelessWidget {
                             itemBuilder: (context, index) => ListItemSessionMembers(
                                   member: vmSession.mainMembers!.elementAt(index),
                                   onTap: () => CustomRouter.instance.pushWidget(
-                                      child: PageMemberLauncher(
-                                          model: ViewModelMemberDetails.fromModel(memberModel: vmSession.waitingMembers!.elementAt(index))),
+                                      child: PageMemberLauncher(model: ViewModelMemberDetails.fromModel(memberModel: vmSession.waitingMembers!.elementAt(index))),
                                       pageConfig: ConfigMemberDetails),
                                 ))),
                     const SizedBox(width: AppTheme.gapxlarge),
@@ -238,8 +201,7 @@ class _FormContentSession extends StatelessWidget {
                             itemBuilder: (context, index) => ListItemSessionMembers(
                                 member: vmSession.waitingMembers!.elementAt(index),
                                 onTap: () => CustomRouter.instance.pushWidget(
-                                    child: PageMemberLauncher(
-                                        model: ViewModelMemberDetails.fromModel(memberModel: vmSession.waitingMembers!.elementAt(index))),
+                                    child: PageMemberLauncher(model: ViewModelMemberDetails.fromModel(memberModel: vmSession.waitingMembers!.elementAt(index))),
                                     pageConfig: ConfigMemberDetails)))),
                   ],
                 ))

@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:silivri_havuz/controller/app_state.dart';
 import 'package:silivri_havuz/controller/app_theme.dart';
@@ -8,13 +5,17 @@ import 'package:silivri_havuz/customWidgets/screen_background.dart';
 import 'package:silivri_havuz/navigator/custom_navigation_view.dart';
 import 'package:silivri_havuz/navigator/ui_page.dart';
 import 'package:silivri_havuz/network/api.dart';
-import 'package:silivri_havuz/pages/table.dart';
 
 import '../controller/provider.dart';
-import '../model/trainer_model.dart';
+import '../customWidgets/custom_label_textfield.dart';
+import 'info_popup.dart';
 
 class PageLogin extends StatelessWidget {
-  const PageLogin({super.key});
+  PageLogin({super.key});
+
+  final formKey = GlobalKey<FormState>();
+  final TextEditingController username = TextEditingController();
+  final TextEditingController password = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -25,52 +26,98 @@ class PageLogin extends StatelessWidget {
             body: Center(
                 child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Logo
-                        Icon(Icons.pool, size: 80, color: Colors.blue),
-                        SizedBox(height: 16),
-                        const Text(
-                          "T.C. Silivri Belediyesi Sosyal Tesis Yönetim Yazılımı \nHoş Geldiniz",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 32),
+                    child: Form(
+                        key: formKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Logo
+                            const Icon(Icons.pool, size: 80, color: Colors.white),
+                            const SizedBox(height: 16),
+                            const Text(
+                              "T.C. Silivri Belediyesi Sosyal Tesis Yönetim Yazılımı \nHoş Geldiniz",
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 32),
 
-                        // Email Field
-                        TextField(
-                          decoration: InputDecoration(
-                            labelText: 'E-posta',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        SizedBox(height: 16),
+                            // Email Field
+                            Row(children: [
+                              Expanded(child: SizedBox()),
+                              Expanded(
+                                  child: CustomLabelTextField(
+                                controller: username,
+                                label: "Kullanıcı Adı",
+                                validator: (value) => value == null || value.isEmpty ? 'Kullanıcı adı giriniz' : null,
+                              )),
+                              Expanded(child: SizedBox()),
+                            ]),
+                            const SizedBox(height: 16),
 
-                        // Password Field
-                        TextField(obscureText: true, decoration: InputDecoration(labelText: 'Şifre', border: OutlineInputBorder())),
-                        SizedBox(height: 16),
+                            Row(
+                              children: [
+                                Expanded(child: SizedBox()),
+                                CustomLabelTextField(
+                                  passwordVisible: true,
+                                  controller: password,
+                                  label: "Şifre",
+                                  validator: (value) => value == null || value.isEmpty ? 'Şifre giriniz' : null,
+                                ),
+                                Expanded(child: SizedBox()),
+                              ],
+                            ),
+                            // Password Field
 
-                        // Login Button
-                        InkWell(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Ink(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(AppTheme.gapsmall),
-                                decoration: AppTheme.buttonPrimaryDecoration(context),
-                                child: Text("Giriş yap", style: appState.themeData.textTheme.headlineSmall, textAlign: TextAlign.center)),
-                            onTap: () async {
-                              /*BaseResponseModel res = await APIService(url: APIS.api.login()).post(ListWrapped.fromJson(
-                      jsonList: [],
-                      fromJsonT: (p0) => MemberModel.fromJson(json: {}),
-                    ));*/
-                              //CustomRouter.instance.replacePushWidget(child: PageTable(), pageConfig: ConfigHome);
-                              CustomRouter.instance.replaceAll(ConfigHome);
-                            })
-                      ],
-                    )))));
+                            const SizedBox(height: 16),
+
+                            // Login Button
+                            InkWell(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Ink(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.all(AppTheme.gapsmall),
+                                    decoration: AppTheme.buttonPrimaryDecoration(context),
+                                    child: Text("Giriş yap", style: appState.themeData.textTheme.headlineSmall, textAlign: TextAlign.center)),
+                                onTap: () async {
+                                  if (formKey.currentState!.validate()) {
+                                    BaseResponseModel res =
+                                        await APIService(url: APIS.api.login()).post(Auth(username: username.text, password: password.text)).onError((error, stackTrace) {
+                                      debugPrint(error.toString());
+                                      return BaseResponseModel(success: false, message: error.toString());
+                                    });
+                                    //CustomRouter.instance.replacePushWidget(child: PageTable(), pageConfig: ConfigHome);
+                                    if (res.success) {
+                                      CustomRouter.instance.replaceAll(ConfigHome);
+                                    } else {
+                                      CustomRouter.instance
+                                          .pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
+                                    }
+                                  }
+                                })
+                          ],
+                        ))))));
+  }
+}
+
+class Auth implements JsonProtocol {
+  Auth({required this.username, required this.password});
+  String username;
+  String password;
+
+  factory Auth.fromJson({required Map<String, dynamic> json}) {
+    try {
+      return Auth(username: json["username"], password: json["password"]);
+    } catch (err) {
+      debugPrint("Subscription fromJson: $err");
+      rethrow;
+    }
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {"username": username.toString(), "password": password};
   }
 }

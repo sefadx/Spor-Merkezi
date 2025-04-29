@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../../controller/app_state.dart';
 
 class PageReportIncome extends StatelessWidget {
+  const PageReportIncome({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,21 +17,21 @@ class PageReportIncome extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               "Aylık Gelir Trendleri",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: LineChart(
                 LineChartData(
                   lineBarsData: [
                     LineChartBarData(
                       spots: [
-                        FlSpot(1, 5000),
-                        FlSpot(2, 7000),
-                        FlSpot(3, 8000),
-                        FlSpot(4, 6000),
+                        const FlSpot(1, 5000),
+                        const FlSpot(2, 7000),
+                        const FlSpot(3, 8000),
+                        const FlSpot(4, 6000),
                       ],
                       isCurved: true,
                       color: Colors.blue,

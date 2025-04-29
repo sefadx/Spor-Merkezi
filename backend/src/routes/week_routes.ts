@@ -1,23 +1,72 @@
 import express, { Request, Response, NextFunction } from "express";
 import { BaseResponseModel } from "../models/base_response";
-import TableModel, { ITableModel } from "../models/week";
+import WeekModel, { IWeek } from "../models/week";
+import Subscription, { ISubscription } from "../models/subscription";
+
 
 var response: BaseResponseModel;
-
+ 
 const router = express.Router();
-
 
 router.post("/", async (req: Request, res: Response) => {
     try {
-        const sessionData: ITableModel = req.body;
-        const newSession = new TableModel(sessionData);
-        const savedSession = await newSession.save();
+        console.log('API POST: "/Table" => Post request is successful');
+        console.log(req.body); // Gelen veriyi kontrol etmek için logla
+      const weekData: IWeek = req.body;
+  
+      // 1. Seanslardaki üyeler için abonelik kredisi düş
+      for (const day of weekData.days) {
+        for (const activity of day.activities) {
+          if (!activity || !activity.sessionModel) continue;
+  
+          const session = activity.sessionModel;
+  
+          for (const memberId of session.mainMembers) {
+            // Üyeye ait aboneliği getir
+            const subscription = await Subscription.findOne({ memberId });
+  
+            if (subscription) {
+              if (subscription.credit > 0) {
+                subscription.credit -= 1;
+                await subscription.save();
+                console.log(`Üye ${memberId} için 1 kredi düşüldü. Kalan: ${subscription.credit}`);
+              } else {
+                console.log(`Üye ${memberId} için kredi yok. Atlandı.`);
+              }
+            } else {
+              console.log(`Üye ${memberId} için abonelik bulunamadı. Atlandı.`);
+            }
+          }
+        }
+      }
+  
+      // 2. Haftayı kaydet
+      const newTable = new WeekModel(weekData);
+      const savedTable = await newTable.save();
+  
+      console.log("Yeni hafta başarıyla kaydedildi:", savedTable);
+      res.status(200).json(new BaseResponseModel(true, "Hafta başarıyla oluşturuldu.", savedTable).toJson());
+  
+    } catch (error) {
+      console.error("Hafta oluşturulamadı:", error);
+      res.status(400).json(new BaseResponseModel(false, "Hafta oluşturulamadı.", (error as Error).message).toJson());
+    }
+  });
+  
+  
+  
+/*
+router.post("/", async (req: Request, res: Response) => {
+    try {
+        const tableData: ITableModel = req.body;
+        const newTable = new TableModel(tableData);
+        const savedTable = await newTable.save();
 
-        console.log('API POST: "/session" => Post request is successful');
-        console.log(savedSession);
+        console.log('API POST: "/Table" => Post request is successful');
+        console.log(savedTable);
 
         res.status(200).send(
-            new BaseResponseModel(true, "Veri başarıyla eklendi", savedSession)
+            new BaseResponseModel(true, "Veri başarıyla eklendi", savedTable).toJson()
         );
     } catch (error: any) {
         console.error(`API POST: "/session" => Post request failed. ${error.message}`);
@@ -38,7 +87,7 @@ router.post("/", async (req: Request, res: Response) => {
         );
     }
 });
-
+*/
 
 // Tüm seansları getir
 router.get("/", async (req: Request, res: Response) => {
@@ -76,14 +125,14 @@ router.get("/", async (req: Request, res: Response) => {
         }
         console.log("Query: ", query);
         // MongoDB sorgusunu oluştur
-        const tableModel = await TableModel.find(query).
+        const tableModel = await WeekModel.find(query).
             //populate("trainer")
             skip((pageNumber - 1) * limitNumber)
             .limit(limitNumber)
             .sort({ initialDayOfWeek: -1 });
 
         // Toplam kayıt sayısını al
-        const totalSessions = await TableModel.countDocuments(query);
+        const totalSessions = await WeekModel.countDocuments(query);
 
         console.log('API GET: "/session" => Successfully read from database');
         console.log(tableModel);
@@ -109,10 +158,10 @@ router.get("/", async (req: Request, res: Response) => {
 });
 
 
-// Belirli bir üyeyi getir
+// Belirli bir haftayı getir
 router.get("/:id", async (req, res) => {
     try {
-        const session = await TableModel.findById(req.params.id);
+        const session = await WeekModel.findById(req.params.id);
         if (!session) {
             res.status(404).send(new BaseResponseModel(false, "Seans bulunamadı").toJson());
         }
@@ -122,6 +171,74 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+
+// Belirli bir haftayı getir (ID ile)
+router.put("/:id", async (req: Request, res: Response) => {
+    try {
+      const tableId = req.params.id;
+      const updatedData: IWeek = req.body;
+  
+      // 1. Eski tabloyu al
+      const existingTable = await WeekModel.findById(tableId);
+      if (!existingTable) {
+        return res.status(404).json(new BaseResponseModel(false, "Hafta bulunamadı").toJson());
+      }
+  
+      // 2. Gün gün, aktivite aktivite, seans seans karşılaştır
+      for (let i = 0; i < updatedData.days.length; i++) {
+        const newDay = updatedData.days[i];
+        const oldDay = existingTable.days[i];
+  
+        if (!oldDay) continue;
+  
+        for (let j = 0; j < newDay.activities.length; j++) {
+          const newAct = newDay.activities[j];
+          const oldAct = oldDay.activities[j];
+  
+          if (!newAct?.sessionModel || !oldAct?.sessionModel) continue;
+  
+          const newMembers = new Set(newAct.sessionModel.mainMembers.map(id => id.toString()));
+          const oldMembers = new Set(oldAct.sessionModel.mainMembers.map(id => id.toString()));
+  
+          // Eklenen üyeler (yeni listede olup eskide olmayanlar)
+          const added = [...newMembers].filter(id => !oldMembers.has(id));
+          // Çıkarılan üyeler (eski listede olup yenide olmayanlar)
+          const removed = [...oldMembers].filter(id => !newMembers.has(id));
+  
+          for (const memberId of added) {
+            const subscription = await Subscription.findOne({ memberId });
+            if (subscription && subscription.credit > 0) {
+              subscription.credit -= 1;
+              await subscription.save();
+              console.log(`Üye ${memberId} eklendi → 1 kredi düşüldü (Kalan: ${subscription.credit})`);
+            }
+          }
+  
+          for (const memberId of removed) {
+            const subscription = await Subscription.findOne({ memberId });
+            if (subscription) {
+              subscription.credit += 1;
+              await subscription.save();
+              console.log(`Üye ${memberId} çıkarıldı → 1 kredi geri verildi (Yeni: ${subscription.credit})`);
+            }
+          }
+        }
+      }
+  
+      // 3. Güncelle ve kaydet
+      const updatedTable = await WeekModel.findByIdAndUpdate(tableId, updatedData, { new: true });
+  
+      res.status(200).json(new BaseResponseModel(true, "Hafta başarıyla güncellendi.", updatedTable).toJson());
+  
+    } catch (error) {
+      console.error("Hafta güncellenemedi:", error);
+      res.status(400).json(new BaseResponseModel(false, "Hafta güncellenemedi.", (error as Error).message).toJson());
+    }
+  });
+  
+  
+
+/*
 // Üyeyi güncelle
 router.put("/:id", async (req, res) => {
     try {
@@ -139,12 +256,12 @@ router.put("/:id", async (req, res) => {
         console.error("Güncelleme hatası: ", error);
         res.status(400).send(new BaseResponseModel(false, "Güncelleme başarısız.", (error as Error).message).toJson());
     }
-});
+});*/
 
 // Seansı sil
 router.delete("/:id", async (req: Request, res: Response) => {
     try {
-        const deletedSession = await TableModel.findByIdAndUpdate(
+        const deletedSession = await WeekModel.findByIdAndUpdate(
             req.params.id,
             { deleted: true },
             { new: true }// Silinen veriyi döndür

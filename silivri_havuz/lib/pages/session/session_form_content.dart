@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '/view_model/table.dart';
-import '/model/table_model.dart';
-import '/navigator/ui_page.dart';
-import '/pages/member/member_launcher.dart';
-import '/view_model/member_details.dart';
+
 import '/controller/app_state.dart';
 import '/controller/app_theme.dart';
 import '/controller/provider.dart';
-import '/customWidgets/buttons/custom_button.dart';
 import '/customWidgets/cards/list_item_session_members.dart';
 import '/customWidgets/custom_dropdown_list.dart';
 import '/customWidgets/custom_label_textfield.dart';
+import '/model/table_model.dart';
 import '/navigator/custom_navigation_view.dart';
+import '/navigator/ui_page.dart';
+import '/pages/member/member_launcher.dart';
 import '/utils/enums.dart';
+import '/view_model/member_details.dart';
 import '/view_model/session_details.dart';
+import '/view_model/table.dart';
 
 class FormContentSession extends StatelessWidget {
   const FormContentSession({super.key});
@@ -83,18 +83,14 @@ class FormContentSession extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    CustomButton(readOnly: vmSession.readOnly, text: "Üyeleri Yükle", onTap: () => vmSession.createParticipantsList()),
+                    //CustomButton(readOnly: vmSession.readOnly, text: "Üyeleri Yükle", onTap: () => vmSession.createParticipantsList()),
                     const SizedBox(height: AppTheme.gapmedium),
                     Row(
                       children: [
                         const SizedBox(width: AppTheme.gapsmall),
-                        Expanded(
-                            child: Text("Asil Liste / Kişi Sayısı ${vmSession.mainMembers?.length ?? "-"}",
-                                style: appState.themeData.textTheme.headlineSmall)),
+                        Expanded(child: Text("Asil Liste / Kişi Sayısı ${vmSession.mainMembers?.length ?? "-"}", style: appState.themeData.textTheme.headlineSmall)),
                         const SizedBox(width: AppTheme.gapxlarge),
-                        Expanded(
-                            child: Text("Yedek Liste / Kişi Sayısı ${vmSession.waitingMembers?.length ?? "-"}",
-                                style: appState.themeData.textTheme.headlineSmall)),
+                        Expanded(child: Text("Yedek Liste / Kişi Sayısı ${vmSession.waitingMembers?.length ?? "-"}", style: appState.themeData.textTheme.headlineSmall)),
                       ],
                     )
                   ],
@@ -111,8 +107,7 @@ class FormContentSession extends StatelessWidget {
                             itemBuilder: (context, index) => ListItemSessionMembers(
                                   member: vmSession.mainMembers!.elementAt(index),
                                   onTap: () => CustomRouter.instance.pushWidget(
-                                      child: PageMemberLauncher(
-                                          model: ViewModelMemberDetails.fromModel(memberModel: vmSession.waitingMembers!.elementAt(index))),
+                                      child: PageMemberLauncher(model: ViewModelMemberDetails.fromModel(memberModel: vmSession.waitingMembers!.elementAt(index))),
                                       pageConfig: ConfigMemberDetails),
                                 ))),
                     const SizedBox(width: AppTheme.gapxlarge),
@@ -123,8 +118,7 @@ class FormContentSession extends StatelessWidget {
                             itemBuilder: (context, index) => ListItemSessionMembers(
                                 member: vmSession.waitingMembers!.elementAt(index),
                                 onTap: () => CustomRouter.instance.pushWidget(
-                                    child: PageMemberLauncher(
-                                        model: ViewModelMemberDetails.fromModel(memberModel: vmSession.waitingMembers!.elementAt(index))),
+                                    child: PageMemberLauncher(model: ViewModelMemberDetails.fromModel(memberModel: vmSession.waitingMembers!.elementAt(index))),
                                     pageConfig: ConfigMemberDetails)))),
                   ],
                 ))

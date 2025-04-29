@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:silivri_havuz/view_model/table.dart';
 
 import '../../model/subscription_model.dart';
-import '../../model/trainer_model.dart';
-import '../../utils/enums.dart';
 import '../model/member_model.dart';
 import '../model/session_model.dart';
-import '../model/table_model.dart';
 import '../navigator/custom_navigation_view.dart';
 import '../navigator/ui_page.dart';
 import '../network/api.dart';
 import '../pages/alert_dialog.dart';
 import '../pages/info_popup.dart';
-import '../utils/extension.dart';
+import '../utils/enums.dart';
 import '../view_model/home.dart';
 
 class ViewModelSessionDetails extends ChangeNotifier {
@@ -37,18 +33,16 @@ class ViewModelSessionDetails extends ChangeNotifier {
     List<MemberModel> fetchedWaiting = [];
 
     for (var element in main) {
-      BaseResponseModel<MemberModel> res = await APIService<MemberModel>(url: APIS.api.memberId(memberId: element.id))
-          .get(fromJsonT: (json) => MemberModel.fromJson(json: json))
-          .onError((error, stackTrace) {
+      BaseResponseModel<MemberModel> res =
+          await APIService<MemberModel>(url: APIS.api.memberId(memberId: element.id)).get(fromJsonT: (json) => MemberModel.fromJson(json: json)).onError((error, stackTrace) {
         debugPrint(error.toString());
         return BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu");
       });
       if (res.success) fetchedMain.add(res.data!);
     }
     for (var element in waiting) {
-      BaseResponseModel<MemberModel> res = await APIService<MemberModel>(url: APIS.api.memberId(memberId: element.id))
-          .get(fromJsonT: (json) => MemberModel.fromJson(json: json))
-          .onError((error, stackTrace) {
+      BaseResponseModel<MemberModel> res =
+          await APIService<MemberModel>(url: APIS.api.memberId(memberId: element.id)).get(fromJsonT: (json) => MemberModel.fromJson(json: json)).onError((error, stackTrace) {
         debugPrint(error.toString());
         return BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu");
       });
@@ -60,29 +54,26 @@ class ViewModelSessionDetails extends ChangeNotifier {
     notifyListeners();
   }
 
-  void createParticipantsList() async {
-    BaseResponseModel<ListWrapped<SubscriptionModel>> res =
-        await APIService<ListWrapped<SubscriptionModel>>(url: APIS.api.subscription(sportType: SportTypes.Yuzme))
-            .get(
-                fromJsonT: (json) => ListWrapped.fromJson(
-                      jsonList: json,
-                      fromJsonT: (p0) => SubscriptionModel.fromJson(json: p0),
-                    ))
-            .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+  void createParticipantsList({required ActivityType type, required AgeGroup age, required FeeType fee}) async {
+    debugPrint(APIS.api.subscriptionParticipants(type: type, age: age, fee: fee).toString());
+    BaseResponseModel<ListWrapped<SubscriptionModel>> res = await APIService<ListWrapped<SubscriptionModel>>(url: APIS.api.subscriptionParticipants(type: type, age: age, fee: fee))
+        .get(
+            fromJsonT: (json) => ListWrapped.fromJson(
+                  jsonList: json,
+                  fromJsonT: (p0) => SubscriptionModel.fromJson(json: p0),
+                ))
+        .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
 
     if (res.success) {
       mainMembers = [];
       waitingMembers = [];
 
       List<SubscriptionModel> listSubs = (res.data?.items) ?? [];
-      int capacity = ((int.tryParse(sessionCapacityController.text)) ?? 0) > listSubs.length
-          ? listSubs.length
-          : ((int.tryParse(sessionCapacityController.text)) ?? 0);
+      int capacity = ((int.tryParse(sessionCapacityController.text)) ?? 0) > listSubs.length ? listSubs.length : ((int.tryParse(sessionCapacityController.text)) ?? 0);
       mainMembers?.addAll(listSubs.map((e) => e.member).toList().getRange(0, capacity));
       waitingMembers?.addAll(listSubs.map((e) => e.member).toList().getRange(capacity, listSubs.length));
     } else {
-      CustomRouter.instance
-          .pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
+      CustomRouter.instance.pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
     }
     notifyListeners();
   }
@@ -109,8 +100,7 @@ class ViewModelSessionDetails extends ChangeNotifier {
               ),
               pageConfig: ConfigPopupInfo());
         } else {
-          CustomRouter.instance
-              .pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
+          CustomRouter.instance.pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
         }
       }
     }

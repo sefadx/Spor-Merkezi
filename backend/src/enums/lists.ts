@@ -1,8 +1,8 @@
 import exp from "constants";
 export enum ActivityTypes {
     empty = "-",
-    yetiskinKadin = "Yetişkin Kadın",
-    yetiskinErkek = "Yetişkin Erkek",
+    yetiskinKadin = "Kadın",
+    yetiskinErkek = "Erkek",
     eykom = "EYKOM",
     cocuk = "Çocuk",
     yuzmeAkademisi = "Yüzme Akademisi",

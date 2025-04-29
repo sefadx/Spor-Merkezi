@@ -97,7 +97,7 @@ String? validatePhoneNo(String? phoneNo) {
   if (phoneNo == null || phoneNo.isEmpty) {
     return 'Telefon numarası gerekli';
   }
-  if (phoneNo == null || !RegExp(r'^(?:\+90.?5|0090.?5|905|0?5)(?:[01345][0-9])\s?(?:[0-9]{3})\s?(?:[0-9]{2})\s?(?:[0-9]{2})$').hasMatch(phoneNo)) {
+  if (!RegExp(r'^(?:\+90.?5|0090.?5|905|0?5)(?:[01345][0-9])\s?(?:[0-9]{3})\s?(?:[0-9]{2})\s?(?:[0-9]{2})$').hasMatch(phoneNo)) {
     return 'Geçersiz Telefon Numarası';
   }
   return null;

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:silivri_havuz/controller/app_theme.dart';
-import 'package:silivri_havuz/customWidgets/buttons/custom_button.dart';
-import 'package:silivri_havuz/navigator/custom_navigation_view.dart';
-import 'package:silivri_havuz/navigator/ui_page.dart';
-import 'package:silivri_havuz/pages/file_form.dart';
-import 'package:silivri_havuz/pages/widget_popup.dart';
 
+import '/controller/app_theme.dart';
+import '/navigator/custom_navigation_view.dart';
+import '/navigator/ui_page.dart';
+import '/pages/file_form.dart';
 import '../../controller/app_state.dart';
 import '../../controller/provider.dart';
 import '../../customWidgets/custom_dropdown_list.dart';
@@ -32,7 +30,7 @@ class FormContentMember extends StatelessWidget {
                   children: [
                     Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text("Kişisel Bilgiler", style: appState.themeData.textTheme.headlineMedium),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Row(children: [
                         Expanded(
                             child: CustomLabelTextField(
@@ -44,10 +42,7 @@ class FormContentMember extends StatelessWidget {
                         const SizedBox(width: AppTheme.gaplarge),
                         Expanded(
                             child: CustomLabelTextField(
-                                readOnly: vm.readOnly,
-                                controller: vm.nameController,
-                                label: "Ad",
-                                validator: (value) => value == null || value.isEmpty ? 'Ad gerekli' : null)),
+                                readOnly: vm.readOnly, controller: vm.nameController, label: "Ad", validator: (value) => value == null || value.isEmpty ? 'Ad gerekli' : null)),
                         const SizedBox(width: AppTheme.gaplarge),
                         Expanded(
                             child: CustomLabelTextField(
@@ -72,7 +67,7 @@ class FormContentMember extends StatelessWidget {
                             icon: Icon(Icons.date_range, color: appState.themeData.primaryColorDark),
                             onPressed: !vm.readOnly ? () async => pickDate(context, controller: vm.birthdateController) : null,
                           ),
-                          validator: (value) => value == null || value.isEmpty ? 'Doğum tarihi gerekli' : null,
+                          validator: validateDate,
                         )),
                         const SizedBox(width: AppTheme.gaplarge),
                         Expanded(
@@ -120,20 +115,13 @@ class FormContentMember extends StatelessWidget {
                         Text("İletişim Bilgileri", style: appState.themeData.textTheme.headlineMedium),
                         const SizedBox(height: AppTheme.gapsmall),
                         Row(mainAxisSize: MainAxisSize.max, children: [
-                          Expanded(
-                              child: CustomLabelTextField(
-                                  readOnly: vm.readOnly, controller: vm.phoneController, label: "Telefon Numarası", validator: validatePhoneNo)),
+                          Expanded(child: CustomLabelTextField(readOnly: vm.readOnly, controller: vm.phoneController, label: "Telefon Numarası", validator: validatePhoneNo)),
                           const SizedBox(width: AppTheme.gaplarge),
-                          Expanded(
-                              child: CustomLabelTextField(
-                                  readOnly: vm.readOnly, controller: vm.emailController, label: "E-posta", validator: validateMailAddress))
+                          Expanded(child: CustomLabelTextField(readOnly: vm.readOnly, controller: vm.emailController, label: "E-posta", validator: validateMailAddress))
                         ]),
                         const SizedBox(height: AppTheme.gapsmall),
                         CustomLabelTextField(
-                            readOnly: vm.readOnly,
-                            controller: vm.addressController,
-                            label: "Adres",
-                            validator: (value) => value == null || value.isEmpty ? 'Adres gerekli' : null)
+                            readOnly: vm.readOnly, controller: vm.addressController, label: "Adres", validator: (value) => value == null || value.isEmpty ? 'Adres gerekli' : null)
                       ],
                     ),
                     const SizedBox(height: AppTheme.gaplarge),
@@ -153,10 +141,7 @@ class FormContentMember extends StatelessWidget {
                             const SizedBox(width: AppTheme.gaplarge),
                             Expanded(
                                 child: CustomLabelTextField(
-                                    readOnly: vm.readOnly,
-                                    controller: vm.emergencyPhoneNumberController,
-                                    label: "Telefon Numarası",
-                                    validator: validatePhoneNo))
+                                    readOnly: vm.readOnly, controller: vm.emergencyPhoneNumberController, label: "Telefon Numarası", validator: validatePhoneNo))
                           ],
                         )
                       ],
@@ -193,9 +178,8 @@ class FormContentMember extends StatelessWidget {
                                           IconButton(
                                               icon: const Icon(Icons.remove_red_eye),
                                               onPressed: () async {
-                                                if (await CustomRouter.instance.waitForResult(
-                                                    child: PageFileForm.readOnly(fileModel: vm.listMemberFiles!.elementAt(index)),
-                                                    pageConfig: ConfigPopupWidget)) {
+                                                if (await CustomRouter.instance
+                                                    .waitForResult(child: PageFileForm.readOnly(fileModel: vm.listMemberFiles!.elementAt(index)), pageConfig: ConfigPopupWidget)) {
                                                   await vm.downloadAndOpenFile(fileId: vm.listMemberFiles!.elementAt(index).fileId);
                                                 } else {}
                                               })

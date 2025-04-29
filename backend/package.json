@@ -22,11 +22,11 @@
     "mongoose-gridfs": "^1.3.0",
     "multer-gridfs-storage": "^5.0.2"
   },
-  
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/gridfs-stream": "^0.5.39",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/ldapjs": "^3.0.6"
+    "@types/ldapjs": "^3.0.6",
+    "ts-node": "^10.9.2"
   }
 }

@@ -24,7 +24,7 @@ class SearchAndFilter extends StatelessWidget {
           prefixIcon: Icon(Icons.search, color: appState.themeData.iconTheme.color),
           controller: controller,
         )),
-        SizedBox(width: 16),
+        const SizedBox(width: 16),
         CustomButton(onTap: onTap, text: "Filtrele")
       ],
     );

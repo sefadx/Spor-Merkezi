@@ -16,7 +16,7 @@ import 'session/session_launcher.dart';
 enum TableMode { empty, add, update }
 
 class PageTable extends StatelessWidget {
-  PageTable({required this.vm, this.title, this.tableMode = TableMode.empty, super.key});
+  const PageTable({required this.vm, this.title, this.tableMode = TableMode.empty, super.key});
   //final void Function()? onTapCell;
 
   final ViewModelTable vm;

@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:path/path.dart' as path;
-import 'package:http_parser/http_parser.dart';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-
-import '../utils/enums.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:path/path.dart' as path;
+import 'package:silivri_havuz/utils/enums.dart';
 
 enum Errors {
   invalidUrl,
@@ -71,22 +71,39 @@ class APIS {
 
   String login() => "$_baseAPI/login";
 
-  String member({int page = 1, int limit = 10, String? search}) =>
-      "$_baseAPI/member?page=${page.toString()}&limit=${limit.toString()}&search=$search";
+  String member({int page = 1, int limit = 10, String? search}) => "$_baseAPI/member?page=${page.toString()}&limit=${limit.toString()}&search=$search";
   String memberId({required String memberId}) => "$_baseAPI/member/$memberId";
   String memberFiles({required String memberId}) => "$_baseAPI/download/member/$memberId";
   String downloadFile({required String fileId}) => "$_baseAPI/download/$fileId";
 
   String week({int page = 1, int limit = 10, String? search}) => "$_baseAPI/week?page=${page.toString()}&limit=${limit.toString()}&search=$search";
-
   String weekId({required String weekId}) => "$_baseAPI/week/$weekId";
 
+  //String subscription({int page = 1, int limit = 10, String? search}) => "$_baseAPI/subscription?page=${page.toString()}&limit=${limit.toString()}&search=$search";
+  String subscription({int page = 1, int limit = 300, String? search}) {
+    String url = "$_baseAPI/subscription?page=${page.toString()}&limit=${limit.toString()}";
+    if (search != null) url += "&search=$search";
+    return url;
+  }
+
+  String subscriptionId({required String subscriptionId}) => "$_baseAPI/subscription/$subscriptionId";
+  String subscriptionParticipants({
+    required ActivityType type,
+    required AgeGroup age,
+    required FeeType fee,
+  }) =>
+      "$_baseAPI/subscription?page=1&limit=1000"
+      "&type=${Uri.encodeQueryComponent(type.toString())}"
+      "&ageGroup=${Uri.encodeQueryComponent(age.toString())}"
+      "&fee=${Uri.encodeQueryComponent(fee.toString())}";
+
+/*
   String subscription({SportTypes? sportType, DateTime? endDate}) {
     String url = "$_baseAPI/subscription?";
     if (endDate != null) url += "endDate=${endDate.toIso8601String()}&";
     if (sportType != null) url += "sportType=${sportType.toString()}";
     return url;
-  }
+  }*/
 
   String trainer({String? search}) {
     String url = "$_baseAPI/trainer?";
@@ -126,8 +143,7 @@ class APIService<T extends JsonProtocol> {
   /// );
   Future<BaseResponseModel<T>> get({T Function(dynamic json)? fromJsonT, String username = "", String password = ""}) async {
     try {
-      Response res = await http.get(Uri.parse(url),
-          headers: {"Content-Type": "application/json; charset=UTF-8", "Accept": "application/json"}).onError((error, stackTrace) {
+      Response res = await http.get(Uri.parse(url), headers: {"Content-Type": "application/json; charset=UTF-8", "Accept": "application/json"}).onError((error, stackTrace) {
         debugPrint(error.toString());
         throw APIError(Errors.invalidUrl);
       });

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:silivri_havuz/model/member_model.dart';
+
 import '../../controller/app_state.dart';
 import '../../controller/app_theme.dart';
 import '../../controller/provider.dart';
@@ -26,6 +28,7 @@ class PageMembers extends StatelessWidget {
           scrolledUnderElevation: 0,
           leading: IconButton(onPressed: () => vm.resetAndFetchMemberModel(), icon: const Icon(Icons.refresh)),
           title: Text("Üye Yönetimi", style: appState.themeData.textTheme.headlineMedium),
+          centerTitle: true,
           actions: [
             CustomButton(
                 text: "Üye Ekle",
@@ -35,16 +38,14 @@ class PageMembers extends StatelessWidget {
           ],
         ),
         body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          SizedBox(height: AppTheme.gapsmall),
-          SearchAndFilter(
-              controller: vm.memberSearchTextEditingController,
-              onTap: () => vm.resetAndFetchMemberModel(search: vm.memberSearchTextEditingController.text)),
+          const SizedBox(height: AppTheme.gapsmall),
+          SearchAndFilter(controller: vm.memberSearchTextEditingController, onTap: () => vm.resetAndFetchMemberModel(search: vm.memberSearchTextEditingController.text)),
 
-          SizedBox(height: AppTheme.gapsmall),
+          const SizedBox(height: AppTheme.gapsmall),
 
           // Members List
           Expanded(
-              child: StreamBuilder(
+              child: StreamBuilder<List<MemberModel>>(
                   stream: vm.members.stream,
                   builder: (context, asyncSnapshot) {
                     if (asyncSnapshot.hasData) {
@@ -71,33 +72,6 @@ class PageMembers extends StatelessWidget {
                       return const Center(child: CircularProgressIndicator());
                     }
                   })),
-          /*Expanded(
-              child: FutureBuilder(
-                  future: vm.fetchMember(),
-                  builder: (context, asyncSnapshot) {
-                    if (asyncSnapshot.hasData) {
-                      return ListView.builder(
-                          itemCount: vm.members.value.length ?? 0, // Example data
-
-                          itemBuilder: (context, index) {
-                            return ListItemMember(
-                                memberName: vm.members.value.elementAt(index).displayName,
-                                checkPayment: vm.members.value.elementAt(index).paymentStatus!,
-                                checkHealthy: vm.members.value.elementAt(index).healthStatus!,
-                                onTap: () {
-                                  CustomRouter.instance.pushWidget(
-                                      child: PageMemberDetails(
-                                        vm: ViewModelMemberDetails.fromModel(model: vm.members.value.elementAt(index)),
-                                      ),
-                                      pageConfig: ConfigMemberDetails);
-                                });
-                          });
-                    } else if (asyncSnapshot.hasError) {
-                      return Center(child: Text((asyncSnapshot.error as BaseResponseModel).message.toString()));
-                    } else {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                  })),*/
         ]));
   }
 }

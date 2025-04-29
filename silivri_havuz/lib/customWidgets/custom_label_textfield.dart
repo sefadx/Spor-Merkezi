@@ -8,6 +8,7 @@ import 'custom_textfield.dart';
 class CustomLabelTextField extends StatelessWidget {
   const CustomLabelTextField({
     this.controller,
+    this.passwordVisible = false,
     this.label,
     this.hintText,
     this.validator,
@@ -24,7 +25,7 @@ class CustomLabelTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final void Function()? onTap;
   final Widget? suffixIcon;
-  final bool readOnly;
+  final bool readOnly, passwordVisible;
   final List<TextInputFormatter>? inputFormatter;
   final void Function(String)? onChanged;
 
@@ -37,6 +38,7 @@ class CustomLabelTextField extends StatelessWidget {
         Text(label ?? "", style: appState.themeData.textTheme.bodyLarge),
         const SizedBox(height: 5),
         CustomTextField(
+          passwordVisible: passwordVisible,
           inputFormatter: inputFormatter,
           onChanged: onChanged,
           onTap: onTap,

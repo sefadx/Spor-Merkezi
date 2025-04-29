@@ -76,7 +76,7 @@ router.get("/", async (req: Request, res: Response) => {
     // Toplam kayıt sayısını al
     const totalMembers = await Member.countDocuments(query);
 
-    console.log('API GET: "/member" => \req.query', req.query);
+    console.log('API GET: "/member" => req.query: ', req.query);
     console.log('API GET: "/member" => Successfully read from database');
 
     // Yanıtı JSON formatında döndür

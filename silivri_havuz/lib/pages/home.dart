@@ -50,7 +50,7 @@ class HomeBody extends StatelessWidget {
               children: [Text("Hoş Geldiniz, [Yetkili Adı]!", style: appState.themeData.textTheme.headlineMedium), const ThemeSwitchButton()],
             ),
           ),
-          SizedBox(height: AppTheme.gapxxsmall),
+          const SizedBox(height: AppTheme.gapxxsmall),
           // Grid Content
           Expanded(child: IndexedStack(index: vm.screenIndex, children: List.from(vm.screenList.map((e) => e.body))))
         ]));
@@ -76,12 +76,12 @@ class HomeSidebar extends StatelessWidget {
               padding: const EdgeInsets.all(AppTheme.gapxlarge),
               child: Image.asset("assets/images/silivri-belediyesi-logo.png", fit: BoxFit.contain),
             )),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Expanded(
                 child: Column(
               children: [
                 Text("Yönetici Paneli", textAlign: TextAlign.center, style: appState.themeData.textTheme.headlineMedium),
-                SizedBox(height: 32),
+                const SizedBox(height: 32),
                 Expanded(
                     child: ListView.builder(
                         itemCount: vm.screenList.length,
@@ -89,7 +89,7 @@ class HomeSidebar extends StatelessWidget {
                             vm.screenList.elementAt(index).icon, vm.screenList.elementAt(index).title, () => vm.setScreenIndex = index)))
               ],
             )),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Expanded(
                 child: Padding(
               padding: const EdgeInsets.all(AppTheme.gapxlarge),
@@ -104,7 +104,7 @@ class HomeSidebar extends StatelessWidget {
         onTap: onTap,
         child: Ink(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            decoration: BoxDecoration(),
+            decoration: const BoxDecoration(),
             child: Row(children: [
               const SizedBox(width: 8),
               Icon(icon, color: AppState.instance.themeData.iconTheme.color),

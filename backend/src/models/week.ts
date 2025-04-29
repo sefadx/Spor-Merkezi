@@ -28,10 +28,6 @@ export interface IWeek {
     days: IDay[];
 }
 
-export interface ITableModel extends Document {
-    createdAt: Date;
-    week: IWeek;
-}
 
 const SessionSchema: Schema = new Schema<ISession>({
     dateTimeStart: { type: String, required: true },
@@ -53,7 +49,7 @@ const DaySchema: Schema = new Schema<IDay>({
     day: { type: Number, required: true },
     activities: [{ type: ActivitySchema, default: null }]
 });
-
+ 
 const WeekSchema: Schema = new Schema<IWeek>({
     daysOff: { type: [Number], default: [] },
     initialDayOfWeek: { type: Date, required: true, index: true },
@@ -61,7 +57,7 @@ const WeekSchema: Schema = new Schema<IWeek>({
 },
     { timestamps: true });
 
-export default mongoose.model<ITableModel>('TableModel', WeekSchema);
+export default mongoose.model<IWeek>('WeekModel', WeekSchema);
 
 
 /*
