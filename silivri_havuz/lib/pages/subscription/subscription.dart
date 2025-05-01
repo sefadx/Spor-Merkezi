@@ -47,9 +47,9 @@ class PageSubscription extends StatelessWidget {
                 text: "Abonelik Ekle",
                 onTap: () {
                   vmSubscription.memberController.text = "";
-                  vmSubscription.activityController.text = "";
-                  vmSubscription.ageGroupController.text = "";
-                  vmSubscription.feeController.text = "";
+                  vmSubscription.activityController.text = "-";
+                  vmSubscription.ageGroupController.text = "-";
+                  vmSubscription.feeController.text = "-";
                   vmSubscription.amountController.text = "";
                   vmSubscription.paymentDateController.text = "";
                   CustomRouter.instance.pushWidget(
@@ -136,7 +136,9 @@ class PageSubscription extends StatelessWidget {
         body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const SizedBox(height: AppTheme.gapsmall),
           SearchAndFilter(
-              controller: vm.subscriptionSearchTextEditingController, onTap: () => vm.resetAndFetchMemberModel(search: vm.subscriptionSearchTextEditingController.text)),
+              controller: vm.subscriptionSearchTextEditingController,
+              onTap: () => vm.fetchSearchSubscription(
+                  tcKimlik: vm.subscriptionSearchTextEditingController.text)), //vm.resetAndFetchSubscription(search: vm.subscriptionSearchTextEditingController.text)),
 
           const SizedBox(height: AppTheme.gapsmall),
 

@@ -1,13 +1,342 @@
 import express, { Request, Response, NextFunction } from "express";
 import { BaseResponseModel } from "../models/base_response";
-import WeekModel, { IWeek } from "../models/week";
+import WeekModel, { IWeek, WeekModelDefault } from "../models/week";
 import Subscription, { ISubscription } from "../models/subscription";
+import { Types } from "mongoose";
 
 
 var response: BaseResponseModel;
  
 const router = express.Router();
 
+router.get("/default", async (req: Request, res: Response) => {
+    try {
+        console.log('API GET: "/default" => Get request is successful');
+        console.log(req.params); // Gelen veriyi kontrol etmek için logla
+      const tableId = req.params.id;
+      const week = await WeekModelDefault.find({type: "default"}); // Varsayılan haftayı al
+      if (!week) {
+            res.status(404).send(new BaseResponseModel(false, "Hafta bulunamadı").toJson());
+      }
+      console.log(`📦 Varsayılan hafta tablosu getirildi → ID: ${week}`);
+      res.status(200).send(new BaseResponseModel(true, "Hafta bulundu.", week));
+    } catch (error) {
+      console.error("Hafta getirilemedi:", error);
+      res.status(400).send(new BaseResponseModel(false, "Hafta getirilemedi.", (error as Error).message).toJson());
+    }
+  }); 
+  
+  router.put("/default", async (req: Request, res: Response) => {
+    try { 
+        console.log('API GET: "/default" => Get request is successful'); 
+        console.log(req.params); // Gelen veriyi kontrol etmek için logla
+      const tableId = req.params.id;
+      const updatedData: IWeek = req.body; 
+  
+      const updatedTable = await WeekModelDefault.findOneAndUpdate({type:"default"},updatedData,{ new: true, upsert: true });//findByIdAndUpdate(tableId, updatedData, { new: true, upsert: true });
+      if (!updatedTable) {
+         res.status(404).send(new BaseResponseModel(false, "Hafta bulunamadı"));
+      } 
+  
+      console.log(`📦 Hafta tablosu güncellendi → ID: ${tableId}`);
+      res.status(200).send(new BaseResponseModel(true, "Hafta başarıyla güncellendi.", updatedTable));
+    } catch (error) {
+      console.error("Hafta güncellenemedi:", error);
+      res
+        .status(400)
+        .send(
+          new BaseResponseModel(false, "Hafta güncellenemedi.", (error as Error).message)
+        );
+    }
+  });
+
+
+// Yardımcı fonksiyon
+const toIdString = (member: any) =>
+    typeof member === "object" && member._id ? member._id.toString() : member.toString();
+
+// Belirli üyeden en güncel aboneliği alma
+const getLatestSubscriptionWithCredit = async (memberId: string) => {
+    return await Subscription.findOne({ memberId, credit: { $gt: 0 } })
+        .sort({ paymentDate: -1 });
+};
+
+// Kredi iade et
+const refundCredit = async (memberId: string) => {
+    const latestSub = await Subscription.findOne({ memberId }).sort({ paymentDate: -1 });
+    if (latestSub) {
+        latestSub.credit += 1;
+        await latestSub.save();
+    }
+};
+
+// Haftayı oluştururken kredi düşme mantığını uygula
+router.post("/", async (req: Request, res: Response) => {
+    try {
+        const newData: IWeek = req.body;
+
+        for (let i = 0; i < newData.days.length; i++) {
+            const day = newData.days[i];
+            for (let j = 0; j < day.activities.length; j++) {
+                const activity = day.activities[j];
+                if (!activity?.sessionModel) continue;
+
+                const validMainMembers: any[] = [];
+                const validWaitingMembers: any[] = [];
+
+                for (const member of activity.sessionModel.mainMembers) {
+                    const memberId = toIdString(member);
+                    const subscription = await getLatestSubscriptionWithCredit(memberId);
+                    if (subscription && subscription.credit > 0) {
+                        subscription.credit -= 1;
+                        await subscription.save();
+                        validMainMembers.push(member);
+                    } else {
+                        console.log(`Üye ${memberId} yetersiz krediyle mainMembers'tan çıkarıldı.`);
+                    }
+                }
+
+                const remainingCapacity = activity.sessionModel.capacity - validMainMembers.length;
+                let takenFromWaiting = 0;
+
+                for (const waitingMember of activity.sessionModel.waitingMembers) {
+                    const memberId = toIdString(waitingMember);
+                    if (takenFromWaiting < remainingCapacity) {
+                        const subscription = await getLatestSubscriptionWithCredit(memberId);
+                        if (subscription && subscription.credit > 0) {
+                            subscription.credit -= 1;
+                            await subscription.save();
+                            validMainMembers.push(waitingMember);
+                            takenFromWaiting++;
+                            continue;
+                        }
+                    }
+                    validWaitingMembers.push(waitingMember);
+                }
+
+                activity.sessionModel.mainMembers = validMainMembers;
+                activity.sessionModel.waitingMembers = validWaitingMembers;
+            }
+        }
+
+        const createdWeek = await WeekModel.create(newData);
+        res.status(201).json(new BaseResponseModel(true, "Hafta başarıyla oluşturuldu.", createdWeek).toJson());
+    } catch (error) {
+        console.error("Hafta oluşturulamadı:", error);
+        res.status(400).json(new BaseResponseModel(false, "Hafta oluşturulamadı.", (error as Error).message).toJson());
+    }
+});
+
+// Haftayı güncellerken kredi düşme ve iade mantığını uygula
+router.put("/:id", async (req: Request, res: Response) => {
+    try {
+        const tableId = req.params.id;
+        const updatedData: IWeek = req.body;
+
+        const existingTable = await WeekModel.findById(tableId);
+        if (!existingTable) {
+            return res.status(404).json(new BaseResponseModel(false, "Hafta bulunamadı").toJson());
+        }
+
+        for (let i = 0; i < updatedData.days.length; i++) { 
+            const newDay = updatedData.days[i];
+            const oldDay = existingTable.days[i];
+            if (!oldDay) continue;
+
+            for (let j = 0; j < newDay.activities.length; j++) {
+                const newAct = newDay.activities[j];
+                const oldAct = oldDay.activities[j];
+                if (!newAct?.sessionModel || !oldAct?.sessionModel) continue;
+
+                const oldMemberIds = new Set((oldAct.sessionModel.mainMembers || []).map(toIdString));
+                const newMemberIds = new Set((newAct.sessionModel.mainMembers || []).map(toIdString));
+
+                // Kredi iadesi yapılacak üyeleri bul
+                for (const oldMemberId of oldMemberIds) {
+                    if (!newMemberIds.has(oldMemberId)) {
+                        await refundCredit(oldMemberId);
+                    }
+                }
+
+                const validMainMembers: any[] = [];
+                const validWaitingMembers: any[] = [];
+
+                for (const member of newAct.sessionModel.mainMembers) {
+                    const memberId = toIdString(member);
+                    const subscription = await getLatestSubscriptionWithCredit(memberId);
+                    if (subscription && subscription.credit > 0) {
+                        subscription.credit -= 1;
+                        await subscription.save();
+                        validMainMembers.push(member);
+                    } else {
+                        console.log(`Üye ${memberId} yetersiz krediyle mainMembers'tan çıkarıldı.`);
+                    }
+                }
+
+                const remainingCapacity = newAct.sessionModel.capacity - validMainMembers.length;
+                let takenFromWaiting = 0;
+
+                for (const waitingMember of newAct.sessionModel.waitingMembers) {
+                    const memberId = toIdString(waitingMember);
+                    if (takenFromWaiting < remainingCapacity) {
+                        const subscription = await getLatestSubscriptionWithCredit(memberId);
+                        if (subscription && subscription.credit > 0) {
+                            subscription.credit -= 1;
+                            await subscription.save();
+                            validMainMembers.push(waitingMember);
+                            takenFromWaiting++;
+                            continue;
+                        }
+                    }
+                    validWaitingMembers.push(waitingMember);
+                }
+
+                newAct.sessionModel.mainMembers = validMainMembers;
+                newAct.sessionModel.waitingMembers = validWaitingMembers;
+            }
+        }
+
+        const updatedTable = await WeekModel.findByIdAndUpdate(tableId, updatedData, { new: true });
+        res.status(200).json(new BaseResponseModel(true, "Hafta başarıyla güncellendi.", updatedTable).toJson());
+    } catch (error) {
+        console.error("Hafta güncellenemedi:", error);
+        res.status(400).json(new BaseResponseModel(false, "Hafta güncellenemedi.", (error as Error).message).toJson());
+    }
+});
+
+
+/*
+  // Haftayı oluştururken kredi düşme mantığını uygula
+router.post("/", async (req: Request, res: Response) => {
+    try {
+        const newData: IWeek = req.body;
+
+        const toIdString = (member: any) =>
+            typeof member === "object" && member._id ? member._id.toString() : member.toString();
+
+        for (let i = 0; i < newData.days.length; i++) {
+            const day = newData.days[i];
+            for (let j = 0; j < day.activities.length; j++) {
+                const activity = day.activities[j];
+                if (!activity?.sessionModel) continue;
+
+                const validMainMembers: any[] = [];
+                const validWaitingMembers: any[] = [];
+
+                for (const member of activity.sessionModel.mainMembers) {
+                    const memberId = toIdString(member);
+                    const subscription = await Subscription.findOne({ memberId });
+                    if (subscription && subscription.credit > 0) {
+                        subscription.credit -= 1;
+                        await subscription.save();
+                        validMainMembers.push(member);
+                    } else {
+                        console.log(`Üye ${memberId} yetersiz krediyle mainMembers'tan çıkarıldı.`);
+                    }
+                }
+
+                const remainingCapacity = activity.sessionModel.capacity - validMainMembers.length;
+                let takenFromWaiting = 0;
+                for (const waitingMember of activity.sessionModel.waitingMembers) {
+                    if (takenFromWaiting >= remainingCapacity) break;
+                    const memberId = toIdString(waitingMember);
+                    const subscription = await Subscription.findOne({ memberId });
+                    if (subscription && subscription.credit > 0) {
+                        subscription.credit -= 1;
+                        await subscription.save();
+                        validMainMembers.push(waitingMember);
+                        takenFromWaiting++;
+                    } else {
+                        validWaitingMembers.push(waitingMember);
+                    }
+                }
+
+                activity.sessionModel.mainMembers = validMainMembers;
+                activity.sessionModel.waitingMembers = validWaitingMembers;
+            }
+        }
+
+        const createdWeek = await WeekModel.create(newData);
+        res.status(201).json(new BaseResponseModel(true, "Hafta başarıyla oluşturuldu.", createdWeek).toJson());
+    } catch (error) {
+        console.error("Hafta oluşturulamadı:", error);
+        res.status(400).json(new BaseResponseModel(false, "Hafta oluşturulamadı.", (error as Error).message).toJson());
+    }
+});
+
+router.put("/:id", async (req: Request, res: Response) => {
+    try {
+      const tableId = req.params.id;
+      const updatedData: IWeek = req.body;
+  
+      const existingTable = await WeekModel.findById(tableId);
+      if (!existingTable) {
+        return res.status(404).json(new BaseResponseModel(false, "Hafta bulunamadı").toJson());
+      }
+  
+      // Yardımcı fonksiyon
+      const toIdString = (member: any) =>
+        typeof member === "object" && member._id ? member._id.toString() : member.toString();
+  
+      // Haftanın her günü ve aktivitesini baştan sona dolaş
+      for (let i = 0; i < updatedData.days.length; i++) {
+        const newDay = updatedData.days[i];
+        const oldDay = existingTable.days[i];
+        if (!oldDay) continue;
+  
+        for (let j = 0; j < newDay.activities.length; j++) {
+          const newAct = newDay.activities[j];
+          const oldAct = oldDay.activities[j];
+          if (!newAct?.sessionModel || !oldAct?.sessionModel) continue;
+  
+          const validMainMembers: any[] = [];
+          const validWaitingMembers: any[] = [];
+  
+          for (const member of newAct.sessionModel.mainMembers) {
+            const memberId = toIdString(member);
+            const subscription = await Subscription.findOne({ memberId });
+            if (subscription && subscription.credit > 0) {
+              subscription.credit -= 1;
+              await subscription.save();
+              validMainMembers.push(member);
+            } else {
+              console.log(`Üye ${memberId} yetersiz krediyle mainMembers'tan çıkarıldı.`);
+            }
+          }
+  
+          // Boşa düşen kapasite kadar waiting'den al
+          const remainingCapacity = newAct.sessionModel.capacity - validMainMembers.length;
+          let takenFromWaiting = 0;
+          for (const waitingMember of newAct.sessionModel.waitingMembers) {
+            if (takenFromWaiting >= remainingCapacity) break;
+            const memberId = toIdString(waitingMember);
+            const subscription = await Subscription.findOne({ memberId });
+            if (subscription && subscription.credit > 0) {
+              subscription.credit -= 1;
+              await subscription.save();
+              validMainMembers.push(waitingMember);
+              takenFromWaiting++;
+            } else {
+              validWaitingMembers.push(waitingMember);
+            }
+          }
+  
+          newAct.sessionModel.mainMembers = validMainMembers;
+          newAct.sessionModel.waitingMembers = validWaitingMembers;
+        }
+      }
+  
+      const updatedTable = await WeekModel.findByIdAndUpdate(tableId, updatedData, { new: true });
+      res.status(200).json(new BaseResponseModel(true, "Hafta başarıyla güncellendi.", updatedTable).toJson());
+    } catch (error) {
+      console.error("Hafta güncellenemedi:", error);
+      res.status(400).json(new BaseResponseModel(false, "Hafta güncellenemedi.", (error as Error).message).toJson());
+    }
+  });
+*/
+
+
+/*
 router.post("/", async (req: Request, res: Response) => {
     try {
         console.log('API POST: "/Table" => Post request is successful');
@@ -52,7 +381,7 @@ router.post("/", async (req: Request, res: Response) => {
       res.status(400).json(new BaseResponseModel(false, "Hafta oluşturulamadı.", (error as Error).message).toJson());
     }
   });
-  
+  */
   
   
 /*
@@ -172,6 +501,9 @@ router.get("/:id", async (req, res) => {
 });
 
 
+  
+  
+/*
 // Belirli bir haftayı getir (ID ile)
 router.put("/:id", async (req: Request, res: Response) => {
     try {
@@ -235,28 +567,7 @@ router.put("/:id", async (req: Request, res: Response) => {
       res.status(400).json(new BaseResponseModel(false, "Hafta güncellenemedi.", (error as Error).message).toJson());
     }
   });
-  
-  
-
-/*
-// Üyeyi güncelle
-router.put("/:id", async (req, res) => {
-    try {
-        console.log("Güncellenen veri: ", req.body);
-        const updatedSession = await TableModel.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true }// Güncellenen veriyi döndür
-        );
-        if (!updatedSession) {
-            res.status(404).send(new BaseResponseModel(false, "Seans bulunamadı").toJson());
-        }
-        res.send(new BaseResponseModel(true, "Seans güncellendi", updatedSession).toJson());
-    } catch (error) {
-        console.error("Güncelleme hatası: ", error);
-        res.status(400).send(new BaseResponseModel(false, "Güncelleme başarısız.", (error as Error).message).toJson());
-    }
-});*/
+  */
 
 // Seansı sil
 router.delete("/:id", async (req: Request, res: Response) => {
@@ -274,5 +585,6 @@ router.delete("/:id", async (req: Request, res: Response) => {
         res.status(400).send(new BaseResponseModel(false, "Silme başarısız.", (error as Error).message).toJson());
     }
 });
+
 
 export default router;

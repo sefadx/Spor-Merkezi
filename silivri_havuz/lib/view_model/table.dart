@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '/view_model/home.dart';
 import '../model/session_model.dart';
 import '../model/table_model.dart';
@@ -83,7 +84,7 @@ class ViewModelTable extends ChangeNotifier {
       });
 
       if (res.success) {
-        ViewModelHome.instance.fetchWeeks();
+        ViewModelHome.instance.resetAndFetchWeek();
         CustomRouter.instance.replacePushWidget(
             child: PagePopupInfo(
               title: "Bildirim",
@@ -93,16 +94,14 @@ class ViewModelTable extends ChangeNotifier {
             pageConfig: ConfigPopupInfo());
         notifyListeners();
       } else {
-        CustomRouter.instance
-            .pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
+        CustomRouter.instance.pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
       }
     }
   }
 
   Future<void> updateWeek() async {
-    if (await CustomRouter.instance.waitForResult(
-        child: const PageAlertDialog(title: "Uyarı", informationText: "Hafta düzeni güncellenecektir. Onaylıyor musunuz ?"),
-        pageConfig: ConfigAlertDialog)) {
+    if (await CustomRouter.instance
+        .waitForResult(child: const PageAlertDialog(title: "Uyarı", informationText: "Hafta düzeni güncellenecektir. Onaylıyor musunuz ?"), pageConfig: ConfigAlertDialog)) {
       //TableModel model = TableModel();
       WeekModel model = week;
 
@@ -112,7 +111,7 @@ class ViewModelTable extends ChangeNotifier {
       });
 
       if (res.success) {
-        ViewModelHome.instance.fetchWeeks();
+        ViewModelHome.instance.resetAndFetchWeek();
         CustomRouter.instance.replacePushWidget(
             child: PagePopupInfo(
               title: "Bildirim",
@@ -121,8 +120,7 @@ class ViewModelTable extends ChangeNotifier {
             ),
             pageConfig: ConfigPopupInfo());
       } else {
-        CustomRouter.instance
-            .pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
+        CustomRouter.instance.pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
       }
     }
   }
@@ -146,6 +144,60 @@ class ViewModelTable extends ChangeNotifier {
         pageConfig: ConfigPopupInfo(),
       );
       return false;
+    }
+  }
+
+  Future<void> updateWeekDefault() async {
+    if (await CustomRouter.instance
+        .waitForResult(child: const PageAlertDialog(title: "Uyarı", informationText: "Hafta düzeni kaydedilecektir. Onaylıyor musunuz ?"), pageConfig: ConfigAlertDialog)) {
+      WeekModel model = week;
+
+      BaseResponseModel res = await APIService<WeekModel>(url: APIS.api.weekIdDefault()).put(model).onError((error, stackTrace) {
+        debugPrint(error.toString());
+        return BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu");
+      });
+
+      if (res.success) {
+        CustomRouter.instance.replacePushWidget(
+            child: PagePopupInfo(
+              title: "Bildirim",
+              informationText: res.message.toString(),
+              afterDelay: () => CustomRouter.instance.pop(),
+            ),
+            pageConfig: ConfigPopupInfo());
+        notifyListeners();
+      } else {
+        CustomRouter.instance.pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
+      }
+    }
+  }
+
+  static Future<WeekModel?> fetchWeekDefault() async {
+    BaseResponseModel<ListWrapped<WeekModel>> res = await APIService<ListWrapped<WeekModel>>(url: APIS.api.weekIdDefault())
+        .get(
+            fromJsonT: (json) => ListWrapped.fromJson(
+                  jsonList: json,
+                  fromJsonT: (p0) => WeekModel.fromJson(json: p0),
+                ))
+        .onError((error, stackTrace) {
+      debugPrint(error.toString());
+      debugPrint(stackTrace.toString());
+      return BaseResponseModel(success: false, message: "Default hafta modelinde problem var. Teknik ekiple iletişime geçin.");
+    });
+
+    if (res.success) {
+      /*CustomRouter.instance.replacePushWidget(
+          child: PagePopupInfo(
+            title: "Bildirim",
+            informationText: res.message.toString(),
+            afterDelay: () => CustomRouter.instance.pop(),
+          ),
+          pageConfig: ConfigPopupInfo());*/
+      debugPrint("Default Table: ${res.message}");
+      return res.data!.items.isNotEmpty ? res.data!.items.first : null;
+    } else {
+      CustomRouter.instance.pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
+      return null;
     }
   }
 }

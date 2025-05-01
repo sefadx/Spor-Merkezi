@@ -30,12 +30,9 @@ class ListItemSubscription extends StatelessWidget {
               padding: const EdgeInsets.all(AppTheme.gapmedium),
               child: Row(
                 children: [
-                  Expanded(
-                      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    Text(text, style: AppState.instance.themeData.textTheme.headlineMedium),
-                    Text(date, style: AppState.instance.themeData.textTheme.headlineMedium),
-                    Text("Kalan Seans Hakkı: $credit", style: AppState.instance.themeData.textTheme.headlineMedium),
-                  ])),
+                  Expanded(child: Text(text, style: AppState.instance.themeData.textTheme.headlineMedium)),
+                  Expanded(child: Text(date, style: AppState.instance.themeData.textTheme.headlineMedium)),
+                  Expanded(child: Text("Kalan Seans Hakkı: $credit", style: AppState.instance.themeData.textTheme.headlineMedium)),
                   const Icon(Icons.chevron_right)
                 ],
               ),

@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:silivri_havuz/view_model/home.dart';
 import 'package:silivri_havuz/view_model/session_details.dart';
-import '../customWidgets/buttons/custom_button.dart';
-import '/model/table_model.dart';
-import '/pages/widget_popup.dart';
-import '/customWidgets/custom_dropdown_list.dart';
-import '/utils/enums.dart';
-import '/view_model/table.dart';
-import '/navigator/custom_navigation_view.dart';
-import '/navigator/ui_page.dart';
+
 import '/controller/app_state.dart';
 import '/controller/app_theme.dart';
 import '/controller/provider.dart';
+import '/customWidgets/custom_dropdown_list.dart';
+import '/model/table_model.dart';
+import '/navigator/custom_navigation_view.dart';
+import '/navigator/ui_page.dart';
+import '/pages/widget_popup.dart';
+import '/utils/enums.dart';
+import '/view_model/table.dart';
+import '../customWidgets/buttons/custom_button.dart';
 import 'session/session_launcher.dart';
 
 enum TableMode { empty, add, update }
@@ -38,13 +40,26 @@ class PageTable extends StatelessWidget {
             centerTitle: true,
             actions: switch (tableMode) {
               TableMode.add => [
-                  CustomButton(text: "Haftayı ekle", margin: const EdgeInsets.only(right: AppTheme.gapsmall), onTap: () async => await vm.postWeek())
+                  CustomButton(
+                      text: "Haftayı ekle",
+                      margin: const EdgeInsets.only(right: AppTheme.gapsmall),
+                      onTap: () async {
+                        await vm.postWeek();
+                        await ViewModelHome.instance.resetAndFetchSubscription();
+                      })
                 ],
               TableMode.update => [
                   CustomButton(
-                      text: "Haftayı Güncelle", margin: const EdgeInsets.only(right: AppTheme.gapsmall), onTap: () async => await vm.updateWeek())
+                      text: "Haftayı Güncelle",
+                      margin: const EdgeInsets.only(right: AppTheme.gapsmall),
+                      onTap: () async {
+                        await vm.updateWeek();
+                        await ViewModelHome.instance.resetAndFetchSubscription();
+                      })
                 ],
-              TableMode.empty => null
+              TableMode.empty => [
+                  CustomButton(text: "Hafta Düzenini Kaydet", margin: const EdgeInsets.only(right: AppTheme.gapsmall), onTap: () async => await vm.updateWeekDefault())
+                ]
             },
           ),
           body: _PageTableBody(
@@ -122,8 +137,7 @@ class _PageTableBody extends StatelessWidget {
                                             width: 170,
                                             padding: const EdgeInsets.symmetric(vertical: AppTheme.gapmedium, horizontal: AppTheme.gapxsmall),
                                             color: vm.getDaysOff(index) ? Colors.red.shade800 : null,
-                                            child: Text(vm.week.days.elementAt(index).name,
-                                                textAlign: TextAlign.center, style: appState.themeData.textTheme.headlineSmall))),
+                                            child: Text(vm.week.days.elementAt(index).name, textAlign: TextAlign.center, style: appState.themeData.textTheme.headlineSmall))),
                                     if (!vm.getDaysOff(index)) //0 pazartesi anlamına geliyor
                                       Expanded(
                                           child: Material(
@@ -134,20 +148,12 @@ class _PageTableBody extends StatelessWidget {
                                                       child: ListView.builder(
                                                           shrinkWrap: true,
                                                           physics: const NeverScrollableScrollPhysics(),
-                                                          itemCount: vm.week.days
-                                                              .elementAt(index)
-                                                              .activities
-                                                              .length, //week.days.elementAt(index).activities.length,
-                                                          itemBuilder: (context, indexActivities) => vm.week.days
-                                                                      .elementAt(index)
-                                                                      .activities
-                                                                      .elementAt(indexActivities) ==
-                                                                  null
+                                                          itemCount: vm.week.days.elementAt(index).activities.length, //week.days.elementAt(index).activities.length,
+                                                          itemBuilder: (context, indexActivities) => vm.week.days.elementAt(index).activities.elementAt(indexActivities) == null
                                                               ? Ink(
                                                                   padding: const EdgeInsets.all(AppTheme.gapxxsmall),
                                                                   color: Colors.grey,
-                                                                  child: Text("Seans arası",
-                                                                      style: appState.themeData.textTheme.bodyMedium, textAlign: TextAlign.center))
+                                                                  child: Text("Seans arası", style: appState.themeData.textTheme.bodyMedium, textAlign: TextAlign.center))
                                                               : InkWell(
                                                                   onTap: switch (tableMode) {
                                                                     TableMode.empty => () => CustomRouter.instance.pushWidget(
@@ -162,80 +168,41 @@ class _PageTableBody extends StatelessWidget {
                                                                                   CustomDropdownList(
                                                                                       readOnly: false,
                                                                                       labelText: "Kategori",
-                                                                                      value: vm.week.days
-                                                                                          .elementAt(index)
-                                                                                          .activities
-                                                                                          .elementAt(indexActivities)!
-                                                                                          .type
-                                                                                          .toString(),
-                                                                                      list: List<String>.from(
-                                                                                          ActivityType.values.map((e) => e.toString())),
+                                                                                      value: vm.week.days.elementAt(index).activities.elementAt(indexActivities)!.type.toString(),
+                                                                                      list: List<String>.from(ActivityType.values.map((e) => e.toString())),
                                                                                       onChanged: (text) => vm.setActivity(
                                                                                           Activity(
                                                                                               type: ActivityType.fromString(text!),
-                                                                                              ageGroup: vm.week.days
-                                                                                                  .elementAt(index)
-                                                                                                  .activities
-                                                                                                  .elementAt(indexActivities)!
-                                                                                                  .ageGroup,
-                                                                                              fee: vm.week.days
-                                                                                                  .elementAt(index)
-                                                                                                  .activities
-                                                                                                  .elementAt(indexActivities)!
-                                                                                                  .fee),
+                                                                                              ageGroup:
+                                                                                                  vm.week.days.elementAt(index).activities.elementAt(indexActivities)!.ageGroup,
+                                                                                              fee: vm.week.days.elementAt(index).activities.elementAt(indexActivities)!.fee),
                                                                                           index,
                                                                                           indexActivities)),
                                                                                   const SizedBox(height: AppTheme.gapsmall),
                                                                                   CustomDropdownList(
                                                                                       readOnly: false,
                                                                                       labelText: "Grup",
-                                                                                      value: vm.week.days
-                                                                                          .elementAt(index)
-                                                                                          .activities
-                                                                                          .elementAt(indexActivities)!
-                                                                                          .ageGroup
-                                                                                          .toString(),
-                                                                                      list:
-                                                                                          List<String>.from(AgeGroup.values.map((e) => e.toString())),
+                                                                                      value:
+                                                                                          vm.week.days.elementAt(index).activities.elementAt(indexActivities)!.ageGroup.toString(),
+                                                                                      list: List<String>.from(AgeGroup.values.map((e) => e.toString())),
                                                                                       onChanged: (text) => vm.setActivity(
                                                                                           Activity(
-                                                                                              type: vm.week.days
-                                                                                                  .elementAt(index)
-                                                                                                  .activities
-                                                                                                  .elementAt(indexActivities)!
-                                                                                                  .type,
+                                                                                              type: vm.week.days.elementAt(index).activities.elementAt(indexActivities)!.type,
                                                                                               ageGroup: AgeGroup.fromString(text!),
-                                                                                              fee: vm.week.days
-                                                                                                  .elementAt(index)
-                                                                                                  .activities
-                                                                                                  .elementAt(indexActivities)!
-                                                                                                  .fee),
+                                                                                              fee: vm.week.days.elementAt(index).activities.elementAt(indexActivities)!.fee),
                                                                                           index,
                                                                                           indexActivities)),
                                                                                   const SizedBox(height: AppTheme.gapsmall),
                                                                                   CustomDropdownList(
                                                                                       readOnly: false,
                                                                                       labelText: "Ücret",
-                                                                                      value: vm.week.days
-                                                                                          .elementAt(index)
-                                                                                          .activities
-                                                                                          .elementAt(indexActivities)!
-                                                                                          .fee
-                                                                                          .toString(),
-                                                                                      list:
-                                                                                          List<String>.from(FeeType.values.map((e) => e.toString())),
+                                                                                      value: vm.week.days.elementAt(index).activities.elementAt(indexActivities)!.fee.toString(),
+                                                                                      list: List<String>.from(FeeType.values.map((e) => e.toString())),
                                                                                       onChanged: (text) => vm.setActivity(
                                                                                           Activity(
-                                                                                              type: vm.week.days
-                                                                                                  .elementAt(index)
-                                                                                                  .activities
-                                                                                                  .elementAt(indexActivities)!
-                                                                                                  .type,
-                                                                                              ageGroup: vm.week.days
-                                                                                                  .elementAt(index)
-                                                                                                  .activities
-                                                                                                  .elementAt(indexActivities)!
-                                                                                                  .ageGroup,
+                                                                                              type: vm.week.days.elementAt(index).activities.elementAt(indexActivities)!.type,
+                                                                                              ageGroup:
+                                                                                                  vm.week.days.elementAt(index).activities.elementAt(indexActivities)!.ageGroup,
                                                                                               fee: FeeType.fromString(text!)),
                                                                                           index,
                                                                                           indexActivities)),
@@ -279,8 +246,7 @@ class _PageTableBody extends StatelessWidget {
                                                                       },
                                                                   },
                                                                   child: Ink(
-                                                                      padding: const EdgeInsets.symmetric(
-                                                                          vertical: AppTheme.gapxxsmall, horizontal: AppTheme.gapxsmall),
+                                                                      padding: const EdgeInsets.symmetric(vertical: AppTheme.gapxxsmall, horizontal: AppTheme.gapxsmall),
                                                                       height: 70,
                                                                       color: vm.week.days
                                                                           .elementAt(index)
@@ -294,24 +260,10 @@ class _PageTableBody extends StatelessWidget {
                                                                               "${vm.week.days.elementAt(index).activities.elementAt(indexActivities)!.type} (${vm.week.days.elementAt(index).activities.elementAt(indexActivities)!.sessionModel?.mainMembers.length.toString() ?? "0"})",
                                                                               style: appState.themeData.textTheme.bodyMedium,
                                                                               textAlign: TextAlign.center),
-                                                                          Text(
-                                                                              vm.week.days
-                                                                                  .elementAt(index)
-                                                                                  .activities
-                                                                                  .elementAt(indexActivities)!
-                                                                                  .ageGroup
-                                                                                  .toString(),
-                                                                              style: appState.themeData.textTheme.bodyMedium,
-                                                                              textAlign: TextAlign.center),
-                                                                          Text(
-                                                                              vm.week.days
-                                                                                  .elementAt(index)
-                                                                                  .activities
-                                                                                  .elementAt(indexActivities)!
-                                                                                  .fee
-                                                                                  .toString(),
-                                                                              style: appState.themeData.textTheme.bodyMedium,
-                                                                              textAlign: TextAlign.center),
+                                                                          Text(vm.week.days.elementAt(index).activities.elementAt(indexActivities)!.ageGroup.toString(),
+                                                                              style: appState.themeData.textTheme.bodyMedium, textAlign: TextAlign.center),
+                                                                          Text(vm.week.days.elementAt(index).activities.elementAt(indexActivities)!.fee.toString(),
+                                                                              style: appState.themeData.textTheme.bodyMedium, textAlign: TextAlign.center),
                                                                         ],
                                                                       ))))))))
                                     else
@@ -320,8 +272,7 @@ class _PageTableBody extends StatelessWidget {
                                         child: Ink(
                                             width: 170,
                                             padding: const EdgeInsets.all(AppTheme.gapxxsmall),
-                                            child: Text("Tesis Bakım\nve\nTemizlik",
-                                                style: appState.themeData.textTheme.bodyLarge, textAlign: TextAlign.center)),
+                                            child: Text("Tesis Bakım\nve\nTemizlik", style: appState.themeData.textTheme.bodyLarge, textAlign: TextAlign.center)),
                                       ))
                                   ],
                                 ))))

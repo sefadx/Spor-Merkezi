@@ -63,7 +63,7 @@ class APIS {
   static APIS get api => _start;
   static final APIS _start = APIS._instance();
   APIS._instance();
-  final String _baseAPI = "http://localhost:5001";
+  final String _baseAPI = "http://192.168.0.11:5002"; // "http://localhost:5002";
 
   String upload() => "$_baseAPI/upload";
 
@@ -79,6 +79,13 @@ class APIS {
   String week({int page = 1, int limit = 10, String? search}) => "$_baseAPI/week?page=${page.toString()}&limit=${limit.toString()}&search=$search";
   String weekId({required String weekId}) => "$_baseAPI/week/$weekId";
 
+  //String weekIdDefault({String? weekId}) => "$_baseAPI/week/def";
+  String weekIdDefault({String? weekId}) {
+    String url = "$_baseAPI/week/default";
+    if (weekId != null) url += "/$weekId";
+    return url;
+  }
+
   //String subscription({int page = 1, int limit = 10, String? search}) => "$_baseAPI/subscription?page=${page.toString()}&limit=${limit.toString()}&search=$search";
   String subscription({int page = 1, int limit = 300, String? search}) {
     String url = "$_baseAPI/subscription?page=${page.toString()}&limit=${limit.toString()}";
@@ -86,7 +93,7 @@ class APIS {
     return url;
   }
 
-  String subscriptionId({required String subscriptionId}) => "$_baseAPI/subscription/$subscriptionId";
+  String subscriptionId({required String memberId}) => "$_baseAPI/subscription/$memberId";
   String subscriptionParticipants({
     required ActivityType type,
     required AgeGroup age,
@@ -144,7 +151,7 @@ class APIService<T extends JsonProtocol> {
   Future<BaseResponseModel<T>> get({T Function(dynamic json)? fromJsonT, String username = "", String password = ""}) async {
     try {
       Response res = await http.get(Uri.parse(url), headers: {"Content-Type": "application/json; charset=UTF-8", "Accept": "application/json"}).onError((error, stackTrace) {
-        debugPrint(error.toString());
+        debugPrint("future get:$error");
         throw APIError(Errors.invalidUrl);
       });
       debugPrint("API'den gelen veri: ${res.body}");
@@ -161,10 +168,10 @@ class APIService<T extends JsonProtocol> {
       debugPrint("API ERROR: ${err.error}");
       throw APIError(err.message);
     } on FormatException catch (err) {
-      debugPrint(err.message);
+      debugPrint("Format Exception: ${err.message}");
       throw FormatException(err.message);
     } on Exception catch (err) {
-      debugPrint(err.toString());
+      debugPrint("Exception: $err");
       throw APIError(Errors.decodeDataError);
     }
   }

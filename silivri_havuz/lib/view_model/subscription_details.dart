@@ -9,6 +9,7 @@ import '../navigator/ui_page.dart';
 import '../network/api.dart';
 import '../pages/alert_dialog.dart';
 import '../pages/info_popup.dart';
+import 'home.dart';
 
 class ViewModelSubscriptionDetails extends ChangeNotifier {
   bool readOnly = false;
@@ -34,7 +35,7 @@ class ViewModelSubscriptionDetails extends ChangeNotifier {
 
       if (res.success && res.data!.items.isNotEmpty) {
         member = res.data!.items.first;
-        CustomRouter.instance.pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
+        //CustomRouter.instance.pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
         return true;
       } else {
         CustomRouter.instance.pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: "Üye kaydı bulunamadı."), pageConfig: ConfigPopupInfo());
@@ -65,7 +66,7 @@ class ViewModelSubscriptionDetails extends ChangeNotifier {
             .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
 
         if (res.success) {
-          //ViewModelHome.instance.resetAndFetchSubscription();
+          ViewModelHome.instance.resetAndFetchSubscription();
           CustomRouter.instance.replacePushWidget(
               child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString(), afterDelay: () => CustomRouter.instance.pop()), pageConfig: ConfigPopupInfo());
         } else {

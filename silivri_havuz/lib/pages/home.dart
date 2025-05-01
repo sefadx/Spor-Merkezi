@@ -47,7 +47,7 @@ class HomeBody extends StatelessWidget {
             color: appState.themeData.primaryColorLight,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [Text("Hoş Geldiniz, [Yetkili Adı]!", style: appState.themeData.textTheme.headlineMedium), const ThemeSwitchButton()],
+              children: [Text("Hoş Geldiniz, ${ViewModelHome.instance.tc}", style: appState.themeData.textTheme.headlineMedium), const ThemeSwitchButton()],
             ),
           ),
           const SizedBox(height: AppTheme.gapxxsmall),
@@ -85,8 +85,8 @@ class HomeSidebar extends StatelessWidget {
                 Expanded(
                     child: ListView.builder(
                         itemCount: vm.screenList.length,
-                        itemBuilder: (context, index) => _buildSidebarItem(
-                            vm.screenList.elementAt(index).icon, vm.screenList.elementAt(index).title, () => vm.setScreenIndex = index)))
+                        itemBuilder: (context, index) =>
+                            _buildSidebarItem(vm.screenList.elementAt(index).icon, vm.screenList.elementAt(index).title, () => vm.setScreenIndex = index)))
               ],
             )),
             const SizedBox(height: 16),

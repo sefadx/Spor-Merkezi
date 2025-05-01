@@ -1,8 +1,10 @@
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+
 import '../../model/file_model.dart';
 import '../../model/health_status.dart';
 import '../../model/payment_status.dart';
@@ -85,8 +87,7 @@ class ViewModelMemberDetails extends ChangeNotifier {
       // 5MB sınırı
       if ((fileSize > 5 * 1024 * 1024) && pickedFileModel != null) {
         CustomRouter.instance.pushWidget(
-            child: PagePopupInfo(title: "Bildirim", informationText: "Dosya boyutu 5MB dan büyük olamaz.\nBoyut: ${fileSize.toStringAsFixed(2)}MB"),
-            pageConfig: ConfigPopupInfo());
+            child: PagePopupInfo(title: "Bildirim", informationText: "Dosya boyutu 5MB dan büyük olamaz.\nBoyut: ${fileSize.toStringAsFixed(2)}MB"), pageConfig: ConfigPopupInfo());
         return;
       } else if (await CustomRouter.instance.waitForResult(
           child: PageFileForm(
@@ -98,30 +99,25 @@ class ViewModelMemberDetails extends ChangeNotifier {
         uploadFile(pickedFile);
       }
     } else {
-      CustomRouter.instance
-          .pushWidget(child: const PagePopupInfo(title: "Bildirim", informationText: "Dosya yükleme iptal edildi."), pageConfig: ConfigPopupInfo());
+      CustomRouter.instance.pushWidget(child: const PagePopupInfo(title: "Bildirim", informationText: "Dosya yükleme iptal edildi."), pageConfig: ConfigPopupInfo());
     }
   }
 
   void uploadFile(FilePickerResult pickedFile) async {
     if (pickedFileModel != null) {
-      BaseResponseModel res =
-          await APIService<FileModel>(url: APIS.api.upload()).uploadFile(pickedFileModel!, filePath: pickedFile.files.single.path!);
+      BaseResponseModel res = await APIService<FileModel>(url: APIS.api.upload()).uploadFile(pickedFileModel!, filePath: pickedFile.files.single.path!);
       if (res.success) {
         debugPrint(res.message);
-        CustomRouter.instance
-            .pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
+        CustomRouter.instance.pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
         listFiles();
       } else {
         debugPrint(res.message);
-        CustomRouter.instance
-            .pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
+        CustomRouter.instance.pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
       }
       debugPrint(res.toJson().toString());
     } else {
       debugPrint("Seçili dosya yok. PickedFile: ${pickedFile.files.single.path}");
-      CustomRouter.instance
-          .pushWidget(child: const PagePopupInfo(title: "Bildirim", informationText: "Dosya seçimini yapınız."), pageConfig: ConfigPopupInfo());
+      CustomRouter.instance.pushWidget(child: const PagePopupInfo(title: "Bildirim", informationText: "Dosya seçimini yapınız."), pageConfig: ConfigPopupInfo());
     }
 
     notifyListeners();
@@ -238,9 +234,8 @@ class ViewModelMemberDetails extends ChangeNotifier {
   void onSave() async {
     debugPrint("onSave çalıştı.");
     if (formKey.currentState!.validate() && birthdateController.text.isNotEmpty) {
-      if (await CustomRouter.instance.waitForResult(
-          child: const PageAlertDialog(title: "Uyarı", informationText: "Üye kaydı oluşturulacaktır. Onaylıyor musunuz ?"),
-          pageConfig: ConfigAlertDialog)) {
+      if (await CustomRouter.instance
+          .waitForResult(child: const PageAlertDialog(title: "Uyarı", informationText: "Üye kaydı oluşturulacaktır. Onaylıyor musunuz ?"), pageConfig: ConfigAlertDialog)) {
         MemberModel model = MemberModel(
             identityNumber: identityController.text,
             name: nameController.text,
@@ -263,7 +258,7 @@ class ViewModelMemberDetails extends ChangeNotifier {
         });
 
         if (res.success) {
-          ViewModelHome.instance.fetchMember();
+          ViewModelHome.instance.resetAndFetchMemberModel();
 
           CustomRouter.instance.replacePushWidget(
               child: PagePopupInfo(

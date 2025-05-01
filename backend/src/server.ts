@@ -49,3 +49,77 @@ app.listen(PORT, () => {
 }); 
 
 export { conn };
+
+//proje ilk kurulumda default haftayı ekle
+/*
+db.weekdefaults.insertOne({
+  type: "default",
+  initialDayOfWeek: ISODate("2020-01-01T00:00:00.000Z"),
+  daysOff: [],
+  days: [
+    {
+      name: "Pazartesi",
+      day: 1,
+      activities: Array.from({ length: 17 }, (_, i) =>
+        i % 2 === 0
+          ? { type: "empty", ageGroup: "empty", fee: "empty" }
+          : null
+      )
+    },
+    {
+      name: "Salı",
+      day: 2,
+      activities: Array.from({ length: 17 }, (_, i) =>
+        i % 2 === 0
+          ? { type: "empty", ageGroup: "empty", fee: "empty" }
+          : null
+      )
+    },
+    {
+      name: "Çarşamba",
+      day: 3,
+      activities: Array.from({ length: 17 }, (_, i) =>
+        i % 2 === 0
+          ? { type: "empty", ageGroup: "empty", fee: "empty" }
+          : null
+      )
+    },
+    {
+      name: "Perşembe",
+      day: 4,
+      activities: Array.from({ length: 17 }, (_, i) =>
+        i % 2 === 0
+          ? { type: "empty", ageGroup: "empty", fee: "empty" }
+          : null
+      )
+    },
+    {
+      name: "Cuma",
+      day: 5,
+      activities: Array.from({ length: 17 }, (_, i) =>
+        i % 2 === 0
+          ? { type: "empty", ageGroup: "empty", fee: "empty" }
+          : null
+      )
+    },
+    {
+      name: "Cumartesi",
+      day: 6,
+      activities: Array.from({ length: 17 }, (_, i) =>
+        i % 2 === 0
+          ? { type: "empty", ageGroup: "empty", fee: "empty" }
+          : null
+      )
+    },
+    {
+      name: "Pazar",
+      day: 7,
+      activities: Array.from({ length: 17 }, (_, i) =>
+        i % 2 === 0
+          ? { type: "empty", ageGroup: "empty", fee: "empty" }
+          : null
+      )
+    }
+  ]
+})
+*/

@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
-import '../../utils/enums.dart';
-import '../info_popup.dart';
-import '/customWidgets/cards/list_item_week.dart';
-import '/utils/extension.dart';
-import '/view_model/table.dart';
-import '/model/table_model.dart';
+
 import '/controller/app_state.dart';
 import '/controller/app_theme.dart';
 import '/controller/provider.dart';
 import '/customWidgets/buttons/custom_button.dart';
+import '/customWidgets/cards/list_item_week.dart';
+import '/model/table_model.dart';
 import '/navigator/custom_navigation_view.dart';
 import '/navigator/ui_page.dart';
 import '/network/api.dart';
+import '/utils/extension.dart';
 import '/view_model/home.dart';
+import '/view_model/table.dart';
+import '../info_popup.dart';
 import '../table.dart';
 
 class PageSessions extends StatelessWidget {
-  PageSessions({super.key});
+  const PageSessions({super.key});
 
-  final WeekModel week = WeekModel(
+  /*final WeekModel week = WeekModel(
       daysOff: [],
       initialDayOfWeek: DateTime(2020),
       days: [
@@ -155,7 +155,7 @@ class PageSessions extends StatelessWidget {
           null,
           Activity(type: ActivityType.havuzBakim, ageGroup: AgeGroup.all, fee: FeeType.free)
         ]),
-      ]);
+      ]);*/
 
   @override
   Widget build(BuildContext context) {
@@ -167,16 +167,15 @@ class PageSessions extends StatelessWidget {
       DateTime monday = now.subtract(Duration(days: now.weekday - 1));
 
       DateTime? initialDayOfWeek = await selectDate(context,
-          initialDate: DateTime(monday.year, monday.month, monday.day),
-          selectableDayPredicate: (date) => date.weekday == DateTime.monday,
-          lastDate: lastDay);
+          initialDate: DateTime(monday.year, monday.month, monday.day), selectableDayPredicate: (date) => date.weekday == DateTime.monday, lastDate: lastDay);
       if (initialDayOfWeek != null) {
         if (await ViewModelTable.queryWeek(date: initialDayOfWeek)) {
+          WeekModel model = WeekModel(daysOff: vm.weekDefault.daysOff, days: vm.weekDefault.days, initialDayOfWeek: initialDayOfWeek);
           CustomRouter.instance.pushWidget(
               child: PageTable(
-                title: "Seans Yönetimi",
+                title: "Seans Yönetimi - ${model.getWeekRangeTitle()}",
                 tableMode: TableMode.add,
-                vm: ViewModelTable(week: WeekModel(daysOff: week.daysOff, days: week.days, initialDayOfWeek: initialDayOfWeek)),
+                vm: ViewModelTable(week: model),
               ),
               pageConfig: ConfigPopupInfo());
         } else {
@@ -203,8 +202,7 @@ class PageSessions extends StatelessWidget {
             CustomButton(
                 text: "Haftalık Seans Düzeni",
                 onTap: () => CustomRouter.instance.pushWidget(
-                    child: PageTable(tableMode: TableMode.empty, title: "Haftalık Seans Düzeni", vm: ViewModelTable(week: week)),
-                    pageConfig: ConfigPopupInfo())),
+                    child: PageTable(tableMode: TableMode.empty, title: "Haftalık Seans Düzeni", vm: ViewModelTable(week: vm.weekDefault)), pageConfig: ConfigPopupInfo())),
             CustomButton(text: "Hafta Ekle", onTap: addWeekButton)
           ],
         ),

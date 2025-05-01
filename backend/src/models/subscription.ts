@@ -25,7 +25,7 @@ const SubscriptionSchema = new Schema<ISubscription>({
     ageGroup: { type: String, required: true, enum: Object.values(AgeGroups) },
     fee: { type: String, required: true, enum: Object.values(FeeTypes) },
     amount: { type: Number, required: true, trim: true},
-    credit: { type: Number, default: 8, trim: true }, // Kredi Miktarı (Varsayılan: 0)
+    credit: { type: Number, default: 2, trim: true }, // Kredi Miktarı (Varsayılan: 0)
     /*paymentMethod: {
         type: String,
         required: true,
@@ -35,6 +35,6 @@ const SubscriptionSchema = new Schema<ISubscription>({
     //startDate: { type: Date, required: true }, // Abonelik Başlangıcı
     //endDate: { type: Date, required: true }, // Abonelik Bitişi
 },
-    { timestamps: true });
+    { timestamps: true }); 
 
 export default mongoose.model<ISubscription>("Subscription", SubscriptionSchema);

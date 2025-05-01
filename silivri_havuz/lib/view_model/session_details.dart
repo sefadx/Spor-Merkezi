@@ -69,6 +69,7 @@ class ViewModelSessionDetails extends ChangeNotifier {
       waitingMembers = [];
 
       List<SubscriptionModel> listSubs = (res.data?.items) ?? [];
+      listSubs = listSubs.reversed.toList();
       int capacity = ((int.tryParse(sessionCapacityController.text)) ?? 0) > listSubs.length ? listSubs.length : ((int.tryParse(sessionCapacityController.text)) ?? 0);
       mainMembers?.addAll(listSubs.map((e) => e.member).toList().getRange(0, capacity));
       waitingMembers?.addAll(listSubs.map((e) => e.member).toList().getRange(capacity, listSubs.length));

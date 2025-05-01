@@ -5,6 +5,7 @@ import 'package:silivri_havuz/customWidgets/screen_background.dart';
 import 'package:silivri_havuz/navigator/custom_navigation_view.dart';
 import 'package:silivri_havuz/navigator/ui_page.dart';
 import 'package:silivri_havuz/network/api.dart';
+import 'package:silivri_havuz/view_model/home.dart';
 
 import '../controller/provider.dart';
 import '../customWidgets/custom_label_textfield.dart';
@@ -60,11 +61,13 @@ class PageLogin extends StatelessWidget {
                             Row(
                               children: [
                                 Expanded(child: SizedBox()),
-                                CustomLabelTextField(
-                                  passwordVisible: true,
-                                  controller: password,
-                                  label: "Şifre",
-                                  validator: (value) => value == null || value.isEmpty ? 'Şifre giriniz' : null,
+                                Expanded(
+                                  child: CustomLabelTextField(
+                                    passwordVisible: true,
+                                    controller: password,
+                                    label: "Şifre",
+                                    validator: (value) => value == null || value.isEmpty ? 'Şifre giriniz' : null,
+                                  ),
                                 ),
                                 Expanded(child: SizedBox()),
                               ],
@@ -73,30 +76,39 @@ class PageLogin extends StatelessWidget {
 
                             const SizedBox(height: 16),
 
+                            Row(
+                              children: [
+                                Expanded(child: SizedBox()),
+                                Expanded(
+                                  child: InkWell(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Ink(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.all(AppTheme.gapsmall),
+                                          decoration: AppTheme.buttonPrimaryDecoration(context),
+                                          child: Text("Giriş yap", style: appState.themeData.textTheme.headlineSmall, textAlign: TextAlign.center)),
+                                      onTap: () async {
+                                        if (formKey.currentState!.validate()) {
+                                          BaseResponseModel res =
+                                              await APIService(url: APIS.api.login()).post(Auth(username: username.text, password: password.text)).onError((error, stackTrace) {
+                                            debugPrint(error.toString());
+                                            return BaseResponseModel(success: false, message: error.toString());
+                                          });
+                                          //CustomRouter.instance.replacePushWidget(child: PageTable(), pageConfig: ConfigHome);
+                                          if (res.success) {
+                                            ViewModelHome.instance.tc = username.text;
+                                            CustomRouter.instance.replaceAll(ConfigHome);
+                                          } else {
+                                            CustomRouter.instance
+                                                .pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
+                                          }
+                                        }
+                                      }),
+                                ),
+                                Expanded(child: SizedBox()),
+                              ],
+                            ),
                             // Login Button
-                            InkWell(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Ink(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.all(AppTheme.gapsmall),
-                                    decoration: AppTheme.buttonPrimaryDecoration(context),
-                                    child: Text("Giriş yap", style: appState.themeData.textTheme.headlineSmall, textAlign: TextAlign.center)),
-                                onTap: () async {
-                                  if (formKey.currentState!.validate()) {
-                                    BaseResponseModel res =
-                                        await APIService(url: APIS.api.login()).post(Auth(username: username.text, password: password.text)).onError((error, stackTrace) {
-                                      debugPrint(error.toString());
-                                      return BaseResponseModel(success: false, message: error.toString());
-                                    });
-                                    //CustomRouter.instance.replacePushWidget(child: PageTable(), pageConfig: ConfigHome);
-                                    if (res.success) {
-                                      CustomRouter.instance.replaceAll(ConfigHome);
-                                    } else {
-                                      CustomRouter.instance
-                                          .pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
-                                    }
-                                  }
-                                })
                           ],
                         ))))));
   }

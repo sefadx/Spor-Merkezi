@@ -4,7 +4,7 @@ import { SportTypes } from "../enums/lists";
 export interface ISession {
     dateTimeStart: string;
     dateTimeEnd: string;
-    capacity: Number;
+    capacity: number;
     mainMembers: Schema.Types.ObjectId[];
     waitingMembers: Schema.Types.ObjectId[];
 }
@@ -23,6 +23,7 @@ export interface IDay {
 }
 
 export interface IWeek {
+    type: string;
     daysOff: number[]; // 0-6 (0: Pazartesi, 1: Salı, 2: Çarşamba, 3: Perşembe, 4: Cuma, 5: Cumartesi, 6: Pazar)
     initialDayOfWeek: Date;
     days: IDay[];
@@ -51,6 +52,7 @@ const DaySchema: Schema = new Schema<IDay>({
 });
  
 const WeekSchema: Schema = new Schema<IWeek>({
+    type: { type: String },
     daysOff: { type: [Number], default: [] },
     initialDayOfWeek: { type: Date, required: true, index: true },
     days: [DaySchema]
@@ -59,6 +61,7 @@ const WeekSchema: Schema = new Schema<IWeek>({
 
 export default mongoose.model<IWeek>('WeekModel', WeekSchema);
 
+export const WeekModelDefault = mongoose.model<IWeek>('WeekDefault', WeekSchema); // Varsayılan haftayı temsil eden model
 
 /*
 export interface ISession extends Document {

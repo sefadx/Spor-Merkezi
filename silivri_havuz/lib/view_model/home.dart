@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:silivri_havuz/model/subscription_model.dart';
 import 'package:silivri_havuz/model/table_model.dart';
 import 'package:silivri_havuz/pages/subscription/subscription.dart';
+import 'package:silivri_havuz/view_model/table.dart';
 
 import '../model/home_screen_model.dart';
 import '../model/member_model.dart';
@@ -13,6 +14,7 @@ import '../network/api.dart';
 import '../pages/info_popup.dart';
 import '../pages/member/members.dart';
 import '../pages/session/sessions.dart';
+import '../utils/enums.dart';
 
 class ViewModelHome extends ChangeNotifier {
   //içeride oluşturulmuş nesneyi dışarıdan çağırmak için
@@ -24,6 +26,7 @@ class ViewModelHome extends ChangeNotifier {
     fetchWeeks();
     fetchMember();
     fetchSubscriptions();
+    fetchWeekDefault();
     weekScrollController.addListener(() {
       if (weekScrollController.offset >= weekScrollController.position.maxScrollExtent * 1.00 && !weekScrollController.position.outOfRange) {
         fetchWeeks(search: weekSearchTextEditingController.text);
@@ -40,6 +43,9 @@ class ViewModelHome extends ChangeNotifier {
       }
     });
   }
+
+  String tc = "";
+  late WeekModel weekDefault;
 
   List<HomeScreenModel> screenList = [
     HomeScreenModel(title: "Seans Yönetimi", icon: Icons.schedule, body: PageSessions()),
@@ -195,7 +201,7 @@ class ViewModelHome extends ChangeNotifier {
     if (search == null) subscriptionSearchTextEditingController.clear();
 
     BaseResponseModel<ListWrapped<SubscriptionModel>> res =
-        await APIService<ListWrapped<SubscriptionModel>>(url: APIS.api.subscription(page: _currentPageSubscription, limit: limit))
+        await APIService<ListWrapped<SubscriptionModel>>(url: APIS.api.subscription(page: _currentPageSubscription, limit: limit, search: search))
             .get(
                 fromJsonT: (json) => ListWrapped.fromJson(
                       jsonList: json,
@@ -230,6 +236,202 @@ class ViewModelHome extends ChangeNotifier {
     }
     _isFetchingSubscription = false;
   }
+
+  Future<void> fetchSearchSubscription({required String tcKimlik}) async {
+    try {
+      _allSubscriptions.clear();
+      BaseResponseModel<ListWrapped<MemberModel>> resMember = await APIService<ListWrapped<MemberModel>>(url: APIS.api.member(limit: 1, page: 1, search: tcKimlik))
+          .get(
+              fromJsonT: (json) => ListWrapped.fromJson(
+                    jsonList: json,
+                    fromJsonT: (p0) => MemberModel.fromJson(json: p0),
+                  ))
+          .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+
+      if (resMember.success && resMember.data!.items.isNotEmpty) {
+        MemberModel member = resMember.data!.items.first;
+        //CustomRouter.instance.pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: res.message.toString()), pageConfig: ConfigPopupInfo());
+        BaseResponseModel<ListWrapped<SubscriptionModel>> res = await APIService<ListWrapped<SubscriptionModel>>(url: APIS.api.subscriptionId(memberId: member.id))
+            .get(
+                fromJsonT: (json) => ListWrapped.fromJson(
+                      jsonList: json,
+                      fromJsonT: (p0) => SubscriptionModel.fromJson(json: p0),
+                    ))
+            .onError((error, stackTrace) => BaseResponseModel(success: false, message: "Bilinmeyen bir hata oluştu"));
+
+        if (res.success) {
+          List<SubscriptionModel> newSubscription = (res.data?.items) ?? [];
+          _allSubscriptions.addAll(newSubscription);
+          subscriptions.sink.add(_allSubscriptions);
+          debugPrint("apiden gelen yanıt: ${res.toJson()}");
+          /*CustomRouter.instance.replacePushWidget(
+          child: PagePopupInfo(
+            title: "Bildirim",
+            informationText: res.message.toString(),
+            afterDelay: () => CustomRouter.instance.pop(),
+          ),
+          pageConfig: ConfigPopupInfo());*/
+        } else {
+          subscriptions.addError(res);
+          CustomRouter.instance.pushWidget(
+              child: PagePopupInfo(
+                title: "Bildirim",
+                informationText: res.message.toString(),
+              ),
+              pageConfig: ConfigPopupInfo());
+        }
+      } else {
+        CustomRouter.instance.pushWidget(child: PagePopupInfo(title: "Bildirim", informationText: "Üye kaydı bulunamadı."), pageConfig: ConfigPopupInfo());
+      }
+    } catch (err) {
+      CustomRouter.instance
+          .pushWidget(child: const PagePopupInfo(title: "Bildirim", informationText: "Subscription from memberId : Teknik Ekiple İletişime geçin."), pageConfig: ConfigPopupInfo());
+      rethrow;
+    }
+  }
+
+  Future<void> fetchWeekDefault() async {
+    weekDefault = await ViewModelTable.fetchWeekDefault() ?? weekEmpty;
+  }
+
+  final WeekModel weekEmpty = WeekModel(
+      daysOff: [],
+      initialDayOfWeek: DateTime(2020),
+      days: [
+        Day(name: "Pazartesi", day: 1, activities: [
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty)
+        ]),
+        Day(name: "Salı", day: 2, activities: [
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty)
+        ]),
+        Day(name: "Çarşamba", day: 3, activities: [
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty)
+        ]),
+        Day(name: "Perşembe", day: 4, activities: [
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty)
+        ]),
+        Day(name: "Cuma", day: 5, activities: [
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty)
+        ]),
+        Day(name: "Cumartesi", day: 6, activities: [
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty)
+        ]),
+        Day(name: "Pazar", day: 7, activities: [
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty),
+          null,
+          Activity(type: ActivityType.empty, ageGroup: AgeGroup.empty, fee: FeeType.empty)
+        ]),
+      ]);
 }
 
 /*

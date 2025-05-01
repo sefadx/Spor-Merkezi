@@ -7,6 +7,39 @@ const router = express.Router();
 
 router.post("/", async (req: Request, res: Response) => {
     try {
+        console.log('API POST: "/subscription" => Post request is successful');
+        const { memberId, type, ageGroup, fee, amount, paymentDate } = req.body;
+
+        const member = await Member.findById(memberId);
+        if (!member) {
+            return res.status(400).json(new BaseResponseModel(false, "Üye kaydı bulunamadı").toJson());
+        }
+
+        // En güncel aboneliği kontrol et
+        const latestSub = await Subscription.findOne({ memberId }).sort({ paymentDate: -1 });
+
+        // Eğer varsa ve hala kredisi varsa, yeni abonelik oluşturulamaz
+        if (latestSub && latestSub.credit > 0) {
+            return res.status(400).json(
+                new BaseResponseModel(false, "Üyenin halen kullanmadığı kredi mevcut. Yeni abonelik tanımlanamaz.").toJson()
+            );
+        }
+
+        const subscriptionData: ISubscription = req.body;
+        const newSubscription = new Subscription(subscriptionData);
+        const saved = await newSubscription.save();
+
+        res.status(200).json(new BaseResponseModel(true, "Abonelik başarıyla oluşturuldu.", saved).toJson());
+    } catch (error) {
+        console.error("Abonelik oluşturulamadı:", error);
+        res.status(400).json(new BaseResponseModel(false, "Abonelik oluşturulamadı.", error).toJson());
+    }
+});
+
+
+/*
+router.post("/", async (req: Request, res: Response) => {
+    try {
       console.log('API POST: "/subscription" => Post request is successful');
       const { memberId, type, ageGroup, fee, amount, paymentDate } = req.body;
   
@@ -20,11 +53,11 @@ router.post("/", async (req: Request, res: Response) => {
       if (existing && existing.credit > 0) {
          res.status(400).json(new BaseResponseModel(false, "Üyenin halen kullanmadığı kredi mevcut. Yeni abonelik tanımlanamaz.").toJson());
       }
-  /*
+  
       // Önceki varsa sil ya da güncelle (isteğe bağlı)
       if (existing) {
         await Subscription.deleteOne({ _id: existing._id });
-      }*/
+      }
   
       const subscriptionData: ISubscription = req.body;
       const newSubscription = new Subscription(subscriptionData);
@@ -36,7 +69,7 @@ router.post("/", async (req: Request, res: Response) => {
       res.status(400).json(new BaseResponseModel(false, "Abonelik oluşturulamadı.", error).toJson());
     }
   });
-  
+  */
 
 /*
 // Yeni abonelik oluşturma 
@@ -105,32 +138,53 @@ router.post("/", async (req: Request, res: Response) => {
     }
 }); 
 */
+// API örneği: Üye adı, soyadı, T.C. no ve diğer alanlara göre filtreleme
 router.get("/", async (req: Request, res: Response) => {
     try {
         console.log('API GET: "/subscription" => Get request is successful');
-        console.log(req.query); // Gelen sorgu parametrelerini kontrol etmek için logla
-        const { type, ageGroup, fee, memberId, search } = req.query;
+        console.log(req.query);
 
+        const { search, type, ageGroup, fee } = req.query;
         const query: any = {};
 
-        
-        if (type) {
-            query.type = type;
-        }
-        if (ageGroup) { 
-            query.ageGroup = ageGroup
-        }
-        if (fee) {
-            query.fee = fee; 
+        if (search && search !== "null") {
+            query.$or = [
+                { type: { $regex: search, $options: "i" } },
+                { ageGroup: { $regex: search, $options: "i" } },
+                { fee: { $regex: search, $options: "i" } }
+            ];
         }
 
-        console.log("Query:", query); // Sorguyu kontrol etmek için logla
+        const memberMatch: any = {};
+        if (search && search !== "null") {
+            memberMatch.$or = [
+                { firstName: { $regex: search, $options: "i" } },
+                { lastName: { $regex: search, $options: "i" } },
+                { identityNumber: { $regex: search, $options: "i" } }
+            ];
+        }
+
+        if (type) query.type = type;
+        if (ageGroup) query.ageGroup = ageGroup;
+        if (fee) query.fee = fee;
+
+        // Eğer type, ageGroup veya fee varsa sadece kredi hakkı olanları getir
+        if (type || ageGroup || fee) {
+            query.credit = { $gt: 0 };
+        }
+
         const subscriptions = await Subscription.find(query)
-            .populate("memberId")
+            .populate({
+                path: "memberId",
+                match: memberMatch
+            })
             .sort({ paymentDate: -1 });
 
-        res.status(200).json(new BaseResponseModel(true, "Abonelikler başarıyla getirildi.", subscriptions).toJson());
+        const filtered = subscriptions.filter(sub => sub.memberId !== null);
+
+        res.status(200).json(new BaseResponseModel(true, "Abonelikler başarıyla getirildi.", filtered).toJson());
     } catch (error) {
+        console.error("Abonelik sorgulama hatası:", error);
         res.status(400).json(new BaseResponseModel(false, "Veri alınamadı.", error).toJson());
     }
 });
@@ -139,14 +193,14 @@ router.get("/", async (req: Request, res: Response) => {
 router.get("/:id", async (req: Request, res: Response) => {
     try {
         console.log('API GET: "/subscription/:id" => Get request is successful');
-        const subscription = await Subscription.findById(req.params.id).populate("memberId");
+        const subscription = await Subscription.find({memberId: req.params.id}).populate("memberId");
         if (!subscription) res.status(404).json(new BaseResponseModel(false, "Abonelik bulunamadı.").toJson());
 
         res.status(200).json(new BaseResponseModel(true, "Abonelik başarıyla getirildi.", subscription).toJson());
     } catch (error) {
         res.status(400).json(new BaseResponseModel(false, "Veri alınamadı.", error).toJson());
     }
-});
+}); 
 
 // Aboneliği güncelleme
 router.put("/:id", async (req: Request, res: Response) => {
