@@ -63,7 +63,7 @@ class APIS {
   static APIS get api => _start;
   static final APIS _start = APIS._instance();
   APIS._instance();
-  final String _baseAPI = "http://192.168.0.11:5002"; // "http://localhost:5002";
+  final String _baseAPI = "http://localhost:5002"; //"http://192.168.0.11:5002"; // "http://localhost:5002";
 
   String upload() => "$_baseAPI/upload";
 
@@ -71,7 +71,8 @@ class APIS {
 
   String login() => "$_baseAPI/login";
 
-  String member({int page = 1, int limit = 10, String? search}) => "$_baseAPI/member?page=${page.toString()}&limit=${limit.toString()}&search=$search";
+  String member({int page = 1, int limit = 10, String? search}) =>
+      "$_baseAPI/member?page=${page.toString()}&limit=${limit.toString()}&search=$search";
   String memberId({required String memberId}) => "$_baseAPI/member/$memberId";
   String memberFiles({required String memberId}) => "$_baseAPI/download/member/$memberId";
   String downloadFile({required String fileId}) => "$_baseAPI/download/$fileId";
@@ -150,7 +151,8 @@ class APIService<T extends JsonProtocol> {
   /// );
   Future<BaseResponseModel<T>> get({T Function(dynamic json)? fromJsonT, String username = "", String password = ""}) async {
     try {
-      Response res = await http.get(Uri.parse(url), headers: {"Content-Type": "application/json; charset=UTF-8", "Accept": "application/json"}).onError((error, stackTrace) {
+      Response res = await http.get(Uri.parse(url),
+          headers: {"Content-Type": "application/json; charset=UTF-8", "Accept": "application/json"}).onError((error, stackTrace) {
         debugPrint("future get:$error");
         throw APIError(Errors.invalidUrl);
       });
