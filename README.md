@@ -71,5 +71,27 @@ repo-root/
 * [MongoDB](https://www.mongodb.com/try/download/community)
 * [Flutter SDK](https://flutter.dev/docs/get-started/install)
 
+---
 
+## 📈 Ekran Görüntüleri
 
+**Ana Ekran Haftalar**  
+![Ana Ekran Haftalar](screenshots/home.png)
+
+**Ana Ekran Üyeler**  
+![Ana Ekran Üyeler](screenshots/home_member.png)
+
+**Ana Ekran Abonelikler**  
+![Ana Ekran Abonelikler](screenshots/home_subscriptions.png)
+
+**Haftalık Seans Düzeni**  
+![Seans Yönetimi](screenshots/weekly_sessions_view.png)
+
+**Seans Ekle/Güncelle**  
+![Seans Yönetimi](screenshots/session_details.png)
+
+**Üye Ekleme**  
+![Üye Ekleme](screenshots/add_member.png)
+
+**Abonelik Ekleme**  
+![Abonelik Ekleme](screenshots/add_subscription.png)
