@@ -37,7 +37,7 @@ class PageLogin extends StatelessWidget {
                                 size: 80, color: Colors.white),
                             const SizedBox(height: 16),
                             const Text(
-                              "T.C. Silivri Belediyesi Sosyal Tesis Yönetim Yazılımı \nHoş Geldiniz",
+                              "Spor Merkezi Yönetim Yazılımı \nHoş Geldiniz",
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,

@@ -78,11 +78,10 @@ class HomeSidebar extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
+            const Expanded(
                 child: Padding(
-              padding: const EdgeInsets.all(AppTheme.gapxlarge),
-              child: Image.asset("assets/images/silivri-belediyesi-logo.png",
-                  fit: BoxFit.contain),
+              padding: EdgeInsets.all(AppTheme.gapxlarge),
+              child: SizedBox(),
             )),
             const SizedBox(height: 16),
             Expanded(
@@ -102,12 +101,11 @@ class HomeSidebar extends StatelessWidget {
               ],
             )),
             const SizedBox(height: 16),
-            Expanded(
+            const Expanded(
                 child: Padding(
-              padding: const EdgeInsets.all(AppTheme.gapxlarge),
-              child: Image.asset("assets/images/silivri-slogan.png",
-                  fit: BoxFit.contain),
-            ))
+              padding: EdgeInsets.all(AppTheme.gapxlarge),
+              child: SizedBox(),
+            )),
           ],
         ));
   }
