@@ -1,6 +1,6 @@
-# silivri_havuz
+# Spor Merkezi
 
-Silivri Havuz Randevu Programı
+Spor Merkezi Yönetim Programı
 
 ## Getting Started
 
