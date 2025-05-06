@@ -12,7 +12,7 @@ router.post("/", async (req: Request, res: Response) => {
 
         const member = await Member.findById(memberId);
         if (!member) {
-            return res.status(400).json(new BaseResponseModel(false, "Üye kaydı bulunamadı").toJson());
+            res.status(400).json(new BaseResponseModel(false, "Üye kaydı bulunamadı").toJson());
         }
 
         // En güncel aboneliği kontrol et
@@ -20,7 +20,7 @@ router.post("/", async (req: Request, res: Response) => {
 
         // Eğer varsa ve hala kredisi varsa, yeni abonelik oluşturulamaz
         if (latestSub && latestSub.credit > 0) {
-            return res.status(400).json(
+            res.status(400).json(
                 new BaseResponseModel(false, "Üyenin halen kullanmadığı kredi mevcut. Yeni abonelik tanımlanamaz.").toJson()
             );
         }

@@ -101,16 +101,16 @@ router.post("/upload", upload.single("file"), async (req: Request, res: Response
     console.log("Yüklenen dosya:", file);
 
     if (!file) {
-        return res.status(400).json(new BaseResponseModel(false, "Dosya yüklenemedi"));
+        res.status(400).json(new BaseResponseModel(false, "Dosya yüklenemedi"));
     }
 
     if (!memberId) {
-        return res.status(400).json(new BaseResponseModel(false, "Üye ID'si zorunludur"));
+        res.status(400).json(new BaseResponseModel(false, "Üye ID'si zorunludur"));
     }
 
     // GridFsStorage, file objesine bir id atar 
     if (!file.id && !(file as any)._id) {
-        return res.status(400).json(new BaseResponseModel(false, "Dosya ID'si oluşturulamadı"));
+        res.status(400).json(new BaseResponseModel(false, "Dosya ID'si oluşturulamadı"));
     }
 
     // GridFS'in oluşturduğu dosya ID'sini al
@@ -172,7 +172,7 @@ router.get("/download/member/:id", async (req: Request, res: Response) => {
         const memberId = req.params.id;
 
         if (!memberId) {
-            return res.status(400).json(
+            res.status(400).json(
                 new BaseResponseModel(false, "Geçerli bir üye ID'si gereklidir")
             );
         }
@@ -197,20 +197,23 @@ router.get("/download/:fileId", async (req: Request, res: Response) => {
         const fileId = req.params.fileId;
 
         if (!fileId) {
-            return res.status(400).json(
+            res.status(400).json(
                 new BaseResponseModel(false, "Dosya ID'si gereklidir")
             );
         }
 
         // MongoDB bağlantısını kontrol et
         if (!conn.db) {
-            return res.status(500).json(
+            res.status(500).json(
                 new BaseResponseModel(false, "Veritabanı bağlantısı hazır değil")
             );
         }
 
         try {
             // MongoDB GridFSBucket oluştur
+            if (!conn.db) {
+                throw new Error("Database connection is not available");
+            }
             const bucket = new mongoose.mongo.GridFSBucket(conn.db, { bucketName: BUCKET_NAME });
 
             // Geçerli bir ObjectId oluştur
@@ -222,7 +225,7 @@ router.get("/download/:fileId", async (req: Request, res: Response) => {
 
             if (!filesArray.length) {
                 console.log("Dosya bulunamadı:", fileId);
-                return res.status(404).json(
+                res.status(404).json(
                     new BaseResponseModel(false, "Dosya bulunamadı")
                 );
             }
@@ -254,12 +257,12 @@ router.get("/download/:fileId", async (req: Request, res: Response) => {
             console.error("Dosya bulunurken veya indirme akışı başlatılırken hata:", err);
 
             if (err instanceof mongoose.Error.CastError || (err as Error).name === 'BSONError') {
-                return res.status(400).json(
+                res.status(400).json(
                     new BaseResponseModel(false, "Geçersiz dosya ID formatı")
                 );
             }
 
-            return res.status(500).json(
+            res.status(500).json(
                 new BaseResponseModel(false, "Dosya işleme hatası", (err as Error).message)
             );
         }
@@ -285,7 +288,7 @@ router.delete("/delete/:fileId", async (req: Request, res: Response) => {
         const { fileId } = req.params;
 
         if (!fileId) {
-            return res.status(400).json(
+            res.status(400).json(
                 new BaseResponseModel(false, "Dosya ID'si gereklidir")
             );
         }
@@ -294,15 +297,15 @@ router.delete("/delete/:fileId", async (req: Request, res: Response) => {
         const file = await Files.findOne({ fileId: safeObjectId(fileId) });
 
         if (!file) {
-            return res.status(404).json(
+            res.status(404).json(
                 new BaseResponseModel(false, "Dosya bulunamadı")
             );
         }
 
         // Soft delete işlemi
-        file.deleted = true;
+        file!.deleted = true;
         //file.deletedAt = new Date();
-        await file.save();
+        await file!.save();
 
         res.status(200).json(
             new BaseResponseModel(true, "Dosya başarıyla silindi")

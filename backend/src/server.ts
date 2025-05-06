@@ -10,6 +10,8 @@ import variablesRoutes from "./routes/form_variables";
 import loginRoutes from "./routes/auth_routes";
 import fileRoutes from "./routes/file_routes";
 
+//brew tap mongodb/brew
+
 //sudo systemctl start mongod
 //sudo systemctl enable mongod
 

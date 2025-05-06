@@ -125,8 +125,8 @@ router.post("/", async (req: Request, res: Response) => {
         console.error("Hafta oluşturulamadı:", error);
         res.status(400).json(new BaseResponseModel(false, "Hafta oluşturulamadı.", (error as Error).message).toJson());
     }
-});
-
+});  
+ 
 // Haftayı güncellerken kredi düşme ve iade mantığını uygula
 router.put("/:id", async (req: Request, res: Response) => {
     try {
@@ -135,12 +135,12 @@ router.put("/:id", async (req: Request, res: Response) => {
 
         const existingTable = await WeekModel.findById(tableId);
         if (!existingTable) {
-            return res.status(404).json(new BaseResponseModel(false, "Hafta bulunamadı").toJson());
+            res.status(404).json(new BaseResponseModel(false, "Hafta bulunamadı").toJson());
         }
 
         for (let i = 0; i < updatedData.days.length; i++) { 
             const newDay = updatedData.days[i];
-            const oldDay = existingTable.days[i];
+            const oldDay = existingTable!.days[i];
             if (!oldDay) continue;
 
             for (let j = 0; j < newDay.activities.length; j++) {
@@ -154,7 +154,7 @@ router.put("/:id", async (req: Request, res: Response) => {
                 // Kredi iadesi yapılacak üyeleri bul
                 for (const oldMemberId of oldMemberIds) {
                     if (!newMemberIds.has(oldMemberId)) {
-                        await refundCredit(oldMemberId);
+                        await refundCredit(oldMemberId); 
                     }
                 }
 
@@ -441,7 +441,7 @@ router.get("/", async (req: Request, res: Response) => {
             const date = new Date(search as string);
 
             if (isNaN(date.getTime())) {
-                return res.status(400).json(new BaseResponseModel(false, "Geçersiz tarih formatı").toJson());
+                res.status(400).json(new BaseResponseModel(false, "Geçersiz tarih formatı").toJson());
             }
 
             const startOfDay = new Date(date);
@@ -478,7 +478,7 @@ router.get("/", async (req: Request, res: Response) => {
               limit: limitNumber,
               totalPages: Math.ceil(totalMembers / limitNumber)
             }*/
-        ));
+        )); 
 
     } catch (error) {
         console.log(`API GET: "/session" => Database reading error: ${(error as Error).message}`);
